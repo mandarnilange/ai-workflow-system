@@ -335,8 +335,8 @@ cat > "$CONFIG_FILE" << EOF
 # Generated: $(date)
 
 system:
-  version: "0.1.0-beta"
-  config_version: "0.1"
+  version: "0.2.0-beta"
+  config_version: "0.2"
 
 project:
   name: "$PROJECT_NAME"

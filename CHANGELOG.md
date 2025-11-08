@@ -10,7 +10,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned for 1.0.0
 - Extended testing and validation across multiple AI agents
 - Production hardening based on beta feedback
-- Bug fixes and stability improvements
+- Additional language support (Ruby, PHP, Rust)
+
+---
+
+## [0.2.0-beta] - 2025-11-08
+
+### Added
+- Example project: TypeScript/Express.js with health endpoint implementation
+- Example project: Gemini-specific workflow example
+- Enhanced .gitignore for example projects
+
+### Fixed
+- **Critical**: Interactive input now works when using `curl | bash` installation
+  - Redirect stdin from `/dev/tty` in install.sh
+  - All read commands now properly read from terminal
+- **Security**: Replaced unsafe `eval` with `printf -v` for variable assignment
+  - Prevents command injection vulnerabilities
+  - More secure variable handling
+- Input validation in `ask_select()` function
+  - Added numeric validation before arithmetic operations
+  - Proper bounds checking for array indices
+  - Graceful fallback to defaults for invalid input
+  - Prevents "syntax error: invalid arithmetic operator" errors
+
+### Changed
+- Improved README Features section with better visual formatting
+- Simplified CHANGELOG planned items to focus on core goals
+- Better error handling across all input functions
+
+### Technical Improvements
+- More defensive programming for shell compatibility (bash/zsh)
+- Regex validation for numeric inputs
+- Clear separation of validation logic with comments
 
 ---
 
@@ -167,5 +199,6 @@ Report issues at: https://github.com/mandarnilange/ai-workflow-system/issues
 
 ---
 
-[Unreleased]: https://github.com/mandarnilange/ai-workflow-system/compare/v0.1.0-beta...HEAD
+[Unreleased]: https://github.com/mandarnilange/ai-workflow-system/compare/v0.2.0-beta...HEAD
+[0.2.0-beta]: https://github.com/mandarnilange/ai-workflow-system/compare/v0.1.0-beta...v0.2.0-beta
 [0.1.0-beta]: https://github.com/mandarnilange/ai-workflow-system/releases/tag/v0.1.0-beta
