@@ -93,13 +93,20 @@ ask_select() {
     echo -ne "${YELLOW}Select [1-${#OPTS[@]}]: ${NC}"
     read -r input
 
+    # Validate and sanitize input
     if [ -z "$input" ]; then
+        # Empty input - use default
         printf -v "$var_name" '%s' "$default"
-    elif [ "$input" -ge 1 ] && [ "$input" -le "${#OPTS[@]}" ] 2>/dev/null; then
+    elif ! [[ "$input" =~ ^[0-9]+$ ]]; then
+        # Not a number - use default
+        printf -v "$var_name" '%s' "$default"
+    elif [ "$input" -lt 1 ] || [ "$input" -gt "${#OPTS[@]}" ]; then
+        # Out of range - use default
+        printf -v "$var_name" '%s' "$default"
+    else
+        # Valid selection
         local idx=$((input - 1))
         printf -v "$var_name" '%s' "${OPTS[$idx]}"
-    else
-        printf -v "$var_name" '%s' "$default"
     fi
 }
 
