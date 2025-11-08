@@ -2,6 +2,13 @@
 # This file configures the workflow system for your project
 
 # =============================================================================
+# SYSTEM VERSION
+# =============================================================================
+system:
+  version: "0.1.0-beta"                       # AI Workflow System version
+  config_version: "0.1"                       # Config file format version
+
+# =============================================================================
 # PROJECT INFORMATION
 # =============================================================================
 project:

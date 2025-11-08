@@ -324,6 +324,10 @@ cat > "$CONFIG_FILE" << EOF
 # AI Workflow System Configuration
 # Generated: $(date)
 
+system:
+  version: "0.1.0-beta"
+  config_version: "0.1"
+
 project:
   name: "$PROJECT_NAME"
   description: "$PROJECT_DESCRIPTION"
@@ -426,10 +430,48 @@ echo -e "${GREEN}✓ Copied templates to .workflow/templates/${NC}"
 # Generate AGENTS.md
 echo -e "\n${BLUE}Generating AGENTS.md...${NC}"
 
+# Determine language-specific code examples
+case "$LANGUAGE" in
+    "TypeScript")
+        EXAMPLE_CLASS="User"
+        EXAMPLE_FUNCTION="getUserById"
+        EXAMPLE_TEST="User.test.ts"
+        EXAMPLE_IMPORT="import { User } from './User'"
+        ;;
+    "Python")
+        EXAMPLE_CLASS="User"
+        EXAMPLE_FUNCTION="get_user_by_id"
+        EXAMPLE_TEST="test_user.py"
+        EXAMPLE_IMPORT="from user import User"
+        ;;
+    "Java")
+        EXAMPLE_CLASS="User"
+        EXAMPLE_FUNCTION="getUserById"
+        EXAMPLE_TEST="UserTest.java"
+        EXAMPLE_IMPORT="import com.example.User;"
+        ;;
+    "Go")
+        EXAMPLE_CLASS="User"
+        EXAMPLE_FUNCTION="GetUserByID"
+        EXAMPLE_TEST="user_test.go"
+        EXAMPLE_IMPORT="import \"example.com/domain/user\""
+        ;;
+    *)
+        EXAMPLE_CLASS="User"
+        EXAMPLE_FUNCTION="getUser"
+        EXAMPLE_TEST="user.test"
+        EXAMPLE_IMPORT="import User"
+        ;;
+esac
+
 cat > "$TARGET_DIR/AGENTS.md" << EOF
 # AI Agent Instructions
 
-**Universal instructions for ANY AI assistant (ChatGPT, Gemini, Codex, Claude, etc.)**
+**Universal instructions for ANY AI assistant (ChatGPT, Gemini, Codex, Claude, Cursor, etc.)**
+
+> ⚠️ **IMPORTANT**: If you're using **Claude Code**, read **CLAUDE.md** instead for optimized instructions.
+>
+> **For all other AI tools**: This file (AGENTS.md) contains everything you need.
 
 ---
 
@@ -444,22 +486,157 @@ cat > "$TARGET_DIR/AGENTS.md" << EOF
 
 ## Workflow System
 
-This project uses a **generic markdown playbook system** in \`.workflow/\`.
+This project uses a **language-agnostic markdown playbook system** in \`.workflow/\`.
 
-All workflows are tool-agnostic and work with any AI assistant or manual execution.
+All workflows are:
+- ✅ **Tool-agnostic** - Work with any AI assistant
+- ✅ **Language-agnostic** - Adapted to $LANGUAGE conventions
+- ✅ **Human-readable** - Developers can follow them manually
+- ✅ **Version-controlled** - Tracked in git for team consistency
 
 ---
 
-## Getting Started
+## Quick Start Guide
 
-### For ANY Implementation Work
+### Step 1: Understand the Coordinator
 
-**Read and follow**: \`.workflow/playbooks/coordinator.md\`
+For **ANY** implementation work (features, bugs, refactors), always start here:
 
-The coordinator will:
-1. Detect your intent (feature, bug fix, refactor, commit)
-2. Route you to the appropriate workflow playbook
-3. Guide you step-by-step through the process
+**Read and execute**: \`.workflow/playbooks/coordinator.md\`
+
+The coordinator playbook will:
+1. ✅ Detect your intent (feature, bug fix, refactor, commit)
+2. ✅ Route you to the appropriate specialized playbook
+3. ✅ Guide you step-by-step through the TDD process
+4. ✅ Ensure all quality gates pass
+
+### Step 2: Example Workflow Usage
+
+#### Example 1: Implementing a Feature
+
+\`\`\`
+User: "implement user authentication with JWT"
+
+AI Assistant:
+Step 1: Read .workflow/playbooks/coordinator.md
+Step 2: Coordinator detects intent = FEATURE
+Step 3: Route to .workflow/playbooks/feature.md
+Step 4: Execute feature.md step-by-step:
+
+  ## Step 1: Task Tracking
+  Creating .spec/feature-user-authentication-jwt.md...
+  ✅ Task tracking initialized
+
+  ## Step 2: Exploration
+  Reading existing auth code...
+  Understanding $FRAMEWORK authentication patterns...
+  ✅ Exploration complete
+
+  ## Step 3: TDD Implementation
+
+  🔴 RED Phase:
+  Writing failing test: "$EXAMPLE_TEST"
+  Test: "should generate valid JWT token when credentials valid"
+  Running: $TEST_COMMAND
+  Result: FAILED ✅ (Expected - test written first)
+
+  🟢 GREEN Phase:
+  Implementing: $EXAMPLE_FUNCTION()
+  Running: $TEST_COMMAND
+  Result: ALL TESTS PASSING ✅
+
+  🔵 REFACTOR Phase:
+  Checking code quality...
+  ✅ No refactoring needed
+
+  ## Step 4: Validation
+  Running validators in parallel:
+  - Tests: $TEST_COMMAND → 156/156 PASSING ✅
+  - Coverage: $COVERAGE_COMMAND → ${COVERAGE_REQUIREMENT}% ✅
+  - Linting: $LINT_COMMAND → No issues ✅
+
+  ## Step 5: Completion
+  ✅ Feature complete: User authentication with JWT
+  Ready to commit!
+\`\`\`
+
+#### Example 2: Fixing a Bug
+
+\`\`\`
+User: "fix null pointer error in $EXAMPLE_FUNCTION"
+
+AI Assistant:
+Step 1: Read .workflow/playbooks/coordinator.md
+Step 2: Coordinator detects intent = BUGFIX
+Step 3: Route to .workflow/playbooks/bugfix.md
+Step 4: Execute bugfix.md:
+
+  ## Step 1: Root Cause Analysis
+  Analyzing file: $DOMAIN_PATH/$EXAMPLE_CLASS.$LANGUAGE
+  Issue: Missing null check on line 45
+
+  ## Step 2: Write Failing Test (TDD)
+  🔴 RED: Test reproduces bug
+  Test: "should handle null input gracefully"
+  Running: $TEST_COMMAND
+  Result: FAILING ✅ (Reproduces the bug)
+
+  ## Step 3: Fix Bug
+  🟢 GREEN: Adding null check
+  Running: $TEST_COMMAND
+  Result: ALL TESTS PASSING ✅
+
+  ## Step 4: Validation
+  ✅ All validators passed
+
+  ✅ Bug fixed!
+\`\`\`
+
+#### Example 3: Committing Changes
+
+\`\`\`
+User: "commit these changes"
+
+AI Assistant:
+Step 1: Read .workflow/playbooks/commit.md
+Step 2: Execute commit.md:
+
+  ## Step 1: Update Task Tracking
+  Updating .spec/feature-xyz.md
+  Progress: 8/9 tasks (89%)
+  ✅ Tracking updated
+
+  ## Step 2: Run All Validators
+  Running validators in parallel:
+  - Tests: $TEST_COMMAND → PASSING ✅
+  - Coverage: ${COVERAGE_REQUIREMENT}% → PASSING ✅
+  - Linting: $LINT_COMMAND → PASSING ✅
+  - Architecture: Clean Architecture check → PASSING ✅
+
+  ## Step 3: Git Commit
+  Type: feat
+  Message: add user authentication with JWT tokens
+  Commit: abc1234
+  ✅ Committed successfully
+\`\`\`
+
+---
+
+## How to Use This Workflow System
+
+### For Implementation Work
+When the user asks you to implement a feature, fix a bug, or refactor code:
+
+1. **Read**: \`.workflow/playbooks/coordinator.md\`
+2. **Execute**: Follow the coordinator's instructions step-by-step
+3. **Report**: Announce every action BEFORE you take it
+
+### For Commits
+When the user asks you to commit changes:
+
+1. **Read**: \`.workflow/playbooks/commit.md\`
+2. **Execute**: Run all validators
+3. **Commit**: Only if all validators pass
 
 ---
 
@@ -489,6 +666,46 @@ Users MUST see what you're doing in real-time. Silent execution is unacceptable.
 - 📊 Progress updates throughout execution
 
 **Format**: When playbook says **"Report to user:"** → Output that message to user IMMEDIATELY
+
+### Examples of Good vs Bad Reporting
+
+**✅ GOOD - Announces before executing**:
+\`\`\`
+🎯 Feature Workflow: User Authentication
+
+Executing: .workflow/playbooks/feature.md
+
+## Step 1: Initialize Task Tracking
+Creating .spec/feature-user-authentication.md...
+✅ Task tracking initialized
+
+## Step 2: TDD Implementation
+🔴 RED: Writing failing test...
+Writing test: $EXAMPLE_TEST
+Test: "should validate JWT token"
+Running: $TEST_COMMAND
+Result: FAILED ✅ (Expected - test written first)
+
+🟢 GREEN: Implementing feature...
+Writing: $DOMAIN_PATH/$EXAMPLE_CLASS.$LANGUAGE
+Running: $TEST_COMMAND
+Result: ALL TESTS PASSING ✅
+
+## Step 3: Validation
+Running 3 validators in parallel...
+- Tests: $TEST_COMMAND → PASSING ✅
+- Coverage: ${COVERAGE_REQUIREMENT}% → PASSING ✅
+- Linting: $LINT_COMMAND → PASSING ✅
+✅ All validators passed
+\`\`\`
+
+**❌ BAD - Silent execution**:
+\`\`\`
+[AI silently creates files, writes code, runs tests]
+AI: "Done. Feature implemented. Commit abc1234"
+\`\`\`
+
+**Enforcement**: Every playbook includes "Report to user:" blocks at each step that you MUST output.
 
 ---
 
@@ -609,13 +826,258 @@ All project-specific settings are in \`.workflow/config.yml\`:
 
 ---
 
-## Architecture Layers
+## Architecture Rules
+
+### Clean Architecture Dependency Rule
+
+**Allowed Dependencies** (all dependencies point INWARD toward Domain):
+
+- **Domain** → Nothing (pure $LANGUAGE, zero external dependencies)
+- **Application** → Domain only
+- **Infrastructure** → Application + Domain
+- **Presentation** → Application + Domain (NEVER Infrastructure directly)
+- **DI Container** → All layers (wires everything together)
+
+### Layer Paths
 
 \`\`\`
-$DOMAIN_PATH → $APPLICATION_PATH → $INFRASTRUCTURE_PATH → $PRESENTATION_PATH → $DI_PATH
+$DOMAIN_PATH
+  ↑
+$APPLICATION_PATH
+  ↑
+$INFRASTRUCTURE_PATH  →  $PRESENTATION_PATH
+                ↑              ↑
+                  $DI_PATH
 \`\`\`
 
-**Dependency Rule**: Dependencies point INWARD only (toward Domain)
+**CRITICAL**: Presentation layer must NEVER import from Infrastructure. Use dependency injection.
+
+---
+
+## Git Commit Standards
+
+### Conventional Commits Format
+
+\`\`\`
+<type>: <subject>
+
+<optional body>
+\`\`\`
+
+### Commit Types
+- \`feat\` - New feature
+- \`fix\` - Bug fix
+- \`refactor\` - Code refactoring (no behavior change)
+- \`test\` - Adding or updating tests
+- \`docs\` - Documentation changes
+- \`chore\` - Maintenance tasks
+
+### Commit Rules
+- **Subject**: imperative mood, lowercase, no period, <50 chars
+- **Body**: explain WHY (not WHAT), optional, <72 chars per line
+- **No AI attribution**: Do not add "Co-Authored-By: AI" or similar
+- **No emoji**: Unless explicitly requested by user
+
+### Examples
+
+\`\`\`bash
+# Good commits
+feat: add jwt authentication for users
+fix: handle null email in user validation
+refactor: extract auth logic to domain layer
+
+# Bad commits
+feat: Added new feature  # Wrong tense
+fix.  # Missing description
+feat: add stuff  # Too vague
+\`\`\`
+
+---
+
+## Common Commands
+
+\`\`\`bash
+# Testing
+$TEST_COMMAND              # Run all tests
+$COVERAGE_COMMAND          # Run tests with coverage report
+
+# Code Quality
+$LINT_COMMAND              # Run linter
+$FORMAT_COMMAND            # Check code formatting
+EOF
+
+if [ "$TYPE_CHECKER" != "null" ]; then
+cat >> "$TARGET_DIR/AGENTS.md" << EOF
+$TYPE_CHECK_COMMAND        # Run type checker
+EOF
+fi
+
+if [ "$BUILD_REQUIRED" = "true" ]; then
+cat >> "$TARGET_DIR/AGENTS.md" << EOF
+
+# Build
+$BUILD_COMMAND             # Build the project
+EOF
+fi
+
+cat >> "$TARGET_DIR/AGENTS.md" << EOF
+\`\`\`
+
+---
+
+## Validation Checklist
+
+Before EVERY commit, ALL of these must pass:
+
+- [ ] **Tests**: All tests passing (\`$TEST_COMMAND\`)
+- [ ] **Coverage**: ${COVERAGE_REQUIREMENT}% coverage achieved (\`$COVERAGE_COMMAND\`)
+- [ ] **Linting**: Zero linting errors (\`$LINT_COMMAND\`)
+EOF
+
+if [ "$TYPE_CHECKER" != "null" ]; then
+cat >> "$TARGET_DIR/AGENTS.md" << EOF
+- [ ] **Type Checking**: Zero type errors (\`$TYPE_CHECK_COMMAND\`)
+EOF
+fi
+
+cat >> "$TARGET_DIR/AGENTS.md" << EOF
+- [ ] **Architecture**: Zero dependency violations
+- [ ] **.spec/ files**: Task tracking files updated and accurate
+
+**No exceptions**. If any validator fails, you MUST fix it before committing.
+
+---
+
+## Code Quality Standards
+
+### $LANGUAGE Conventions
+
+- **Functions**: $FUNCTION_CONVENTION (e.g., \`$EXAMPLE_FUNCTION\`)
+- **Variables**: $VARIABLE_CONVENTION
+- **Constants**: $CONSTANT_CONVENTION
+- **Classes**: PascalCase (e.g., \`$EXAMPLE_CLASS\`)
+- **Files**: $CLASS_FILE_CONVENTION
+
+### Testing Standards
+
+- **Framework**: $TEST_FRAMEWORK
+- **Test Location**: $TEST_DIR
+- **Test Pattern**: $TEST_PATTERN
+- **Coverage Target**: ${COVERAGE_REQUIREMENT}%
+- **TDD Required**: $TDD_REQUIRED
+
+### Test Naming
+
+Use descriptive test names:
+\`\`\`
+should [expected behavior] when [condition]
+\`\`\`
+
+Examples:
+EOF
+
+case "$LANGUAGE" in
+    "TypeScript"|"JavaScript")
+cat >> "$TARGET_DIR/AGENTS.md" << EOF
+\`\`\`typescript
+describe('$EXAMPLE_CLASS', () => {
+  it('should return user when valid id provided', () => {
+    // Arrange-Act-Assert
+  })
+
+  it('should throw error when user not found', () => {
+    // Arrange-Act-Assert
+  })
+})
+\`\`\`
+EOF
+        ;;
+    "Python")
+cat >> "$TARGET_DIR/AGENTS.md" << EOF
+\`\`\`python
+class Test$EXAMPLE_CLASS:
+    def test_should_return_user_when_valid_id_provided(self):
+        # Arrange-Act-Assert
+        pass
+
+    def test_should_raise_error_when_user_not_found(self):
+        # Arrange-Act-Assert
+        pass
+\`\`\`
+EOF
+        ;;
+    "Java")
+cat >> "$TARGET_DIR/AGENTS.md" << EOF
+\`\`\`java
+class ${EXAMPLE_CLASS}Test {
+    @Test
+    void shouldReturnUserWhenValidIdProvided() {
+        // Arrange-Act-Assert
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserNotFound() {
+        // Arrange-Act-Assert
+    }
+}
+\`\`\`
+EOF
+        ;;
+    "Go")
+cat >> "$TARGET_DIR/AGENTS.md" << EOF
+\`\`\`go
+func Test${EXAMPLE_CLASS}_ShouldReturnUserWhenValidIdProvided(t *testing.T) {
+    // Arrange-Act-Assert
+}
+
+func Test${EXAMPLE_CLASS}_ShouldReturnErrorWhenUserNotFound(t *testing.T) {
+    // Arrange-Act-Assert
+}
+\`\`\`
+EOF
+        ;;
+esac
+
+cat >> "$TARGET_DIR/AGENTS.md" << EOF
+
+---
+
+## Task Tracking
+
+All work must be tracked in \`.spec/\` directory:
+
+- **Features**: \`.spec/feature-{name}.md\`
+- **Bugs**: \`.spec/fix-{name}.md\`
+- **Refactoring**: \`.spec/refactor-{name}.md\`
+- **Dashboard**: \`.spec/overall-status.md\`
+
+Templates are available in \`.workflow/templates/\`.
+
+---
+
+## Summary
+
+**This project enforces quality through automated workflows**:
+
+✅ **Test-Driven Development (TDD)** - Tests before code, always
+✅ **Clean Architecture** - Strict dependency rules enforced
+✅ **${COVERAGE_REQUIREMENT}% Test Coverage** - No compromises
+✅ **Comprehensive Tracking** - All work tracked in .spec/
+✅ **Validated Commits** - All quality gates must pass
+
+**All workflows are in \`.workflow/playbooks/\` - just read and follow them!**
+
+---
+
+## For Manual Execution (Humans)
+
+These playbooks work for human developers too:
+1. Read the appropriate playbook from \`.workflow/playbooks/\`
+2. Follow the steps manually
+3. Run the commands in your terminal
+4. Check off each completed step
+
+The playbooks are human-readable documentation and can be followed without AI assistance.
 
 ---
 

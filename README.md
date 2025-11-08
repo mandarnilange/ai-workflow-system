@@ -5,6 +5,9 @@
 A language-agnostic, AI-assistant-agnostic workflow system that enforces TDD, Clean Architecture, and quality standards through markdown playbooks.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-0.1.0--beta-blue.svg)](https://github.com/mandarnilange/ai-workflow-system/releases)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Code of Conduct](https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-purple.svg)](CODE_OF_CONDUCT.md)
 
 ---
 
@@ -94,8 +97,31 @@ your-project/
 │       └── refactor-template.md
 ├── .spec/
 │   └── overall-status.md             # Project dashboard
-├── AGENTS.md                          # Universal AI instructions
-└── CLAUDE.md                          # Claude Code instructions
+├── AGENTS.md                          # Universal AI instructions (ALL tools)
+└── CLAUDE.md                          # Claude Code-specific optimizations
+```
+
+### Which File Should Your AI Assistant Use?
+
+**For Claude Code users**: Use **`CLAUDE.md`**
+- Contains Claude Code-specific optimizations
+- Includes parallel execution patterns
+- Optimized for Claude Code's tool system
+
+**For ALL other AI assistants** (ChatGPT, Gemini, Codex, Cursor, Copilot, etc.): Use **`AGENTS.md`**
+- Universal instructions that work with any AI tool
+- Language-specific examples for your project
+- Detailed workflow usage guides
+- Platform-specific guidance for common issues
+
+**If your AI tool uses a different default file** (e.g., `GEMINI.md`, `COPILOT.md`, etc.):
+- Create that file in your project root
+- Add a single line: `See AGENTS.md for complete instructions`
+- Or copy the content from `AGENTS.md` to your tool's file
+
+**Example - Creating GEMINI.md**:
+```bash
+echo "# Gemini Instructions\n\nSee AGENTS.md for complete workflow instructions." > GEMINI.md
 ```
 
 ---
@@ -315,23 +341,30 @@ This system enforces **Clean Architecture** (Uncle Bob):
 
 ```
 ┌─────────────────────────────────────┐
-│   Presentation (Controllers/Routes) │ ────┐
-└─────────────────────────────────────┘     │
-                                            ↓
-┌─────────────────────────────────────┐     │
-│   Infrastructure (Repositories)     │ ────┤
-└─────────────────────────────────────┘     │
-                                            ↓
-┌─────────────────────────────────────┐     │
-│   Application (Use Cases)           │ ────┤
-└─────────────────────────────────────┘     │
-                                            ↓
-┌─────────────────────────────────────┐     │
-│   Domain (Entities/Interfaces)      │ ←───┘
+│   Frameworks & Drivers              │
+│   (Web, DB, UI, Devices, etc.)      │
 └─────────────────────────────────────┘
-
-All arrows point INWARD (toward Domain)
+      ▲                               
+      │                               
+┌─────────────────────────────────────┐
+│   Interface Adapters                │
+│   (Controllers, Presenters, Gateways)│
+└─────────────────────────────────────┘
+      ▲                               
+      │                               
+┌─────────────────────────────────────┐
+│   Application (Use Cases)           │
+│   (Application Business Rules)      │
+└─────────────────────────────────────┘
+      ▲                               
+      │                               
+┌─────────────────────────────────────┐
+│   Domain (Entities/Interfaces)      │
+│   (Enterprise Business Rules)       │
+└─────────────────────────────────────┘
 ```
+
+**Dependency Rule**: Dependencies must point INWARD only. Each layer can only depend on the layers immediately inside it.
 
 **Dependency Rule**: Dependencies must point INWARD only.
 
@@ -357,12 +390,31 @@ Coming soon: `examples/java-spring-boot/config.yml`
 
 ## Contributing
 
-Contributions welcome! Please:
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-1. Fork the repository
-2. Create a feature branch
-3. Follow the workflow system (yes, we use it on itself!)
-4. Submit a pull request
+**Quick contribution guide:**
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Follow** the workflow system (yes, we use it on itself!)
+4. **Test** on at least 2 languages
+5. **Commit** using conventional commits (`git commit -m 'feat: add amazing feature'`)
+6. **Push** to your branch (`git push origin feature/amazing-feature`)
+7. **Open** a Pull Request
+
+**Ways to contribute:**
+- 🐛 Report bugs via [Issues](https://github.com/mandarnilange/ai-workflow-system/issues)
+- ✨ Suggest features via [Discussions](https://github.com/mandarnilange/ai-workflow-system/discussions)
+- 🌍 Add support for new languages
+- 📖 Improve documentation
+- 🧪 Add more examples
+- 🎯 Create new playbooks
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+### Code of Conduct
+
+This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
 ---
 
@@ -433,9 +485,18 @@ Inspired by:
 
 ## Support
 
-- 📖 Documentation: This README
-- 🐛 Issues: [GitHub Issues](https://github.com/your/ai-workflow-system/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/your/ai-workflow-system/discussions)
+- 📖 **Documentation**: This README + [CHANGELOG](CHANGELOG.md)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/mandarnilange/ai-workflow-system/issues)
+- 💬 **Questions**: [GitHub Discussions](https://github.com/mandarnilange/ai-workflow-system/discussions)
+- 🔒 **Security**: See [SECURITY.md](SECURITY.md)
+- 🤝 **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+### Community
+
+- ⭐ Star this repo to show support
+- 🔔 Watch for updates and releases
+- 🐦 Share with your team
+- 📣 Spread the word about AI-assisted development workflows
 
 ---
 

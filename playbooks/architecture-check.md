@@ -41,23 +41,30 @@ Let's begin...
 
 ```
 ┌─────────────────────────────────────┐
-│   Presentation (Controllers/Routes) │ ────┐
-└─────────────────────────────────────┘     │
-                                            ↓
-┌─────────────────────────────────────┐     │
-│   Infrastructure (Repositories)     │ ────┤
-└─────────────────────────────────────┘     │
-                                            ↓
-┌─────────────────────────────────────┐     │
-│   Application (Use Cases)           │ ────┤
-└─────────────────────────────────────┘     │
-                                            ↓
-┌─────────────────────────────────────┐     │
-│   Domain (Entities/Interfaces)      │ ←───┘
+│   Frameworks & Drivers              │
+│   (Web, DB, UI, Devices, etc.)      │
 └─────────────────────────────────────┘
-
-All arrows point INWARD (toward Domain)
+      ▲                               
+      │                               
+┌─────────────────────────────────────┐
+│   Interface Adapters                │
+│   (Controllers, Presenters, Gateways)│
+└─────────────────────────────────────┘
+      ▲                               
+      │                               
+┌─────────────────────────────────────┐
+│   Application (Use Cases)           │
+│   (Application Business Rules)      │
+└─────────────────────────────────────┘
+      ▲                               
+      │                               
+┌─────────────────────────────────────┐
+│   Domain (Entities/Interfaces)      │
+│   (Enterprise Business Rules)       │
+└─────────────────────────────────────┘
 ```
+
+Each layer can only depend on the layers immediately inside it.
 
 ### Allowed Dependencies
 
