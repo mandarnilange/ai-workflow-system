@@ -70,15 +70,27 @@ The interactive setup will ask about:
     - Sub-agent usage recommendations
     - Performance optimization guidance
 
-### 3. Use in Your Project
+### Use in Your Project
 
-Once configured, instruct your AI assistant:
+Once configured, instruct your AI assistant to read the appropriate instruction file:
 
+**For Claude Code:**
 ```
-Please read and follow .workflow/playbooks/coordinator.md
+Please read and follow CLAUDE.md
 ```
 
-That's it! The coordinator will detect intent and route to appropriate workflows.
+**For all other AI assistants** (ChatGPT, Gemini, Codex, Cursor, Copilot, etc.):
+```
+Please read and follow AGENTS.md
+```
+
+That's it! The instruction files contain:
+- Complete workflow system documentation
+- Language-specific code examples for your project
+- Step-by-step guides for features, bugs, and commits
+- Platform-specific troubleshooting tips
+
+The workflows will automatically detect intent and route to appropriate playbooks.
 
 ---
 
@@ -276,9 +288,11 @@ Edit this file to customize for your project.
 
 ## Available Playbooks
 
+All playbooks are located in `.workflow/playbooks/`. **Note**: You don't need to reference these directly - `AGENTS.md` and `CLAUDE.md` contain all the instructions your AI assistant needs.
+
 ### 1. coordinator.md
 **Purpose**: Master router - detects intent and routes to appropriate workflow
-**When**: For ANY implementation work (features, bugs, refactors)
+**When**: Automatically invoked by AGENTS.md/CLAUDE.md for ANY implementation work (features, bugs, refactors)
 
 ### 2. feature.md
 **Purpose**: Feature implementation with TDD
@@ -373,25 +387,45 @@ This system enforces **Clean Architecture** (Uncle Bob):
 
 **Dependency Rule**: Dependencies must point INWARD only. Each layer can only depend on the layers immediately inside it.
 
-**Dependency Rule**: Dependencies must point INWARD only.
-
 The `architecture-check.md` playbook validates this before every commit.
 
 ---
 
 ## Examples
 
-### TypeScript/Express Example
+This repository includes working example projects demonstrating the workflow system in action:
 
-See `examples/typescript-express/config.yml` for a complete configuration.
+### TypeScript/Express.js Example
 
-### Python/FastAPI Example
+**Location**: `examples/typescript-express/`
 
-Coming soon: `examples/python-fastapi/config.yml`
+A complete TypeScript/Express.js project with:
+- Health check endpoint implementation
+- Full TDD workflow (tests written first)
+- Clean Architecture structure
+- 100% test coverage
+- Complete `.workflow/` configuration
 
-### Java/Spring Boot Example
+**Files**:
+- `config.yml` - Complete workflow configuration for TypeScript/Express
+- `README.md` - Project-specific documentation
 
-Coming soon: `examples/java-spring-boot/config.yml`
+### TypeScript/Express.js with Gemini
+
+**Location**: `examples/typescript-express-gemini/`
+
+Same as above, configured and tested specifically with Google Gemini AI:
+- Demonstrates Gemini-specific workflow patterns
+- Includes `GEMINI.md` instruction file
+- Shows platform-specific troubleshooting
+
+### More Examples Coming Soon
+
+- Python/FastAPI - `examples/python-fastapi/`
+- Java/Spring Boot - `examples/java-spring-boot/`
+- Go/Gin - `examples/go-gin/`
+
+**Want to contribute an example?** See [CONTRIBUTING.md](CONTRIBUTING.md)!
 
 ---
 
