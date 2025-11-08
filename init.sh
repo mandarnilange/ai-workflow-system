@@ -40,7 +40,7 @@ ask() {
         echo -ne "${YELLOW}${prompt}: ${NC}"
     fi
 
-    read -r input
+    read -r input < /dev/tty
 
     if [ -z "$input" ] && [ -n "$default" ]; then
         printf -v "$var_name" '%s' "$default"
@@ -63,7 +63,7 @@ ask_bool() {
     fi
 
     echo -ne "${YELLOW}${prompt} [${default_display}]: ${NC}"
-    read -r input
+    read -r input < /dev/tty
 
     if [ -z "$input" ]; then
         printf -v "$var_name" '%s' "$default"
@@ -91,7 +91,7 @@ ask_select() {
         fi
     done
     echo -ne "${YELLOW}Select [1-${#OPTS[@]}]: ${NC}"
-    read -r input
+    read -r input < /dev/tty
 
     # Validate and sanitize input
     if [ -z "$input" ]; then

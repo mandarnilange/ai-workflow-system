@@ -76,9 +76,9 @@ echo -e "${GREEN}✓ Download complete${NC}\n"
 # Make init.sh executable
 chmod +x init.sh
 
-# Run init.sh
+# Run init.sh with stdin redirected from terminal
 echo -e "${BLUE}Running interactive setup...${NC}\n"
-./init.sh "$TARGET_DIR"
+./init.sh "$TARGET_DIR" < /dev/tty
 
 echo -e "\n${GREEN}✓ Installation complete!${NC}"
 echo -e "\n${BLUE}The AI Workflow System has been installed to: $TARGET_DIR${NC}\n"
