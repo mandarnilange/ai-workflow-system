@@ -1,6 +1,31 @@
-# TypeScript + Express.js Example Configuration
+# TypeScript + Express.js Example - Sample Implementation
 
-This is an example configuration for a TypeScript REST API project using Express.js with Clean Architecture.
+This is a **sample implementation** demonstrating the AI Workflow System with a TypeScript REST API project using Express.js and Clean Architecture.
+
+## Sample Implementation
+
+**Initial Instruction Given:**
+> "Create a health endpoint and return json giving http status, timestamp and message"
+
+**What Was Achieved:**
+- ✅ Complete TypeScript + Express.js project initialized from scratch
+- ✅ Health endpoint implemented at `GET /health` returning JSON with:
+  - HTTP status (200 OK)
+  - Timestamp (current date/time)
+  - Message ("Service is healthy")
+- ✅ Clean Architecture implementation:
+  - Application Layer: `GetHealthStatus` use case
+  - Presentation Layer: `HealthController` and Express app setup
+  - DI Layer: Dependency injection container
+- ✅ 100% test coverage (3/3 tests passing)
+  - Unit tests for use case and controller
+  - E2E test for the health endpoint
+- ✅ TDD workflow followed (Red-Green-Refactor for every component)
+- ✅ Zero architecture violations
+- ✅ Zero linting errors
+- ✅ Complete task tracking in `.spec/` directory
+
+This demonstrates how the AI Workflow System guides implementation from a simple request to a production-ready, fully tested feature following Clean Architecture principles.
 
 ## Project Structure
 
