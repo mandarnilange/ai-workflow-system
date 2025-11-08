@@ -8,12 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned for 1.0.0
-- Support for additional languages (Ruby, PHP, C++, Rust)
-- GitHub Actions workflow examples
-- Visual Studio Code extension
-- Pre-commit git hooks integration
-- Automated playbook testing framework
-- Production hardening and extended testing
+- Extended testing and validation across multiple AI agents
+- Production hardening based on beta feedback
+- Bug fixes and stability improvements
 
 ---
 

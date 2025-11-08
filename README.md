@@ -13,14 +13,21 @@ A language-agnostic, AI-assistant-agnostic workflow system that enforces TDD, Cl
 
 ## Features
 
-✅ **AI-Agnostic** - Works with Claude, ChatGPT, Gemini, Codex, Cursor, Copilot, and more
-✅ **Language-Agnostic** - Supports TypeScript, Python, Java, Go, Rust, C#, and more
-✅ **TDD Enforced** - Red-Green-Refactor cycle with mandatory tests-first approach
-✅ **Architecture Validation** - Clean Architecture compliance checking
-✅ **User Visibility** - Comprehensive reporting at every step
-✅ **Task Tracking** - Integrated `.spec/` progress tracking system
-✅ **Configurable** - Interactive setup adapts to your tech stack
-✅ **Git-Integrated** - Pre-commit validation with conventional commits
+- ✅ **AI-Agnostic** - Works with Claude, ChatGPT, Gemini, Codex, Cursor, Copilot, and more
+
+- ✅ **Language-Agnostic** - Supports TypeScript, Python, Java, Go, Rust, C#, and more
+
+- ✅ **TDD Enforced** - Red-Green-Refactor cycle with mandatory tests-first approach
+
+- ✅ **Architecture Validation** - Clean Architecture compliance checking
+
+- ✅ **User Visibility** - Comprehensive reporting at every step
+
+- ✅ **Task Tracking** - Integrated `.spec/` progress tracking system
+
+- ✅ **Configurable** - Interactive setup adapts to your tech stack
+
+- ✅ **Git-Integrated** - Pre-commit validation with conventional commits
 
 ---
 
