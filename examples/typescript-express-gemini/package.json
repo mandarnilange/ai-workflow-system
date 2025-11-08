@@ -1,0 +1,31 @@
+{
+  "name": "typescript-express-gemini",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint \"{src,tests}/**/*.ts\"",
+    "lint:fix": "eslint \"{src,tests}/**/*.ts\" --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@types/express": "^5.0.5",
+    "@types/jest": "^30.0.0",
+    "express": "^5.1.0",
+    "jest": "^30.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/supertest": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
+    "eslint": "^9.39.1",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.5"
+  }
+}
