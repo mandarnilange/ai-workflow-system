@@ -95,8 +95,11 @@ ask_select() {
 
     if [ -z "$input" ]; then
         printf -v "$var_name" '%s' "$default"
+    elif [ "$input" -ge 1 ] && [ "$input" -le "${#OPTS[@]}" ] 2>/dev/null; then
+        local idx=$((input - 1))
+        printf -v "$var_name" '%s' "${OPTS[$idx]}"
     else
-        printf -v "$var_name" '%s' "${OPTS[$((input-1))]}"
+        printf -v "$var_name" '%s' "$default"
     fi
 }
 
