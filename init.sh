@@ -43,9 +43,9 @@ ask() {
     read -r input
 
     if [ -z "$input" ] && [ -n "$default" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"$input\""
+        printf -v "$var_name" '%s' "$input"
     fi
 }
 
@@ -66,11 +66,11 @@ ask_bool() {
     read -r input
 
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     elif [[ "$input" =~ ^[Yy] ]]; then
-        eval "$var_name=\"true\""
+        printf -v "$var_name" '%s' "true"
     else
-        eval "$var_name=\"false\""
+        printf -v "$var_name" '%s' "false"
     fi
 }
 
@@ -94,9 +94,9 @@ ask_select() {
     read -r input
 
     if [ -z "$input" ]; then
-        eval "$var_name=\"$default\""
+        printf -v "$var_name" '%s' "$default"
     else
-        eval "$var_name=\"${OPTS[$((input-1))]}\""
+        printf -v "$var_name" '%s' "${OPTS[$((input-1))]}"
     fi
 }
 
