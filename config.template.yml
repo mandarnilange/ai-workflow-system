@@ -1,0 +1,165 @@
+# AI Workflow System Configuration
+# This file configures the workflow system for your project
+
+# =============================================================================
+# PROJECT INFORMATION
+# =============================================================================
+project:
+  name: "{{PROJECT_NAME}}"                    # Your project name
+  description: "{{PROJECT_DESCRIPTION}}"      # Brief project description
+  language: "{{LANGUAGE}}"                    # TypeScript, Python, Java, Go, Rust, etc.
+  framework: "{{FRAMEWORK}}"                  # Express.js, FastAPI, Spring Boot, Gin, etc.
+
+# =============================================================================
+# TESTING CONFIGURATION
+# =============================================================================
+testing:
+  framework: "{{TEST_FRAMEWORK}}"             # Jest, pytest, JUnit, go test, etc.
+
+  # Test execution commands
+  test_command: "{{TEST_COMMAND}}"            # e.g., "npm test", "pytest", "mvn test"
+  coverage_command: "{{COVERAGE_COMMAND}}"    # e.g., "npm test -- --coverage", "pytest --cov"
+
+  # Coverage requirements
+  required_coverage: {{COVERAGE_REQUIREMENT}} # Percentage (0-100)
+  enforce_coverage: {{ENFORCE_COVERAGE}}      # true/false - fail if below requirement
+
+  # TDD enforcement
+  tdd_required: {{TDD_REQUIRED}}              # true/false - require tests before code
+
+  # Test file patterns
+  test_directory: "{{TEST_DIR}}"              # e.g., "tests/", "__tests__/", "test/"
+  test_file_pattern: "{{TEST_PATTERN}}"       # e.g., "*.test.ts", "*_test.py", "*Test.java"
+
+# =============================================================================
+# CODE QUALITY TOOLS
+# =============================================================================
+quality:
+  # Linting
+  linter: "{{LINTER}}"                        # eslint, pylint, checkstyle, golangci-lint, etc.
+  lint_command: "{{LINT_COMMAND}}"            # e.g., "npm run lint", "pylint src/"
+
+  # Formatting
+  formatter: "{{FORMATTER}}"                  # prettier, black, google-java-format, gofmt, etc.
+  format_command: "{{FORMAT_COMMAND}}"        # e.g., "npx prettier --check .", "black --check ."
+  format_check_only: {{FORMAT_CHECK_ONLY}}    # true = check only, false = fix
+
+  # Type checking (if applicable)
+  type_checker: "{{TYPE_CHECKER}}"            # tsc, mypy, null for none
+  type_check_command: "{{TYPE_CHECK_COMMAND}}" # e.g., "npx tsc --noEmit", "mypy src/"
+
+# =============================================================================
+# BUILD CONFIGURATION
+# =============================================================================
+build:
+  required: {{BUILD_REQUIRED}}                # true/false - does project need building?
+  command: "{{BUILD_COMMAND}}"                # e.g., "npm run build", "mvn package", null
+  output_dir: "{{BUILD_OUTPUT_DIR}}"          # e.g., "dist/", "build/", "target/", null
+
+# =============================================================================
+# ARCHITECTURE VALIDATION
+# =============================================================================
+architecture:
+  style: "clean"                              # Architecture style (currently only "clean" supported)
+  enforce: {{ARCHITECTURE_ENFORCE}}           # true/false - validate before commits
+
+  # Layer definitions (Clean Architecture)
+  layers:
+    - name: "domain"
+      path: "{{DOMAIN_PATH}}"                 # e.g., "src/domain", "internal/domain"
+      dependencies: []                        # Domain has no dependencies
+
+    - name: "application"
+      path: "{{APPLICATION_PATH}}"            # e.g., "src/application", "internal/usecase"
+      dependencies: ["domain"]                # Application depends only on domain
+
+    - name: "infrastructure"
+      path: "{{INFRASTRUCTURE_PATH}}"         # e.g., "src/infrastructure", "internal/adapter"
+      dependencies: ["domain", "application"] # Infrastructure can depend on domain + application
+
+    - name: "presentation"
+      path: "{{PRESENTATION_PATH}}"           # e.g., "src/presentation", "internal/handler"
+      dependencies: ["domain", "application"] # Presentation depends on domain + application (NOT infrastructure)
+
+    - name: "di"
+      path: "{{DI_PATH}}"                     # e.g., "src/di", "internal/di", "cmd/"
+      dependencies: ["domain", "application", "infrastructure", "presentation"] # DI wires everything
+
+# =============================================================================
+# GIT & COMMIT CONFIGURATION
+# =============================================================================
+git:
+  # Commit message style
+  commit_style: "conventional"                # "conventional" or "custom"
+
+  # Conventional commit types
+  types:
+    - "feat"      # New feature
+    - "fix"       # Bug fix
+    - "refactor"  # Code refactoring
+    - "test"      # Test additions/updates
+    - "docs"      # Documentation
+    - "chore"     # Maintenance tasks
+
+  # Commit message rules
+  subject_max_length: 50                      # Max characters in commit subject
+  body_max_length: 72                         # Max characters per line in commit body
+
+  # Pre-commit validation
+  run_tests_pre_commit: {{RUN_TESTS_PRE_COMMIT}}           # true/false
+  run_linting_pre_commit: {{RUN_LINTING_PRE_COMMIT}}       # true/false
+  run_architecture_pre_commit: {{RUN_ARCHITECTURE_PRE_COMMIT}} # true/false
+
+# =============================================================================
+# NAMING CONVENTIONS
+# =============================================================================
+conventions:
+  # File naming
+  class_files: "{{CLASS_FILE_CONVENTION}}"    # "PascalCase" (User.ts) or "lowercase" (user.ts)
+  interface_prefix: "{{INTERFACE_PREFIX}}"    # "I" (IUser) or "none" (User)
+
+  # Class/Function naming
+  classes: "PascalCase"                       # UserService, ProductRepository
+  functions: "{{FUNCTION_CONVENTION}}"        # camelCase, snake_case, PascalCase
+  variables: "{{VARIABLE_CONVENTION}}"        # camelCase, snake_case
+  constants: "{{CONSTANT_CONVENTION}}"        # UPPER_SNAKE_CASE, camelCase
+
+  # Use case naming
+  use_case_pattern: "{{USE_CASE_PATTERN}}"    # "VerbNoun" (CreateUser, GetUsers)
+
+# =============================================================================
+# TASK TRACKING
+# =============================================================================
+tracking:
+  enabled: {{TRACKING_ENABLED}}               # true/false - use .spec/ tracking system
+  directory: ".spec/"                         # Directory for spec files
+
+  # File naming
+  feature_prefix: "feature-"                  # e.g., "feature-health-check.md"
+  bugfix_prefix: "fix-"                       # e.g., "fix-null-pointer.md"
+  refactor_prefix: "refactor-"                # e.g., "refactor-user-service.md"
+
+  # Overall status file
+  overall_status_file: "overall-status.md"    # Main tracking dashboard
+
+# =============================================================================
+# AI ASSISTANT CONFIGURATION
+# =============================================================================
+ai:
+  # Default AI assistant (for documentation purposes)
+  primary_assistant: "{{PRIMARY_AI}}"         # Claude Code, Claude (Web/API), ChatGPT, Gemini, Codex, etc.
+  is_claude_code: {{IS_CLAUDE_CODE}}          # true if using Claude Code (enables parallel execution optimizations)
+
+  # Reporting preferences
+  verbose_reporting: {{VERBOSE_REPORTING}}    # true = detailed reports, false = concise
+  emoji_indicators: {{EMOJI_INDICATORS}}      # true = use emojis (🎯 🔴 🟢), false = text only
+
+# =============================================================================
+# PROJECT-SPECIFIC SETTINGS
+# =============================================================================
+custom:
+  # Add any project-specific configuration here
+  # Examples:
+  # database: "PostgreSQL"
+  # api_version: "v1"
+  # deployment_target: "AWS Lambda"
