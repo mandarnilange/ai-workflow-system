@@ -376,7 +376,14 @@ ask_bool "Enable .spec/ task tracking" "true" TRACKING_ENABLED
 
 echo -e "\n${GREEN}=== AI Assistant Configuration ===${NC}\n"
 
-ask_select "Primary AI assistant for coding" "Claude Code|Claude (Web/API)|ChatGPT|Gemini|Codex|Cursor|Other" "Claude Code" PRIMARY_AI
+# MANDATORY: Primary AI assistant selection (Claude Code is recommended default)
+ask_select "Primary AI assistant for coding (REQUIRED)" "Claude Code|Claude (Web/API)|ChatGPT|Gemini|Codex|Cursor|Other" "Claude Code" PRIMARY_AI
+
+# Validate that PRIMARY_AI is set
+if [ -z "$PRIMARY_AI" ]; then
+    echo -e "${RED}ERROR: Primary AI assistant must be selected${NC}"
+    exit 1
+fi
 
 # Determine if using Claude Code specifically
 if [ "$PRIMARY_AI" = "Claude Code" ]; then
@@ -1461,6 +1468,32 @@ npm test -- --coverage         # Run again for coverage (wasteful)
 
 ---
 EOF
+
+# Create Claude Code subagent slash commands
+echo -e "${BLUE}Creating Claude Code subagents (slash commands)...${NC}"
+
+mkdir -p "$TARGET_DIR/.claude/commands"
+
+# Create architecture review subagent
+cat > "$TARGET_DIR/.claude/commands/architecture-review.md" << 'EOF'
+Read and execute the playbook at `.workflow/playbooks/architecture-check.md`
+EOF
+
+# Create lint subagent
+cat > "$TARGET_DIR/.claude/commands/lint.md" << 'EOF'
+Read and execute the playbook at `.workflow/playbooks/run-lint.md`
+EOF
+
+# Create test subagent
+cat > "$TARGET_DIR/.claude/commands/test.md" << 'EOF'
+Read and execute the playbook at `.workflow/playbooks/run-tests.md`
+EOF
+
+echo -e "${GREEN}✓ Created subagent slash commands:${NC}"
+echo -e "  ${BLUE}/architecture-review${NC} - Run architecture validation"
+echo -e "  ${BLUE}/lint${NC} - Run linting checks"
+echo -e "  ${BLUE}/test${NC} - Run test suite"
+
 fi
 
 # Continue with the rest of CLAUDE.md
