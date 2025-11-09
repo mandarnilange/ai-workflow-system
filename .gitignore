@@ -21,16 +21,10 @@ examples/*/node_modules/
 examples/*/coverage/
 examples/*/dist/
 examples/*/build/
-examples/*/.spec/
-examples/*/package-lock.json
-examples/*/AGENTS.md
-examples/*/CLAUDE.md
-examples/*/GEMINI.md
-examples/*/.workflow/
-examples/*/.gitignore
-examples/*/.eslintrc.js
-examples/*/eslint.config.js
+examples/*/.nyc_output/
+examples/*/.tsbuildinfo
+examples/*/.eslintcache
+examples/*/*.tgz
+examples/*/.env.local
+examples/*/.env.*.local
 
-# Keep only the config.yml and README.md for examples
-!examples/*/config.yml
-!examples/*/README.md
