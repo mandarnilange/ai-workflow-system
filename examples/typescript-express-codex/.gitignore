@@ -1,0 +1,5 @@
+
+# AI Workflow System
+# Note: config.yml is project-specific, commit it!
+# Uncomment next line if you want to keep config private:
+# .workflow/config.yml
