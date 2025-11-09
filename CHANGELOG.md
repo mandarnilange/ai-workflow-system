@@ -14,6 +14,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0-beta] - 2025-11-09
+
+### Added
+- **Sequence Numbering for Spec Files**: All spec files now use chronological sequence numbers
+  - Format: `.spec/001-feature-name.md`, `.spec/002-fix-name.md`, etc.
+  - Provides clear chronological ordering of all work items
+  - Shared sequence across features, fixes, and refactors
+  - `.spec/.sequence` file tracks next sequence number
+  - Updated playbooks: `feature.md`, `bugfix.md`
+  - Updated templates: `overall-status-template.md`
+  - Updated documentation with examples and guidance
+
+### Improved
+- **Smart Re-run Detection in init.sh**: Enhanced update workflow
+  - Detects existing installation before asking questions
+  - Three update modes:
+    1. **Quick Update** (default) - Updates playbooks/templates only, preserves all settings
+    2. **Full Reconfigure** - Re-answer all configuration questions
+    3. **Cancel** - Exit without changes
+  - Preserves `.spec/` files (never overwritten)
+  - Clear summary showing what was updated vs. skipped
+  - User-friendly prompts with defaults
+- **Documentation Updates**:
+  - Added "Updating an Existing Installation" section in README
+  - Step-by-step update guide with examples
+  - Clear explanation of what gets updated vs. preserved
+
+### Changed
+- Spec file naming convention now includes sequence numbers
+- `overall-status.md` links updated to new naming format
+- Examples in README updated to reflect sequenced filenames
+
+### Technical
+- Sequence counter stored in `.spec/.sequence`
+- Backward compatible: works alongside non-sequenced files (Option 3: Clean Break)
+- Auto-increment sequence on each new spec file creation
+
+---
+
 ## [0.2.0-beta] - 2025-11-08
 
 ### Added

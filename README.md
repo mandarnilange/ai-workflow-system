@@ -5,7 +5,7 @@
 A language-agnostic, AI-assistant-agnostic workflow system that enforces TDD, Clean Architecture, and quality standards through markdown playbooks.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.2.0--beta-blue.svg)](https://github.com/mandarnilange/ai-workflow-system/releases)
+[![Version](https://img.shields.io/badge/version-0.3.0--beta-blue.svg)](https://github.com/mandarnilange/ai-workflow-system/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Code of Conduct](https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-purple.svg)](CODE_OF_CONDUCT.md)
 
@@ -94,6 +94,50 @@ The workflows will automatically detect intent and route to appropriate playbook
 
 ---
 
+## Updating an Existing Installation
+
+To update your project with the latest playbooks and templates:
+
+```bash
+# Clone or pull the latest version
+cd /path/to/ai-workflow-system
+git pull origin main  # If you already have it cloned
+
+# Re-run init.sh on your project
+./init.sh /path/to/your/project
+```
+
+**What happens during update:**
+
+The script will detect existing files and ask you:
+- ✅ **Always updated**: `.workflow/playbooks/` and `.workflow/templates/` (workflow system files)
+- ⚠️ **Asks before overwriting**: `.workflow/config.yml`, `AGENTS.md`, `CLAUDE.md`
+- 🔒 **Never touched**: `.spec/` files (your work tracking)
+
+**Example update session:**
+```
+Existing Installation Detected
+
+Found existing files:
+  • .workflow/config.yml
+  • AGENTS.md
+  • CLAUDE.md
+
+The following will be updated automatically:
+  • .workflow/playbooks/ (workflow scripts)
+  • .workflow/templates/ (spec templates)
+
+Overwrite .workflow/config.yml? (keeps your customizations if 'n') [y/N]: n
+Overwrite AGENTS.md? (keeps your customizations if 'n') [y/N]: y
+Overwrite CLAUDE.md? (keeps your customizations if 'n') [y/N]: y
+```
+
+**Recommended approach:**
+- Keep your customized `config.yml` (answer 'n')
+- Update `AGENTS.md` and `CLAUDE.md` for latest workflow features (answer 'y')
+
+---
+
 ## What Gets Created
 
 After running `init.sh`, your project will have:
@@ -115,9 +159,26 @@ your-project/
 │       ├── bugfix-template.md
 │       └── refactor-template.md
 ├── .spec/
-│   └── overall-status.md             # Project dashboard
+│   ├── .sequence                      # Sequence counter (auto-managed)
+│   ├── overall-status.md             # Project dashboard
+│   ├── 001-feature-xxx.md            # Feature specs (sequenced)
+│   ├── 002-fix-xxx.md                # Bug fix specs (sequenced)
+│   └── 003-feature-yyy.md            # More specs...
 ├── AGENTS.md                          # Universal AI instructions (ALL tools)
 └── CLAUDE.md                          # Claude Code-specific optimizations
+```
+
+**Note on `.spec/` Sequence Numbering:**
+- All spec files are prefixed with a 3-digit sequence number (001, 002, 003, etc.)
+- The `.spec/.sequence` file tracks the next number to use
+- Sequence numbers are shared across all types (features, fixes, refactors)
+- This provides chronological ordering of all work items
+- The `.sequence` file should be committed to maintain consistency across the team
+
+Examples:
+- `001-feature-health-endpoint.md` - First work item
+- `002-fix-crash-null-email.md` - Second work item
+- `003-feature-authentication.md` - Third work item
 ```
 
 ### Which File Should Your AI Assistant Use?
@@ -158,7 +219,7 @@ Detected Intent: FEATURE
 Routing to: .workflow/playbooks/feature.md
 
 ## Step 1: Initialize Task Tracking
-Creating .spec/feature-user-authentication.md...
+Creating .spec/001-feature-user-authentication.md...
 ✅ Step 1 Complete
 
 ## Step 2: Exploration & Planning
@@ -197,7 +258,7 @@ AI:
 Routing to: .workflow/playbooks/bugfix.md
 
 ## Step 1: Initialize Bug Tracking
-Created .spec/fix-crash-null-email.md
+Created .spec/002-fix-crash-null-email.md
 
 ## Step 2: Root Cause Analysis
 File: src/domain/User.ts:45
@@ -230,7 +291,7 @@ AI:
 🎯 Commit Workflow
 
 ## Step 1: Update Task Tracking
-Updated .spec/feature-xyz.md (8/9 tasks, 89%)
+Updated .spec/003-feature-xyz.md (8/9 tasks, 89%)
 
 ## Step 2: Running Validators
 Running 3 validators in parallel...

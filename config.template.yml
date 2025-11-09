@@ -5,7 +5,7 @@
 # SYSTEM VERSION
 # =============================================================================
 system:
-  version: "0.2.0-beta"                       # AI Workflow System version
+  version: "0.3.0-beta"                       # AI Workflow System version
   config_version: "0.2"                       # Config file format version
 
 # =============================================================================

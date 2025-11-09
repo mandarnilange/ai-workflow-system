@@ -110,6 +110,71 @@ ask_select() {
     fi
 }
 
+# Check for existing installation FIRST
+CONFIG_FILE="$TARGET_DIR/.workflow/config.yml"
+AGENTS_FILE="$TARGET_DIR/AGENTS.md"
+CLAUDE_FILE="$TARGET_DIR/CLAUDE.md"
+
+IS_UPDATE="false"
+QUICK_UPDATE="false"
+
+if [ -f "$CONFIG_FILE" ]; then
+    IS_UPDATE="true"
+
+    echo -e "\n${YELLOW}╔═══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${YELLOW}║                                                           ║${NC}"
+    echo -e "${YELLOW}║  Existing Installation Detected                          ║${NC}"
+    echo -e "${YELLOW}║                                                           ║${NC}"
+    echo -e "${YELLOW}╚═══════════════════════════════════════════════════════════╝${NC}\n"
+
+    echo -e "${BLUE}Found existing files:${NC}"
+    [ -f "$CONFIG_FILE" ] && echo -e "  • .workflow/config.yml"
+    [ -f "$AGENTS_FILE" ] && echo -e "  • AGENTS.md"
+    [ -f "$CLAUDE_FILE" ] && echo -e "  • CLAUDE.md"
+
+    echo -e "\n${BLUE}Update options:${NC}"
+    echo -e "  ${GREEN}1. Quick Update (default)${NC} - Update playbooks & templates only (keeps all settings)"
+    echo -e "  2. Full Reconfigure - Re-answer all configuration questions"
+    echo -e "  3. Cancel"
+    echo -ne "\n${YELLOW}Select [1-3] (default: 1): ${NC}"
+    read -r update_choice < /dev/tty
+
+    case "$update_choice" in
+        1|"")
+            QUICK_UPDATE="true"
+            echo -e "${GREEN}✓ Quick update mode${NC}\n"
+            ;;
+        2)
+            QUICK_UPDATE="false"
+            echo -e "${BLUE}Starting full reconfiguration...${NC}\n"
+            ;;
+        3)
+            echo -e "${YELLOW}Update cancelled${NC}"
+            exit 0
+            ;;
+        *)
+            QUICK_UPDATE="true"
+            echo -e "${GREEN}✓ Quick update mode (default)${NC}\n"
+            ;;
+    esac
+fi
+
+# If quick update, skip all questions
+if [ "$QUICK_UPDATE" = "true" ]; then
+    echo -e "${BLUE}Quick update mode:${NC}"
+    echo -e "  • Updating playbooks and templates"
+    echo -e "  • Keeping existing config.yml, AGENTS.md, and CLAUDE.md"
+    echo -e ""
+
+    # Set flags - keep everything in quick update
+    OVERWRITE_CONFIG="false"
+    OVERWRITE_AGENTS="false"
+    OVERWRITE_CLAUDE="false"
+fi
+
+# Only ask configuration questions if not doing quick update
+if [ "$QUICK_UPDATE" = "false" ]; then
+
 echo -e "\n${GREEN}=== Project Information ===${NC}\n"
 
 ask "Project name" "My Project" PROJECT_NAME
@@ -324,18 +389,52 @@ fi
 ask_bool "Verbose reporting (detailed progress)" "true" VERBOSE_REPORTING
 ask_bool "Use emoji indicators" "true" EMOJI_INDICATORS
 
-# Generate config.yml
-echo -e "\n${BLUE}Generating configuration...${NC}"
+# End of configuration questions block
+fi
 
-CONFIG_FILE="$TARGET_DIR/.workflow/config.yml"
+# Set overwrite flags for full reconfigure mode
+if [ "$QUICK_UPDATE" = "false" ] && [ "$IS_UPDATE" = "true" ]; then
+    # In full reconfigure mode, ask what to overwrite
+    echo ""
+
+    OVERWRITE_CONFIG="true"
+    if [ -f "$CONFIG_FILE" ]; then
+        ask_bool "Overwrite existing .workflow/config.yml with new config?" "false" OVERWRITE_CONFIG
+    fi
+
+    # AGENTS and CLAUDE flags already set if quick update
+    if [ -z "$OVERWRITE_AGENTS" ]; then
+        OVERWRITE_AGENTS="true"
+        if [ -f "$AGENTS_FILE" ]; then
+            ask_bool "Overwrite existing AGENTS.md?" "false" OVERWRITE_AGENTS
+        fi
+    fi
+
+    if [ -z "$OVERWRITE_CLAUDE" ]; then
+        OVERWRITE_CLAUDE="true"
+        if [ -f "$CLAUDE_FILE" ]; then
+            ask_bool "Overwrite existing CLAUDE.md?" "false" OVERWRITE_CLAUDE
+        fi
+    fi
+elif [ "$QUICK_UPDATE" = "false" ]; then
+    # Fresh install - create everything
+    OVERWRITE_CONFIG="true"
+    OVERWRITE_AGENTS="true"
+    OVERWRITE_CLAUDE="true"
+fi
+
 mkdir -p "$TARGET_DIR/.workflow"
+
+# Generate config.yml
+if [ "$OVERWRITE_CONFIG" = "true" ]; then
+    echo -e "\n${BLUE}Generating configuration...${NC}"
 
 cat > "$CONFIG_FILE" << EOF
 # AI Workflow System Configuration
 # Generated: $(date)
 
 system:
-  version: "0.2.0-beta"
+  version: "0.3.0-beta"
   config_version: "0.2"
 
 project:
@@ -423,7 +522,10 @@ ai:
 custom: {}
 EOF
 
-echo -e "${GREEN}✓ Generated: .workflow/config.yml${NC}"
+    echo -e "${GREEN}✓ Generated: .workflow/config.yml${NC}"
+else
+    echo -e "${YELLOW}⊘ Skipped: .workflow/config.yml (keeping existing)${NC}"
+fi
 
 # Copy playbooks
 echo -e "\n${BLUE}Copying playbooks...${NC}"
@@ -438,7 +540,8 @@ echo -e "${GREEN}✓ Copied playbooks to .workflow/playbooks/${NC}"
 echo -e "${GREEN}✓ Copied templates to .workflow/templates/${NC}"
 
 # Generate AGENTS.md
-echo -e "\n${BLUE}Generating AGENTS.md...${NC}"
+if [ "$OVERWRITE_AGENTS" = "true" ]; then
+    echo -e "\n${BLUE}Generating AGENTS.md...${NC}"
 
 # Determine language-specific code examples
 case "$LANGUAGE" in
@@ -1103,10 +1206,14 @@ The playbooks are human-readable documentation and can be followed without AI as
 **Remember**: Always follow the playbooks. They contain all workflow logic.
 EOF
 
-echo -e "${GREEN}✓ Generated: AGENTS.md${NC}"
+    echo -e "${GREEN}✓ Generated: AGENTS.md${NC}"
+else
+    echo -e "${YELLOW}⊘ Skipped: AGENTS.md (keeping existing)${NC}"
+fi
 
 # Generate CLAUDE.md
-echo -e "\n${BLUE}Generating CLAUDE.md...${NC}"
+if [ "$OVERWRITE_CLAUDE" = "true" ]; then
+    echo -e "\n${BLUE}Generating CLAUDE.md...${NC}"
 
 cat > "$TARGET_DIR/CLAUDE.md" << EOF
 # Project Instructions for Claude Code
@@ -1413,15 +1520,20 @@ See complete documentation:
 **That's it. The playbooks contain all workflow logic. Just read and follow them.**
 EOF
 
-echo -e "${GREEN}✓ Generated: CLAUDE.md${NC}"
+    echo -e "${GREEN}✓ Generated: CLAUDE.md${NC}"
+else
+    echo -e "${YELLOW}⊘ Skipped: CLAUDE.md (keeping existing)${NC}"
+fi
 
 # Create .spec/ directory if tracking is enabled
 if [ "$TRACKING_ENABLED" = "true" ]; then
-    echo -e "\n${BLUE}Creating .spec/ directory...${NC}"
     mkdir -p "$TARGET_DIR/.spec"
 
-    # Create overall-status.md
-    cat > "$TARGET_DIR/.spec/overall-status.md" << EOF
+    # Only create overall-status.md if it doesn't exist
+    if [ ! -f "$TARGET_DIR/.spec/overall-status.md" ]; then
+        echo -e "\n${BLUE}Creating .spec/ directory...${NC}"
+
+        cat > "$TARGET_DIR/.spec/overall-status.md" << EOF
 # $PROJECT_NAME - Overall Status
 
 **Last Updated**: $(date +%Y-%m-%d)
@@ -1452,7 +1564,10 @@ if [ "$TRACKING_ENABLED" = "true" ]; then
 - $(date +%Y-%m-%d): Project initialized with AI Workflow System
 EOF
 
-    echo -e "${GREEN}✓ Created .spec/ directory with overall-status.md${NC}"
+        echo -e "${GREEN}✓ Created .spec/ directory with overall-status.md${NC}"
+    else
+        echo -e "${YELLOW}⊘ Skipped: .spec/overall-status.md (already exists)${NC}"
+    fi
 fi
 
 # Create .gitignore entries
@@ -1484,14 +1599,31 @@ echo "║                                                           ║"
 echo "╚═══════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 
-echo -e "${BLUE}Created files:${NC}"
-echo "  ✓ .workflow/config.yml           - Project configuration"
+echo -e "${BLUE}Created/Updated files:${NC}"
+if [ "$OVERWRITE_CONFIG" = "true" ]; then
+    echo "  ✓ .workflow/config.yml           - Project configuration"
+else
+    echo "  ⊘ .workflow/config.yml           - Kept existing"
+fi
 echo "  ✓ .workflow/playbooks/           - Workflow playbooks (7 files)"
 echo "  ✓ .workflow/templates/           - Spec file templates"
-echo "  ✓ AGENTS.md                      - Universal AI instructions"
-echo "  ✓ CLAUDE.md                      - Claude Code instructions"
+if [ "$OVERWRITE_AGENTS" = "true" ]; then
+    echo "  ✓ AGENTS.md                      - Universal AI instructions"
+else
+    echo "  ⊘ AGENTS.md                      - Kept existing"
+fi
+if [ "$OVERWRITE_CLAUDE" = "true" ]; then
+    echo "  ✓ CLAUDE.md                      - Claude Code instructions"
+else
+    echo "  ⊘ CLAUDE.md                      - Kept existing"
+fi
 if [ "$TRACKING_ENABLED" = "true" ]; then
-echo "  ✓ .spec/overall-status.md        - Task tracking dashboard"
+    SPEC_STATUS_FILE="$TARGET_DIR/.spec/overall-status.md"
+    if [ -f "$SPEC_STATUS_FILE" ]; then
+        echo "  ⊘ .spec/overall-status.md        - Already exists"
+    else
+        echo "  ✓ .spec/overall-status.md        - Task tracking dashboard"
+    fi
 fi
 
 echo -e "\n${BLUE}Next steps:${NC}"

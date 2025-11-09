@@ -14,18 +14,18 @@
 
 ### In Progress
 
-1. [Feature: {Name}](.spec/feature-{slug}.md) - {XX}%
-2. [Fix: {Name}](.spec/fix-{slug}.md) - {XX}%
+1. [Feature: {Name}]({SEQ_NUM}-feature-{slug}.md) - {XX}%
+2. [Fix: {Name}]({SEQ_NUM}-fix-{slug}.md) - {XX}%
 
 ### Recently Completed
 
-1. [Feature: {Name}](.spec/feature-{slug}.md) - Completed {YYYY-MM-DD}
-2. [Fix: {Name}](.spec/fix-{slug}.md) - Completed {YYYY-MM-DD}
+1. [Feature: {Name}]({SEQ_NUM}-feature-{slug}.md) - Completed {YYYY-MM-DD}
+2. [Fix: {Name}]({SEQ_NUM}-fix-{slug}.md) - Completed {YYYY-MM-DD}
 
 ### Upcoming
 
-1. [Feature: {Name}](.spec/feature-{slug}.md) - Planned
-2. [Feature: {Name}](.spec/feature-{slug}.md) - Planned
+1. [Feature: {Name}]({SEQ_NUM}-feature-{slug}.md) - Planned
+2. [Feature: {Name}]({SEQ_NUM}-fix-{slug}.md) - Planned
 
 ## Blockers
 
