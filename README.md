@@ -5,7 +5,7 @@
 A language-agnostic, AI-assistant-agnostic workflow system that enforces TDD, Clean Architecture, and quality standards through markdown playbooks.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.3.0--beta-blue.svg)](https://github.com/mandarnilange/ai-workflow-system/releases)
+[![Version](https://img.shields.io/badge/version-0.4.0--beta-blue.svg)](https://github.com/mandarnilange/ai-workflow-system/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Code of Conduct](https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-purple.svg)](CODE_OF_CONDUCT.md)
 
