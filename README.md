@@ -64,10 +64,14 @@ The interactive setup will ask about:
 - Architecture layer paths
 - Git commit preferences
 - Naming conventions
-- **Primary AI assistant** (Claude Code, ChatGPT, Gemini, etc.)
-  - If you select **Claude Code**, additional optimizations are enabled:
+- **Primary AI assistant** (MANDATORY - you must explicitly select)
+  - No default option - you must choose from: Claude Code, ChatGPT, Gemini, Codex, Cursor, or Other
+  - If you select **Claude Code**, additional features are automatically configured:
     - Parallel execution instructions for validators
-    - Sub-agent usage recommendations
+    - **Three subagents** created in `.claude/agents/`:
+      - `architecture-review.md` - Run architecture validation
+      - `lint.md` - Run linting checks
+      - `test.md` - Run test suite
     - Performance optimization guidance
 
 ### Use in Your Project
@@ -153,11 +157,18 @@ your-project/
 │   │   ├── commit.md                 # Pre-commit validation
 │   │   ├── tdd.md                    # TDD cycle
 │   │   ├── architecture-check.md     # Architecture validation
+│   │   ├── run-tests.md              # Test execution
+│   │   ├── run-lint.md               # Linting execution
 │   │   └── reporting-guidelines.md   # Visibility rules
 │   └── templates/
 │       ├── feature-template.md       # .spec/ file templates
 │       ├── bugfix-template.md
 │       └── refactor-template.md
+├── .claude/                           # Claude Code specific (if selected)
+│   └── agents/
+│       ├── architecture-review.md    # Subagent: architecture validation
+│       ├── lint.md                   # Subagent: linting checks
+│       └── test.md                   # Subagent: test execution
 ├── .spec/
 │   ├── .sequence                      # Sequence counter (auto-managed)
 │   ├── overall-status.md             # Project dashboard
@@ -203,6 +214,40 @@ Examples:
 ```bash
 echo "# Gemini Instructions\n\nSee AGENTS.md for complete workflow instructions." > GEMINI.md
 ```
+
+---
+
+## Claude Code Subagents
+
+If you selected **Claude Code** during initialization, the system automatically creates three subagents in `.claude/agents/`. These provide quick access to common validation tasks:
+
+### Available Subagents
+
+1. **`architecture-review.md`** - Validates Clean Architecture compliance
+   - References: `.workflow/playbooks/architecture-check.md`
+   - Checks dependency rules across layers
+
+2. **`lint.md`** - Runs static analysis and linting
+   - References: `.workflow/playbooks/run-lint.md`
+   - Executes configured linter (ESLint, Pylint, etc.)
+
+3. **`test.md`** - Executes test suite with coverage
+   - References: `.workflow/playbooks/run-tests.md`
+   - Runs tests and reports coverage
+
+### How Subagents Work
+
+Each subagent file contains a single line that references its corresponding playbook:
+
+```markdown
+Read and execute the playbook at `.workflow/playbooks/run-tests.md`
+```
+
+This design keeps subagents simple and maintainable - all workflow logic lives in the playbooks, while subagents serve as convenient entry points.
+
+### Using Subagents
+
+Subagents can be invoked directly in Claude Code to run specific validation tasks on demand. They're automatically used by the commit workflow but can also be called independently for quick checks during development.
 
 ---
 
@@ -375,7 +420,15 @@ All playbooks are located in `.workflow/playbooks/`. **Note**: You don't need to
 **Purpose**: Clean Architecture compliance validation
 **When**: Called by commit playbook before commits
 
-### 7. reporting-guidelines.md
+### 7. run-tests.md
+**Purpose**: Execute test suite with coverage reporting
+**When**: Called by commit playbook, or via Claude Code subagents
+
+### 8. run-lint.md
+**Purpose**: Run static analysis and linting checks
+**When**: Called by commit playbook, or via Claude Code subagents
+
+### 9. reporting-guidelines.md
 **Purpose**: Enforce user visibility during workflow execution
 **When**: Read by ALL playbooks to ensure proper reporting
 
