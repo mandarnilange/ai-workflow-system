@@ -14,6 +14,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0-beta] - 2025-11-09
+
+### Fixed
+- **Codex Auto-Continue Issue**: Fixed workflow pause behavior that caused Codex to stop after each report
+  - Updated all playbooks to explicitly specify auto-continue behavior
+  - Added "IMMEDIATELY AND AUTOMATICALLY" instructions to prevent pauses
+  - Clarified only 4 cases where waiting for user input is appropriate:
+    1. When intent is UNCLEAR (coordinator.md)
+    2. When requirements are UNCLEAR (feature.md)
+    3. When validators FAIL (commit.md)
+    4. When TDD violation detected (tdd.md)
+  - Updated files:
+    - `.workflow/playbooks/coordinator.md`
+    - `.workflow/playbooks/feature.md`
+    - `.workflow/playbooks/commit.md`
+    - `.workflow/playbooks/tdd.md`
+    - `.workflow/playbooks/reporting-guidelines.md`
+    - `AGENTS.md` (strengthened Codex-specific instructions)
+
+### Improved
+- **Enhanced Documentation**: Added explicit continuation instructions throughout all playbooks
+- **Better AI Assistant Guidance**: Codex section in AGENTS.md now clearly lists all pause exceptions
+
+---
+
 ## [0.3.0-beta] - 2025-11-09
 
 ### Added
