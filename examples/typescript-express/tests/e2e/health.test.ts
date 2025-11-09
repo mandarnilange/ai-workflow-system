@@ -1,13 +1,13 @@
 import request from 'supertest';
 import { createApp } from '../../src/presentation/app';
 
-describe('GET /health', () => {
+describe('GET /healthz', () => {
   it('should return 200 OK with health status', async () => {
     // Arrange
     const app = createApp();
 
     // Act
-    const response = await request(app).get('/health');
+    const response = await request(app).get('/healthz');
 
     // Assert
     expect(response.status).toBe(200);

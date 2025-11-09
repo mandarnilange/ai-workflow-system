@@ -58,9 +58,36 @@ Examples:
 - "fix incorrect total calculation" → `incorrect-total-calculation`
 - "fix API 500 error on GET /users" → `api-500-get-users`
 
-### 1.2 Create .spec/ File
+### 1.2 Get Next Sequence Number
 
-Create: `.spec/fix-{slug}.md`
+**Determine the sequence number** for this spec file:
+
+1. Check if `.spec/.sequence` exists:
+   - If exists: Read the number from the file
+   - If doesn't exist: Start with `001`
+
+2. The sequence number should be 3-digit, zero-padded (e.g., `001`, `002`, `010`, `100`)
+
+3. After reading the sequence number, increment it and save it back to `.spec/.sequence` for the next use
+
+**Example**:
+```bash
+# Read current sequence (or initialize to 1)
+SEQUENCE=$(cat .spec/.sequence 2>/dev/null || echo "1")
+# Format as 3-digit zero-padded
+SEQ_NUM=$(printf "%03d" $SEQUENCE)
+# Increment for next use
+echo $((SEQUENCE + 1)) > .spec/.sequence
+```
+
+### 1.3 Create .spec/ File
+
+Create: `.spec/{SEQ_NUM}-fix-{slug}.md`
+
+Examples:
+- `.spec/001-fix-crash-null-email.md`
+- `.spec/002-fix-incorrect-total-calculation.md`
+- `.spec/015-fix-api-500-get-users.md`
 
 Use template from `.workflow/templates/bugfix-template.md`
 
@@ -71,27 +98,28 @@ Fill in:
 - Affected components
 - Start date
 
-### 1.3 Update .spec/overall-status.md
+### 1.4 Update .spec/overall-status.md
 
 1. Read `.spec/overall-status.md`
 2. Add to "In Progress" section:
    ```markdown
-   1. [Fix: {Bug Name}](fix-{slug}.md) - 0%
+   1. [Fix: {Bug Name}]({SEQ_NUM}-fix-{slug}.md) - 0%
    ```
 3. Update statistics
 4. Add to "Recent Activity" with timestamp
 
-### 1.4 Confirm to User
+### 1.5 Confirm to User
 
 **Report to user**:
 ```
 ✅ Step 1 Complete: Bug Tracking Initialized
 
 Created:
-- .spec/fix-{slug}.md ({total} tasks, 0% complete)
+- .spec/{SEQ_NUM}-fix-{slug}.md ({total} tasks, 0% complete)
 
 Updated:
 - .spec/overall-status.md
+- .spec/.sequence (incremented to {next_seq})
 
 Next: Step 2 - Investigation & Root Cause Analysis
 ```
@@ -136,7 +164,7 @@ Analyze the code to understand:
 - What edge case wasn't handled?
 - Is this a logic error, type error, or missing validation?
 
-Document findings in `.spec/fix-{slug}.md`:
+Document findings in `.spec/{SEQ_NUM}-fix-{slug}.md`:
 ```markdown
 ## Root Cause Analysis
 
@@ -422,7 +450,7 @@ Next: Step 6 - Finalization & Commit
 
 ### 6.1 Update .spec/ Files
 
-Update `.spec/fix-{slug}.md`:
+Update `.spec/{SEQ_NUM}-fix-{slug}.md`:
 1. Mark all tasks complete
 2. Set Status to "Completed"
 3. Add completion date
@@ -472,7 +500,7 @@ Verification:
 
 Before marking this playbook complete, verify:
 
-- [ ] Step 1: Bug tracking initialized (.spec/fix-*.md created)
+- [ ] Step 1: Bug tracking initialized (.spec/{SEQ_NUM}-fix-*.md created with sequence number)
 - [ ] Step 2: Root cause identified and documented
 - [ ] Step 3: Failing test created BEFORE fix
 - [ ] Step 3: Test verified to fail for correct reason

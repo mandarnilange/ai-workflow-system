@@ -13,7 +13,7 @@ export function createApp(): Express {
   const healthController = new HealthController(getHealthStatus);
 
   // Routes
-  app.get('/health', (req, res) => healthController.getHealth(req, res));
+  app.get('/healthz', (req, res) => healthController.getHealth(req, res));
 
   return app;
 }

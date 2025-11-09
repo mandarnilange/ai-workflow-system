@@ -9,7 +9,7 @@ This is a **sample implementation** demonstrating the AI Workflow System with a 
 
 **What Was Achieved:**
 - ✅ Complete TypeScript + Express.js project initialized from scratch
-- ✅ Health endpoint implemented at `GET /health` returning JSON with:
+- ✅ Health endpoint implemented at `GET /healthz` returning JSON with:
   - HTTP status (200 OK)
   - Timestamp (current date/time)
   - Message ("Service is healthy")

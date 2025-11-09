@@ -62,9 +62,36 @@ Examples:
 - "add JWT authentication" → `jwt-authentication`
 - "user profile CRUD operations" → `user-profile-crud`
 
-### 1.2 Create .spec/ File
+### 1.2 Get Next Sequence Number
 
-Create: `.spec/feature-{slug}.md`
+**Determine the sequence number** for this spec file:
+
+1. Check if `.spec/.sequence` exists:
+   - If exists: Read the number from the file
+   - If doesn't exist: Start with `001`
+
+2. The sequence number should be 3-digit, zero-padded (e.g., `001`, `002`, `010`, `100`)
+
+3. After reading the sequence number, increment it and save it back to `.spec/.sequence` for the next use
+
+**Example**:
+```bash
+# Read current sequence (or initialize to 1)
+SEQUENCE=$(cat .spec/.sequence 2>/dev/null || echo "1")
+# Format as 3-digit zero-padded
+SEQ_NUM=$(printf "%03d" $SEQUENCE)
+# Increment for next use
+echo $((SEQUENCE + 1)) > .spec/.sequence
+```
+
+### 1.3 Create .spec/ File
+
+Create: `.spec/{SEQ_NUM}-feature-{slug}.md`
+
+Examples:
+- `.spec/001-feature-health-check-endpoint.md`
+- `.spec/002-feature-jwt-authentication.md`
+- `.spec/015-feature-user-profile-crud.md`
 
 Use template from `.workflow/templates/feature-template.md`
 
@@ -74,17 +101,17 @@ Fill in:
 - Initial task breakdown (will be refined in Step 2)
 - Start date
 
-### 1.3 Update .spec/overall-status.md
+### 1.4 Update .spec/overall-status.md
 
 1. Read `.spec/overall-status.md`
 2. Add to "In Progress" section:
    ```markdown
-   1. [Feature: {Name}](feature-{slug}.md) - 0%
+   1. [Feature: {Name}]({SEQ_NUM}-feature-{slug}.md) - 0%
    ```
 3. Update statistics (increment "In Progress" count)
 4. Add to "Recent Activity" with timestamp
 
-### 1.4 Confirm to User
+### 1.5 Confirm to User
 
 **🚨 ACTION REQUIRED - OUTPUT THIS MESSAGE NOW 🚨**
 
@@ -94,10 +121,11 @@ Copy and output this message to the user:
 ✅ Step 1 Complete: Task Tracking Initialized
 
 Created:
-- .spec/feature-{slug}.md ({total} tasks, 0% complete)
+- .spec/{SEQ_NUM}-feature-{slug}.md ({total} tasks, 0% complete)
 
 Updated:
 - .spec/overall-status.md
+- .spec/.sequence (incremented to {next_seq})
 
 Next: Step 2 - Exploration & Planning
 ```
@@ -159,7 +187,7 @@ Break down feature into layers (Clean Architecture):
 
 ### 2.3 Update .spec/ File with Detailed Tasks
 
-Update `.spec/feature-{slug}.md` with task breakdown:
+Update `.spec/{SEQ_NUM}-feature-{slug}.md` with task breakdown:
 
 ```markdown
 ## Tasks
@@ -252,7 +280,7 @@ I'll report each TDD cycle: 🔴 RED → 🟢 GREEN → 🔵 REFACTOR
    - RED: Write failing test
    - GREEN: Write minimal implementation
    - REFACTOR: Improve code (optional)
-3. Mark task complete in `.spec/feature-{slug}.md`
+3. Mark task complete in `.spec/{SEQ_NUM}-feature-{slug}.md`
 4. Update progress percentage
 5. Move to next task
 
@@ -262,7 +290,7 @@ I'll report each TDD cycle: 🔴 RED → 🟢 GREEN → 🔵 REFACTOR
 
 After completing each task:
 
-1. Update `.spec/feature-{slug}.md`:
+1. Update `.spec/{SEQ_NUM}-feature-{slug}.md`:
    - Mark task complete: `- [x]`
    - Update completion percentage
    - Add notes if needed
@@ -396,7 +424,7 @@ Next: Step 5 - Finalization & Commit
 
 ### 5.1 Update .spec/ Files
 
-Update `.spec/feature-{slug}.md`:
+Update `.spec/{SEQ_NUM}-feature-{slug}.md`:
 1. Mark all remaining tasks complete
 2. Set Status to "Completed"
 3. Add completion date
@@ -448,7 +476,7 @@ Next steps:
 
 Before marking this playbook complete, verify:
 
-- [ ] Step 1: Task tracking initialized (.spec/feature-*.md created)
+- [ ] Step 1: Task tracking initialized (.spec/{SEQ_NUM}-feature-*.md created with sequence number)
 - [ ] Step 1: overall-status.md updated
 - [ ] Step 2: Implementation plan created with task breakdown
 - [ ] Step 3: TDD playbook followed for ALL implementation
