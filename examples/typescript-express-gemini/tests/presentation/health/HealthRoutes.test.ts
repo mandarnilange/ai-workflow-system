@@ -18,7 +18,7 @@ describe('Health Routes', () => {
     healthRouter = new HealthRouter(healthController);
 
     app = express();
-    app.use('/health', healthRouter.getRouter());
+    app.use('/healthz', healthRouter.getRouter());
   });
 
   it('should return health status with 200 OK', async () => {
@@ -30,7 +30,7 @@ describe('Health Routes', () => {
 
     jest.spyOn(getHealthStatusUseCase, 'execute').mockReturnValue(mockHealthResponse);
 
-    const response = await request(app).get('/health');
+    const response = await request(app).get('/healthz');
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual(mockHealthResponse);
