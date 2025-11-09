@@ -110,6 +110,39 @@ ask_select() {
     fi
 }
 
+ask_select_mandatory() {
+    local prompt="$1"
+    local options="$2"
+    local var_name="$3"
+
+    while true; do
+        echo -e "${YELLOW}${prompt}${NC}"
+        IFS='|' read -ra OPTS <<< "$options"
+        for i in "${!OPTS[@]}"; do
+            echo "  $((i+1)). ${OPTS[$i]}"
+        done
+        echo -ne "${YELLOW}Select [1-${#OPTS[@]}] (REQUIRED): ${NC}"
+        read -r input < /dev/tty
+
+        # Validate input
+        if [ -z "$input" ]; then
+            echo -e "${RED}Selection is required. Please enter a number.${NC}\n"
+            continue
+        elif ! [[ "$input" =~ ^[0-9]+$ ]]; then
+            echo -e "${RED}Invalid input. Please enter a number between 1 and ${#OPTS[@]}.${NC}\n"
+            continue
+        elif [ "$input" -lt 1 ] || [ "$input" -gt "${#OPTS[@]}" ]; then
+            echo -e "${RED}Out of range. Please select between 1 and ${#OPTS[@]}.${NC}\n"
+            continue
+        else
+            # Valid selection
+            local idx=$((input - 1))
+            printf -v "$var_name" '%s' "${OPTS[$idx]}"
+            break
+        fi
+    done
+}
+
 # Check for existing installation FIRST
 CONFIG_FILE="$TARGET_DIR/.workflow/config.yml"
 AGENTS_FILE="$TARGET_DIR/AGENTS.md"
@@ -376,14 +409,8 @@ ask_bool "Enable .spec/ task tracking" "true" TRACKING_ENABLED
 
 echo -e "\n${GREEN}=== AI Assistant Configuration ===${NC}\n"
 
-# MANDATORY: Primary AI assistant selection (Claude Code is recommended default)
-ask_select "Primary AI assistant for coding (REQUIRED)" "Claude Code|Claude (Web/API)|ChatGPT|Gemini|Codex|Cursor|Other" "Claude Code" PRIMARY_AI
-
-# Validate that PRIMARY_AI is set
-if [ -z "$PRIMARY_AI" ]; then
-    echo -e "${RED}ERROR: Primary AI assistant must be selected${NC}"
-    exit 1
-fi
+# MANDATORY: Primary AI assistant selection (no default - must explicitly select)
+ask_select_mandatory "Primary AI assistant for coding" "Claude Code|Claude (Web/API)|ChatGPT|Gemini|Codex|Cursor|Other" PRIMARY_AI
 
 # Determine if using Claude Code specifically
 if [ "$PRIMARY_AI" = "Claude Code" ]; then
@@ -1469,30 +1496,30 @@ npm test -- --coverage         # Run again for coverage (wasteful)
 ---
 EOF
 
-# Create Claude Code subagent slash commands
-echo -e "${BLUE}Creating Claude Code subagents (slash commands)...${NC}"
+# Create Claude Code subagents
+echo -e "${BLUE}Creating Claude Code subagents...${NC}"
 
-mkdir -p "$TARGET_DIR/.claude/commands"
+mkdir -p "$TARGET_DIR/.claude/agents"
 
 # Create architecture review subagent
-cat > "$TARGET_DIR/.claude/commands/architecture-review.md" << 'EOF'
+cat > "$TARGET_DIR/.claude/agents/architecture-review.md" << 'EOF'
 Read and execute the playbook at `.workflow/playbooks/architecture-check.md`
 EOF
 
 # Create lint subagent
-cat > "$TARGET_DIR/.claude/commands/lint.md" << 'EOF'
+cat > "$TARGET_DIR/.claude/agents/lint.md" << 'EOF'
 Read and execute the playbook at `.workflow/playbooks/run-lint.md`
 EOF
 
 # Create test subagent
-cat > "$TARGET_DIR/.claude/commands/test.md" << 'EOF'
+cat > "$TARGET_DIR/.claude/agents/test.md" << 'EOF'
 Read and execute the playbook at `.workflow/playbooks/run-tests.md`
 EOF
 
-echo -e "${GREEN}✓ Created subagent slash commands:${NC}"
-echo -e "  ${BLUE}/architecture-review${NC} - Run architecture validation"
-echo -e "  ${BLUE}/lint${NC} - Run linting checks"
-echo -e "  ${BLUE}/test${NC} - Run test suite"
+echo -e "${GREEN}✓ Created subagents in .claude/agents/:${NC}"
+echo -e "  ${BLUE}architecture-review.md${NC} - Run architecture validation"
+echo -e "  ${BLUE}lint.md${NC} - Run linting checks"
+echo -e "  ${BLUE}test.md${NC} - Run test suite"
 
 fi
 
