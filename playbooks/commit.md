@@ -147,17 +147,21 @@ All THREE validators must run in parallel and ALL must pass.
 
 #### For Claude Code Users
 
-If using Claude Code with subagents configured, invoke the three subagents in parallel:
+If using Claude Code with subagents configured in `.claude/agents/`, invoke all three subagents in parallel using the Task tool.
 
-1. Read and execute `.claude/agents/test.md`
-2. Read and execute `.claude/agents/lint.md`
-3. Read and execute `.claude/agents/architecture-review.md`
+**CRITICAL**: You MUST send a SINGLE message with THREE Task tool calls to run them in parallel:
 
-**Note**: Each subagent references its corresponding playbook. Run all three in a SINGLE message for parallel execution.
+```
+Task(subagent_type="test", description="Execute test suite", prompt="Run the test suite with coverage and report results")
+Task(subagent_type="lint", description="Run linting checks", prompt="Run static analysis and linting, report any issues")
+Task(subagent_type="architecture-review", description="Validate architecture", prompt="Validate Clean Architecture compliance and report violations")
+```
+
+**This ensures true parallel execution** - all three validators run concurrently instead of sequentially.
 
 #### For All Other AI Tools (or Claude Code without subagents)
 
-Read and execute the three playbooks in parallel:
+Read and execute the three playbooks directly:
 
 **Validator 1: Test Suite**
 Read and follow `.workflow/playbooks/run-tests.md`
@@ -167,6 +171,8 @@ Read and follow `.workflow/playbooks/run-lint.md`
 
 **Validator 3: Architecture Validation**
 Read and follow `.workflow/playbooks/architecture-check.md`
+
+If your tool supports parallel operations, execute all three simultaneously.
 
 ### 2.2 Collect Results
 
@@ -442,15 +448,16 @@ If ANY item unchecked, playbook is NOT complete.
 ## Notes for Different AI Assistants
 
 **Claude Code**:
-- **PREFERRED**: Use subagents in Step 2.1 if `.claude/agents/` directory exists
-  - Read and execute `.claude/agents/test.md`
-  - Read and execute `.claude/agents/lint.md`
-  - Read and execute `.claude/agents/architecture-review.md`
-  - Run all three in a SINGLE message for parallel execution
-- **FALLBACK**: If no subagents, read and execute the three playbooks directly:
-  - `.workflow/playbooks/run-tests.md`
-  - `.workflow/playbooks/run-lint.md`
-  - `.workflow/playbooks/architecture-check.md`
+- **PREFERRED**: Use Task tool with subagents in Step 2.1 if `.claude/agents/` directory exists
+  - Invoke all three subagents in a SINGLE message with THREE Task tool calls:
+    - Task(subagent_type="test", ...)
+    - Task(subagent_type="lint", ...)
+    - Task(subagent_type="architecture-review", ...)
+  - This ensures true parallel execution (concurrent, not sequential)
+- **FALLBACK**: If no subagents, execute bash commands directly in parallel:
+  - Bash: npm test -- --coverage
+  - Bash: npm run lint
+  - Bash: Run architecture validation script
 - Use MCP git tools for commit operations
 - Use Read/Edit tools for .spec/ file updates
 
@@ -481,18 +488,24 @@ If ANY item unchecked, playbook is NOT complete.
 
 ### Test Suite Validator
 - Playbook: `.workflow/playbooks/run-tests.md`
-- Subagent (Claude Code): `.claude/agents/test.md`
+- Subagent (Claude Code): `test` (via Task tool with subagent_type="test")
+- Agent definition: `.claude/agents/test.md`
 - Pass criteria: All tests passing, required coverage met
 - Output: Test count, coverage percentages
+- Model: haiku (fast, cost-effective)
 
 ### Linting Validator
 - Playbook: `.workflow/playbooks/run-lint.md`
-- Subagent (Claude Code): `.claude/agents/lint.md`
+- Subagent (Claude Code): `lint` (via Task tool with subagent_type="lint")
+- Agent definition: `.claude/agents/lint.md`
 - Pass criteria: Zero errors, zero warnings
 - Output: List of issues (if any)
+- Model: haiku (fast, cost-effective)
 
 ### Architecture Validator
 - Playbook: `.workflow/playbooks/architecture-check.md`
-- Subagent (Claude Code): `.claude/agents/architecture-review.md`
+- Subagent (Claude Code): `architecture-review` (via Task tool with subagent_type="architecture-review")
+- Agent definition: `.claude/agents/architecture-review.md`
 - Pass criteria: Zero violations
 - Output: Dependency graph compliance report
+- Model: haiku (fast, cost-effective)

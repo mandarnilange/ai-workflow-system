@@ -8,7 +8,7 @@
 
 ---
 
-## Project: My Project
+## Project: Example Claude Code
 
 **Language**: TypeScript
 **Framework**: Express.js
