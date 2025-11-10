@@ -237,17 +237,60 @@ If you selected **Claude Code** during initialization, the system automatically 
 
 ### How Subagents Work
 
-Each subagent file contains a single line that references its corresponding playbook:
+Each subagent is defined using Claude Code's standard agent format with YAML frontmatter and a system prompt:
 
 ```markdown
-Read and execute the playbook at `.workflow/playbooks/run-tests.md`
+---
+name: test
+description: Execute the test suite with coverage reporting. Use proactively during pre-commit validation.
+tools: Read, Bash
+model: inherit
+---
+
+You are a test execution specialist ensuring code quality through comprehensive testing.
+
+When invoked, read and execute the playbook at `.workflow/playbooks/run-tests.md`.
+
+This playbook will guide you through:
+1. Loading test configuration from .workflow/config.yml
+2. Executing the test suite with coverage
+3. Collecting test results and coverage metrics
+4. Reporting pass/fail status and coverage percentages
+
+Follow the playbook exactly and report all findings to the user.
 ```
 
-This design keeps subagents simple and maintainable - all workflow logic lives in the playbooks, while subagents serve as convenient entry points.
+**Key components:**
+- **name**: Unique identifier for the subagent
+- **description**: When and how the subagent should be used (includes "Use proactively" for automatic invocation)
+- **tools**: Specific tools granted to the subagent (Read, Bash for test/lint; Read, Grep, Glob for architecture)
+- **model**: Set to `inherit` to use the same model as the main conversation
+- **System prompt**: Defines the subagent's role and points to the corresponding playbook
+
+This design keeps validation logic centralized in playbooks while providing Claude Code-native subagents for easy invocation.
 
 ### Using Subagents
 
-Subagents can be invoked directly in Claude Code to run specific validation tasks on demand. They're automatically used by the commit workflow but can also be called independently for quick checks during development.
+**Viewing available subagents:**
+```
+/agents
+```
+
+This shows all available subagents including the three validation subagents created during initialization.
+
+**Automatic invocation:**
+The subagents are configured with "Use proactively" in their descriptions, so Claude Code will automatically use them during pre-commit validation when following the commit.md playbook.
+
+**Manual invocation:**
+You can explicitly request a specific subagent:
+```
+> Use the test subagent to run the test suite
+> Use the lint subagent to check code quality
+> Use the architecture-review subagent to validate dependencies
+```
+
+**During commit workflow:**
+When executing `.workflow/playbooks/commit.md`, Claude Code will automatically invoke all three subagents in parallel for comprehensive validation.
 
 ---
 

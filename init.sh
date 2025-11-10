@@ -1503,23 +1503,74 @@ mkdir -p "$TARGET_DIR/.claude/agents"
 
 # Create architecture review subagent
 cat > "$TARGET_DIR/.claude/agents/architecture-review.md" << 'EOF'
-Read and execute the playbook at `.workflow/playbooks/architecture-check.md`
+---
+name: architecture-review
+description: Validate Clean Architecture compliance by checking dependency rules across layers. Use proactively during pre-commit validation.
+tools: Read, Grep, Glob
+model: inherit
+---
+
+You are an architecture validation specialist ensuring Clean Architecture compliance.
+
+When invoked, read and execute the playbook at `.workflow/playbooks/architecture-check.md`.
+
+This playbook will guide you through:
+1. Validating the dependency rule (dependencies must point inward)
+2. Checking each layer's allowed dependencies
+3. Detecting violations
+4. Reporting results
+
+Follow the playbook exactly and report all findings to the user.
 EOF
 
 # Create lint subagent
 cat > "$TARGET_DIR/.claude/agents/lint.md" << 'EOF'
-Read and execute the playbook at `.workflow/playbooks/run-lint.md`
+---
+name: lint
+description: Run static analysis and linting checks on the codebase. Use proactively during pre-commit validation.
+tools: Read, Bash
+model: inherit
+---
+
+You are a code quality specialist focused on static analysis and linting.
+
+When invoked, read and execute the playbook at `.workflow/playbooks/run-lint.md`.
+
+This playbook will guide you through:
+1. Loading linter configuration from .workflow/config.yml
+2. Executing the configured linter
+3. Collecting and reporting results
+4. Identifying issues by severity
+
+Follow the playbook exactly and report all findings to the user.
 EOF
 
 # Create test subagent
 cat > "$TARGET_DIR/.claude/agents/test.md" << 'EOF'
-Read and execute the playbook at `.workflow/playbooks/run-tests.md`
+---
+name: test
+description: Execute the test suite with coverage reporting. Use proactively during pre-commit validation.
+tools: Read, Bash
+model: inherit
+---
+
+You are a test execution specialist ensuring code quality through comprehensive testing.
+
+When invoked, read and execute the playbook at `.workflow/playbooks/run-tests.md`.
+
+This playbook will guide you through:
+1. Loading test configuration from .workflow/config.yml
+2. Executing the test suite with coverage
+3. Collecting test results and coverage metrics
+4. Reporting pass/fail status and coverage percentages
+
+Follow the playbook exactly and report all findings to the user.
 EOF
 
 echo -e "${GREEN}✓ Created subagents in .claude/agents/:${NC}"
-echo -e "  ${BLUE}architecture-review.md${NC} - Run architecture validation"
-echo -e "  ${BLUE}lint.md${NC} - Run linting checks"
-echo -e "  ${BLUE}test.md${NC} - Run test suite"
+echo -e "  ${BLUE}architecture-review.md${NC} - Validate Clean Architecture compliance"
+echo -e "  ${BLUE}lint.md${NC} - Run static analysis and linting"
+echo -e "  ${BLUE}test.md${NC} - Execute test suite with coverage"
 
 fi
 
