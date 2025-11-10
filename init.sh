@@ -1588,6 +1588,8 @@ else
     echo -e "${YELLOW}⊘ Skipped: .claude/agents/ (keeping existing)${NC}"
 fi
 
+fi  # End of IS_CLAUDE_CODE block (line 1414)
+
 # Continue with the rest of CLAUDE.md
 cat >> "$TARGET_DIR/CLAUDE.md" << EOF
 
