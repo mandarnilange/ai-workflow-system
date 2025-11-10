@@ -282,7 +282,11 @@ Adding authentication logic...
 Running tests... ALL PASSING ✅ (156/156)
 
 ## Step 4: Validation
-Running 3 validators in parallel...
+Running 3 validators in parallel:
+- .workflow/playbooks/run-tests.md
+- .workflow/playbooks/run-lint.md
+- .workflow/playbooks/architecture-check.md
+
 ✅ Tests: 156/156 (100% coverage)
 ✅ Architecture: Zero violations
 ✅ Linting: No issues
@@ -319,7 +323,14 @@ Status: FAILING ✅ (reproduces crash)
 All tests: 156/156 PASSING ✅
 
 ## Step 5: Validation
-✅ All validators PASSED
+Running 3 validators in parallel:
+- .workflow/playbooks/run-tests.md
+- .workflow/playbooks/run-lint.md
+- .workflow/playbooks/architecture-check.md
+
+✅ Tests: 156/156 (100% coverage)
+✅ Architecture: Zero violations
+✅ Linting: No issues
 
 ## Step 6: Commit
 ✅ Commit: def5678
@@ -339,8 +350,12 @@ AI:
 Updated .spec/003-feature-xyz.md (8/9 tasks, 89%)
 
 ## Step 2: Running Validators
-Running 3 validators in parallel...
-✅ Tests: 156/156 (100%)
+Running 3 validators in parallel:
+- .workflow/playbooks/run-tests.md
+- .workflow/playbooks/run-lint.md
+- .workflow/playbooks/architecture-check.md
+
+✅ Tests: 156/156 (100% coverage)
 ✅ Architecture: Zero violations
 ✅ Linting: No issues
 
