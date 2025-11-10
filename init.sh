@@ -194,16 +194,24 @@ fi
 
 # If quick update, skip all questions
 if [ "$QUICK_UPDATE" = "true" ]; then
+    # Detect IS_CLAUDE_CODE from existing config.yml
+    if [ -f "$CONFIG_FILE" ] && grep -q "is_claude_code: true" "$CONFIG_FILE"; then
+        IS_CLAUDE_CODE="true"
+    else
+        IS_CLAUDE_CODE="false"
+    fi
+
     echo -e "${BLUE}Quick update mode:${NC}"
-    echo -e "  • Updating playbooks and templates"
-    echo -e "  • Keeping existing config.yml, AGENTS.md, and CLAUDE.md"
+    echo -e "  • Updating playbooks, templates, and instruction files"
+    if [ "$IS_CLAUDE_CODE" = "true" ]; then
+        echo -e "  • Updating .claude/agents/ subagents"
+    fi
+    echo -e "  • Keeping existing config.yml and USER_INSTRUCTIONS.md"
     echo -e ""
 
-    # Set flags - keep everything in quick update
+    # Set flags - only keep config in quick update
+    # AGENTS.md, CLAUDE.md, .workflow/ instructions, and .claude/agents/ are always updated (auto-generated)
     OVERWRITE_CONFIG="false"
-    OVERWRITE_AGENTS="false"
-    OVERWRITE_CLAUDE="false"
-    OVERWRITE_CLAUDE_AGENTS="false"
 fi
 
 # Only ask configuration questions if not doing quick update
@@ -437,36 +445,11 @@ if [ "$QUICK_UPDATE" = "false" ] && [ "$IS_UPDATE" = "true" ]; then
         ask_bool "Overwrite existing .workflow/config.yml with new config?" "false" OVERWRITE_CONFIG
     fi
 
-    # AGENTS and CLAUDE flags already set if quick update
-    if [ -z "$OVERWRITE_AGENTS" ]; then
-        OVERWRITE_AGENTS="true"
-        if [ -f "$AGENTS_FILE" ]; then
-            ask_bool "Overwrite existing AGENTS.md?" "false" OVERWRITE_AGENTS
-        fi
-    fi
-
-    if [ -z "$OVERWRITE_CLAUDE" ]; then
-        OVERWRITE_CLAUDE="true"
-        if [ -f "$CLAUDE_FILE" ]; then
-            ask_bool "Overwrite existing CLAUDE.md?" "false" OVERWRITE_CLAUDE
-        fi
-    fi
-
-    # Ask about .claude/agents if it exists and user selected Claude Code
-    if [ "$IS_CLAUDE_CODE" = "true" ] && [ -d "$TARGET_DIR/.claude/agents" ]; then
-        OVERWRITE_CLAUDE_AGENTS="true"
-        ask_bool "Overwrite existing .claude/agents/ subagents?" "true" OVERWRITE_CLAUDE_AGENTS
-    elif [ "$IS_CLAUDE_CODE" = "true" ]; then
-        OVERWRITE_CLAUDE_AGENTS="true"
-    else
-        OVERWRITE_CLAUDE_AGENTS="false"
-    fi
+    # Note: AGENTS.md, CLAUDE.md, .workflow/ instructions, and .claude/agents/
+    # are always overwritten (auto-generated system files)
 elif [ "$QUICK_UPDATE" = "false" ]; then
     # Fresh install - create everything
     OVERWRITE_CONFIG="true"
-    OVERWRITE_AGENTS="true"
-    OVERWRITE_CLAUDE="true"
-    OVERWRITE_CLAUDE_AGENTS="true"
 fi
 
 mkdir -p "$TARGET_DIR/.workflow"
@@ -585,11 +568,7 @@ cp -r "$SCRIPT_DIR/templates/"* "$TARGET_DIR/.workflow/templates/"
 echo -e "${GREEN}✓ Copied playbooks to .workflow/playbooks/${NC}"
 echo -e "${GREEN}✓ Copied templates to .workflow/templates/${NC}"
 
-# Generate AGENTS.md
-if [ "$OVERWRITE_AGENTS" = "true" ]; then
-    echo -e "\n${BLUE}Generating AGENTS.md...${NC}"
-
-# Determine language-specific code examples
+# Determine language-specific code examples (used for both AGENTS and CLAUDE instructions)
 case "$LANGUAGE" in
     "TypeScript")
         EXAMPLE_CLASS="User"
@@ -623,14 +602,16 @@ case "$LANGUAGE" in
         ;;
 esac
 
-cat > "$TARGET_DIR/AGENTS.md" << EOF
-# AI Agent Instructions
+# Generate AGENTS_INSTRUCTIONS.md (always - it's an auto-generated system file)
+echo -e "\n${BLUE}Generating AGENTS_INSTRUCTIONS.md...${NC}"
 
-**Universal instructions for ANY AI assistant (ChatGPT, Gemini, Codex, Claude, Cursor, etc.)**
+cat > "$TARGET_DIR/.workflow/AGENTS_INSTRUCTIONS.md" << EOF
+# Universal AI Agent Instructions
 
-> ⚠️ **IMPORTANT**: If you're using **Claude Code**, read **CLAUDE.md** instead for optimized instructions.
->
-> **For all other AI tools**: This file (AGENTS.md) contains everything you need.
+**Complete instructions for ANY AI assistant (ChatGPT, Gemini, Codex, Claude, Cursor, etc.)**
+
+> This file contains the full workflow system documentation for universal AI tools.
+> For Claude Code-specific optimizations, see CLAUDE_INSTRUCTIONS.md
 
 ---
 
@@ -1252,17 +1233,15 @@ The playbooks are human-readable documentation and can be followed without AI as
 **Remember**: Always follow the playbooks. They contain all workflow logic.
 EOF
 
-    echo -e "${GREEN}✓ Generated: AGENTS.md${NC}"
-else
-    echo -e "${YELLOW}⊘ Skipped: AGENTS.md (keeping existing)${NC}"
-fi
+echo -e "${GREEN}✓ Generated: .workflow/AGENTS_INSTRUCTIONS.md${NC}"
 
-# Generate CLAUDE.md
-if [ "$OVERWRITE_CLAUDE" = "true" ]; then
-    echo -e "\n${BLUE}Generating CLAUDE.md...${NC}"
+# Generate CLAUDE_INSTRUCTIONS.md (always - it's an auto-generated system file)
+echo -e "\n${BLUE}Generating CLAUDE_INSTRUCTIONS.md...${NC}"
 
-cat > "$TARGET_DIR/CLAUDE.md" << EOF
-# Project Instructions for Claude Code
+cat > "$TARGET_DIR/.workflow/CLAUDE_INSTRUCTIONS.md" << EOF
+# Claude Code Instructions
+
+**Complete instructions for Claude Code with optimizations**
 
 ## Workflow System
 
@@ -1389,12 +1368,12 @@ $LINT_COMMAND              # Run linter
 EOF
 
 if [ "$BUILD_REQUIRED" = "true" ]; then
-cat >> "$TARGET_DIR/CLAUDE.md" << EOF
+cat >> "$TARGET_DIR/.workflow/CLAUDE_INSTRUCTIONS.md" << EOF
 $BUILD_COMMAND             # Build project
 EOF
 fi
 
-cat >> "$TARGET_DIR/CLAUDE.md" << EOF
+cat >> "$TARGET_DIR/.workflow/CLAUDE_INSTRUCTIONS.md" << EOF
 \`\`\`
 
 ---
@@ -1412,7 +1391,7 @@ EOF
 
 # Add Claude Code-specific instructions if applicable
 if [ "$IS_CLAUDE_CODE" = "true" ]; then
-cat >> "$TARGET_DIR/CLAUDE.md" << 'EOF'
+cat >> "$TARGET_DIR/.workflow/CLAUDE_INSTRUCTIONS.md" << 'EOF'
 
 ## ⚡ Claude Code Optimizations
 
@@ -1492,11 +1471,11 @@ Assistant: [Uses Task tool with subagent_type=Explore]
 ```bash
 EOF
 
-cat >> "$TARGET_DIR/CLAUDE.md" << EOF
+cat >> "$TARGET_DIR/.workflow/CLAUDE_INSTRUCTIONS.md" << EOF
 $COVERAGE_COMMAND              # Single command gets both tests + coverage
 EOF
 
-cat >> "$TARGET_DIR/CLAUDE.md" << 'EOF'
+cat >> "$TARGET_DIR/.workflow/CLAUDE_INSTRUCTIONS.md" << 'EOF'
 ```
 
 **❌ WRONG**:
@@ -1508,14 +1487,13 @@ npm test -- --coverage         # Run again for coverage (wasteful)
 ---
 EOF
 
-# Create Claude Code subagents (if overwrite is allowed or fresh install)
-if [ "$OVERWRITE_CLAUDE_AGENTS" = "true" ]; then
-    echo -e "${BLUE}Creating Claude Code subagents...${NC}"
+# Create Claude Code subagents (always - auto-generated system files)
+echo -e "${BLUE}Creating Claude Code subagents...${NC}"
 
-    mkdir -p "$TARGET_DIR/.claude/agents"
+mkdir -p "$TARGET_DIR/.claude/agents"
 
-    # Create architecture review subagent
-    cat > "$TARGET_DIR/.claude/agents/architecture-review.md" << 'EOF'
+# Create architecture review subagent
+cat > "$TARGET_DIR/.claude/agents/architecture-review.md" << 'EOF'
 ---
 name: architecture-review
 description: Validate Clean Architecture compliance by checking dependency rules across layers
@@ -1567,8 +1545,8 @@ Violations: {count}
 For detailed instructions, reference: `.workflow/playbooks/architecture-check.md`
 EOF
 
-    # Create lint subagent
-    cat > "$TARGET_DIR/.claude/agents/lint.md" << 'EOF'
+# Create lint subagent
+cat > "$TARGET_DIR/.claude/agents/lint.md" << 'EOF'
 ---
 name: lint
 description: Run static analysis and linting checks on the codebase
@@ -1616,8 +1594,8 @@ Issues: {error_count} errors, {warning_count} warnings
 For detailed instructions, reference: `.workflow/playbooks/run-lint.md`
 EOF
 
-    # Create test subagent
-    cat > "$TARGET_DIR/.claude/agents/test.md" << 'EOF'
+# Create test subagent
+cat > "$TARGET_DIR/.claude/agents/test.md" << 'EOF'
 ---
 name: test
 description: Execute the test suite with coverage reporting
@@ -1666,18 +1644,15 @@ Failed: {list test names}
 For detailed instructions, reference: `.workflow/playbooks/run-tests.md`
 EOF
 
-    echo -e "${GREEN}✓ Created subagents in .claude/agents/:${NC}"
-    echo -e "  ${BLUE}architecture-review.md${NC} - Validate Clean Architecture compliance"
-    echo -e "  ${BLUE}lint.md${NC} - Run static analysis and linting"
-    echo -e "  ${BLUE}test.md${NC} - Execute test suite with coverage"
-else
-    echo -e "${YELLOW}⊘ Skipped: .claude/agents/ (keeping existing)${NC}"
-fi
+echo -e "${GREEN}✓ Created subagents in .claude/agents/:${NC}"
+echo -e "  ${BLUE}architecture-review.md${NC} - Validate Clean Architecture compliance"
+echo -e "  ${BLUE}lint.md${NC} - Run static analysis and linting"
+echo -e "  ${BLUE}test.md${NC} - Execute test suite with coverage"
 
-fi  # End of IS_CLAUDE_CODE block (line 1414)
+fi  # End of IS_CLAUDE_CODE block
 
-# Continue with the rest of CLAUDE.md
-cat >> "$TARGET_DIR/CLAUDE.md" << EOF
+# Continue with the rest of CLAUDE_INSTRUCTIONS.md
+cat >> "$TARGET_DIR/.workflow/CLAUDE_INSTRUCTIONS.md" << EOF
 
 ## Examples
 
@@ -1733,9 +1708,200 @@ See complete documentation:
 **That's it. The playbooks contain all workflow logic. Just read and follow them.**
 EOF
 
-    echo -e "${GREEN}✓ Generated: CLAUDE.md${NC}"
+echo -e "${GREEN}✓ Generated: .workflow/CLAUDE_INSTRUCTIONS.md${NC}"
+
+# Generate pointer files (AGENTS.md and CLAUDE.md - always auto-generated)
+echo -e "\n${BLUE}Generating pointer files...${NC}"
+
+cat > "$TARGET_DIR/AGENTS.md" << 'EOF'
+# AI Agent Instructions
+
+> **This file is auto-generated. Do not edit directly.**
+>
+> **Add custom instructions to:** [USER_INSTRUCTIONS.md](USER_INSTRUCTIONS.md)
+
+---
+
+## 📖 Complete Instructions
+
+For full workflow system documentation, see:
+
+**[.workflow/AGENTS_INSTRUCTIONS.md](.workflow/AGENTS_INSTRUCTIONS.md)**
+
+This contains:
+- Complete workflow system guide
+- Step-by-step examples
+- TDD requirements
+- Architecture rules
+- Quality standards
+- Commit guidelines
+
+---
+
+## 👤 User-Specific Instructions
+
+For project-specific customizations, see:
+
+**[USER_INSTRUCTIONS.md](USER_INSTRUCTIONS.md)**
+
+Add your custom:
+- Team conventions
+- Domain-specific rules
+- Project context
+- Coding standards
+
+---
+
+## 🚀 Quick Start
+
+1. Read `.workflow/AGENTS_INSTRUCTIONS.md` for complete system documentation
+2. Read `USER_INSTRUCTIONS.md` for project-specific context
+3. Start implementation: Follow `.workflow/playbooks/coordinator.md`
+4. Commit changes: Follow `.workflow/playbooks/commit.md`
+
+---
+
+**Note:** If using Claude Code, read [CLAUDE.md](CLAUDE.md) for optimized instructions.
+EOF
+
+cat > "$TARGET_DIR/CLAUDE.md" << 'EOF'
+# Claude Code Instructions
+
+> **This file is auto-generated. Do not edit directly.**
+>
+> **Add custom instructions to:** [USER_INSTRUCTIONS.md](USER_INSTRUCTIONS.md)
+
+---
+
+## 📖 Complete Instructions
+
+For full Claude Code documentation, see:
+
+**[.workflow/CLAUDE_INSTRUCTIONS.md](.workflow/CLAUDE_INSTRUCTIONS.md)**
+
+This contains:
+- Workflow system overview
+- Parallel execution optimizations
+- Subagent usage
+- Project context
+- Quick reference
+
+---
+
+## 👤 User-Specific Instructions
+
+For project-specific customizations, see:
+
+**[USER_INSTRUCTIONS.md](USER_INSTRUCTIONS.md)**
+
+Add your custom:
+- Team conventions
+- Domain-specific rules
+- Project context
+- Coding standards
+
+---
+
+## 🚀 Quick Start
+
+1. Read `.workflow/CLAUDE_INSTRUCTIONS.md` for complete system documentation
+2. Read `USER_INSTRUCTIONS.md` for project-specific context
+3. Start implementation: Read `.workflow/playbooks/coordinator.md`
+4. Commit changes: Read `.workflow/playbooks/commit.md`
+
+---
+
+**For other AI tools**, read [AGENTS.md](AGENTS.md) instead.
+EOF
+
+echo -e "${GREEN}✓ Generated: AGENTS.md (pointer)${NC}"
+echo -e "${GREEN}✓ Generated: CLAUDE.md (pointer)${NC}"
+
+# Create USER_INSTRUCTIONS.md if it doesn't exist
+if [ ! -f "$TARGET_DIR/USER_INSTRUCTIONS.md" ]; then
+    echo -e "\n${BLUE}Creating USER_INSTRUCTIONS.md template...${NC}"
+
+    cat > "$TARGET_DIR/USER_INSTRUCTIONS.md" << EOF
+# User-Specific Instructions
+
+**Add your project-specific instructions here.**
+
+This file is **never overwritten** by init.sh updates. Use it to document:
+
+---
+
+## Team Conventions
+
+Add your team's coding standards and practices here.
+
+Example:
+- Use meaningful variable names that reflect business domain
+- Prefer composition over inheritance
+- Keep functions under 20 lines when possible
+
+---
+
+## Domain-Specific Rules
+
+Document domain knowledge and business rules.
+
+Example:
+- User emails must be validated before storage
+- Passwords require: 8+ chars, 1 uppercase, 1 number, 1 special char
+- Order totals include tax calculation based on shipping address
+
+---
+
+## Project Context
+
+Important context about this specific project.
+
+Example:
+- This is a microservice handling user authentication
+- We integrate with legacy system XYZ via REST API
+- Database migrations run automatically on deployment
+
+---
+
+## Custom Quality Standards
+
+Additional quality requirements beyond .workflow/config.yml
+
+Example:
+- All API endpoints must include OpenAPI documentation
+- Security-sensitive functions require peer review
+- Performance-critical paths need benchmark tests
+
+---
+
+## External Dependencies
+
+Document external systems and APIs.
+
+Example:
+- Payment processing: Stripe API v2023-10-16
+- Email service: SendGrid (templates in /email-templates)
+- Cache: Redis cluster at redis://cache.internal:6379
+
+---
+
+## Development Environment
+
+Setup instructions and environment-specific notes.
+
+Example:
+- Requires Node.js 18+ and PostgreSQL 14+
+- Run \`npm run setup\` for initial database seed
+- Use \`.env.example\` as template for \`.env\`
+
+---
+
+**Note:** Keep this file updated as your project evolves. It helps both AI assistants and human developers understand your project's unique requirements.
+EOF
+
+    echo -e "${GREEN}✓ Created: USER_INSTRUCTIONS.md${NC}"
 else
-    echo -e "${YELLOW}⊘ Skipped: CLAUDE.md (keeping existing)${NC}"
+    echo -e "${YELLOW}⊘ USER_INSTRUCTIONS.md already exists (keeping existing)${NC}"
 fi
 
 # Create .spec/ directory if tracking is enabled
@@ -1814,51 +1980,53 @@ echo -e "${NC}"
 
 echo -e "${BLUE}Created/Updated files:${NC}"
 if [ "$OVERWRITE_CONFIG" = "true" ]; then
-    echo "  ✓ .workflow/config.yml           - Project configuration"
+    echo "  ✓ .workflow/config.yml                 - Project configuration"
 else
-    echo "  ⊘ .workflow/config.yml           - Kept existing"
+    echo "  ⊘ .workflow/config.yml                 - Kept existing"
 fi
-echo "  ✓ .workflow/playbooks/           - Workflow playbooks (9 files)"
-echo "  ✓ .workflow/templates/           - Spec file templates"
-if [ "$OVERWRITE_AGENTS" = "true" ]; then
-    echo "  ✓ AGENTS.md                      - Universal AI instructions"
+echo "  ✓ .workflow/playbooks/                 - Workflow playbooks (9 files)"
+echo "  ✓ .workflow/templates/                 - Spec file templates"
+echo "  ✓ .workflow/AGENTS_INSTRUCTIONS.md     - Full universal AI instructions"
+echo "  ✓ .workflow/CLAUDE_INSTRUCTIONS.md     - Full Claude Code instructions"
+echo "  ✓ AGENTS.md                            - Pointer to instructions (auto-generated)"
+echo "  ✓ CLAUDE.md                            - Pointer to instructions (auto-generated)"
+if [ -f "$TARGET_DIR/USER_INSTRUCTIONS.md" ] && [ "$IS_UPDATE" = "false" ]; then
+    echo "  ✓ USER_INSTRUCTIONS.md                 - Template for custom instructions"
+elif [ -f "$TARGET_DIR/USER_INSTRUCTIONS.md" ]; then
+    echo "  ⊘ USER_INSTRUCTIONS.md                 - Kept existing (add your custom instructions here)"
 else
-    echo "  ⊘ AGENTS.md                      - Kept existing"
+    echo "  ✓ USER_INSTRUCTIONS.md                 - Template for custom instructions"
 fi
-if [ "$OVERWRITE_CLAUDE" = "true" ]; then
-    echo "  ✓ CLAUDE.md                      - Claude Code instructions"
-else
-    echo "  ⊘ CLAUDE.md                      - Kept existing"
-fi
-if [ "$OVERWRITE_CLAUDE_AGENTS" = "true" ]; then
-    echo "  ✓ .claude/agents/                - Claude Code subagents (3 files)"
-elif [ "$IS_CLAUDE_CODE" = "true" ] && [ -d "$TARGET_DIR/.claude/agents" ]; then
-    echo "  ⊘ .claude/agents/                - Kept existing"
+if [ "$IS_CLAUDE_CODE" = "true" ]; then
+    echo "  ✓ .claude/agents/                      - Claude Code subagents (3 files)"
 fi
 if [ "$TRACKING_ENABLED" = "true" ]; then
     SPEC_STATUS_FILE="$TARGET_DIR/.spec/overall-status.md"
     if [ -f "$SPEC_STATUS_FILE" ]; then
-        echo "  ⊘ .spec/overall-status.md        - Already exists"
+        echo "  ⊘ .spec/overall-status.md              - Already exists"
     else
-        echo "  ✓ .spec/overall-status.md        - Task tracking dashboard"
+        echo "  ✓ .spec/overall-status.md              - Task tracking dashboard"
     fi
 fi
 
 echo -e "\n${BLUE}Next steps:${NC}"
 echo "  1. Review .workflow/config.yml and adjust if needed"
-echo "  2. Commit the workflow files to your repository"
-echo "  3. Share AGENTS.md with your team"
+echo "  2. Add project-specific instructions to USER_INSTRUCTIONS.md"
+echo "  3. Commit the workflow files to your repository"
+echo "  4. Share AGENTS.md or CLAUDE.md with your team"
 if [ "$IS_CLAUDE_CODE" = "true" ]; then
-    echo "  4. View your subagents in Claude Code: /agents"
-    echo "  5. Start using workflows:"
+    echo "  5. View your subagents in Claude Code: /agents"
+    echo "  6. Start using workflows:"
 else
-    echo "  4. Start using workflows:"
+    echo "  5. Start using workflows:"
 fi
-echo "     - For implementation: Ask AI to read .workflow/playbooks/coordinator.md"
+echo "     - For implementation: Ask AI to read AGENTS.md or CLAUDE.md"
 echo "     - For commits: Ask AI to read .workflow/playbooks/commit.md"
 
 echo -e "\n${BLUE}Documentation:${NC}"
-echo "  - Full docs: .workflow/README.md"
+echo "  - System docs: .workflow/README.md"
+echo "  - AI instructions: .workflow/AGENTS_INSTRUCTIONS.md or .workflow/CLAUDE_INSTRUCTIONS.md"
+echo "  - User instructions: USER_INSTRUCTIONS.md (add your customizations here)"
 echo "  - Config reference: .workflow/config.yml"
 echo "  - Playbook reference: .workflow/playbooks/"
 
