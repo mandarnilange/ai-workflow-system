@@ -242,9 +242,7 @@ Each subagent is defined using Claude Code's standard agent format with YAML fro
 ```markdown
 ---
 name: test
-description: Execute the test suite with coverage reporting. Use proactively during pre-commit validation.
-tools: Read, Bash
-model: inherit
+description: Execute the test suite with coverage reporting
 ---
 
 You are a test execution specialist ensuring code quality through comprehensive testing.
@@ -262,10 +260,8 @@ Follow the playbook exactly and report all findings to the user.
 
 **Key components:**
 - **name**: Unique identifier for the subagent
-- **description**: When and how the subagent should be used (includes "Use proactively" for automatic invocation)
-- **tools**: Specific tools granted to the subagent (Read, Bash for test/lint; Read, Grep, Glob for architecture)
-- **model**: Set to `inherit` to use the same model as the main conversation
-- **System prompt**: Defines the subagent's role and points to the corresponding playbook
+- **description**: Brief description of when this subagent should be invoked
+- **System prompt**: Defines the subagent's role and points to the corresponding playbook. Can be multiple paragraphs with specific instructions, best practices, and constraints.
 
 This design keeps validation logic centralized in playbooks while providing Claude Code-native subagents for easy invocation.
 
@@ -278,9 +274,6 @@ This design keeps validation logic centralized in playbooks while providing Clau
 
 This shows all available subagents including the three validation subagents created during initialization.
 
-**Automatic invocation:**
-The subagents are configured with "Use proactively" in their descriptions, so Claude Code will automatically use them during pre-commit validation when following the commit.md playbook.
-
 **Manual invocation:**
 You can explicitly request a specific subagent:
 ```
@@ -290,7 +283,7 @@ You can explicitly request a specific subagent:
 ```
 
 **During commit workflow:**
-When executing `.workflow/playbooks/commit.md`, Claude Code will automatically invoke all three subagents in parallel for comprehensive validation.
+When executing `.workflow/playbooks/commit.md`, the playbook instructs Claude Code to read and execute the three subagent files in parallel for comprehensive validation.
 
 ---
 

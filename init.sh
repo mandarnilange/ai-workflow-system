@@ -1518,9 +1518,7 @@ if [ "$OVERWRITE_CLAUDE_AGENTS" = "true" ]; then
     cat > "$TARGET_DIR/.claude/agents/architecture-review.md" << 'EOF'
 ---
 name: architecture-review
-description: Validate Clean Architecture compliance by checking dependency rules across layers. Use proactively during pre-commit validation.
-tools: Read, Grep, Glob
-model: inherit
+description: Validate Clean Architecture compliance by checking dependency rules across layers
 ---
 
 You are an architecture validation specialist ensuring Clean Architecture compliance.
@@ -1540,9 +1538,7 @@ EOF
     cat > "$TARGET_DIR/.claude/agents/lint.md" << 'EOF'
 ---
 name: lint
-description: Run static analysis and linting checks on the codebase. Use proactively during pre-commit validation.
-tools: Read, Bash
-model: inherit
+description: Run static analysis and linting checks on the codebase
 ---
 
 You are a code quality specialist focused on static analysis and linting.
@@ -1562,9 +1558,7 @@ EOF
     cat > "$TARGET_DIR/.claude/agents/test.md" << 'EOF'
 ---
 name: test
-description: Execute the test suite with coverage reporting. Use proactively during pre-commit validation.
-tools: Read, Bash
-model: inherit
+description: Execute the test suite with coverage reporting
 ---
 
 You are a test execution specialist ensuring code quality through comprehensive testing.
