@@ -113,10 +113,14 @@ git pull origin main  # If you already have it cloned
 
 **What happens during update:**
 
-The script will detect existing files and ask you:
-- ✅ **Always updated**: `.workflow/playbooks/` and `.workflow/templates/` (workflow system files)
-- ⚠️ **Asks before overwriting**: `.workflow/config.yml`, `AGENTS.md`, `CLAUDE.md`
-- 🔒 **Never touched**: `.spec/` files (your work tracking)
+The script will detect existing files and handle them as follows:
+- ✅ **Always updated** (auto-generated system files):
+  - `.workflow/playbooks/` and `.workflow/templates/` (workflow scripts)
+  - `.workflow/AGENTS_INSTRUCTIONS.md` and `.workflow/CLAUDE_INSTRUCTIONS.md` (full AI instructions)
+  - `AGENTS.md` and `CLAUDE.md` (pointer files)
+  - `.claude/agents/` (if Claude Code is configured)
+- ⚠️ **Asks before overwriting**: `.workflow/config.yml` (your project configuration)
+- 🔒 **Never touched**: `.spec/` files (your work tracking), `USER_INSTRUCTIONS.md` (your custom instructions)
 
 **Example update session:**
 ```
@@ -124,21 +128,27 @@ Existing Installation Detected
 
 Found existing files:
   • .workflow/config.yml
-  • AGENTS.md
-  • CLAUDE.md
 
 The following will be updated automatically:
   • .workflow/playbooks/ (workflow scripts)
   • .workflow/templates/ (spec templates)
+  • .workflow/AGENTS_INSTRUCTIONS.md (full universal instructions)
+  • .workflow/CLAUDE_INSTRUCTIONS.md (full Claude Code instructions)
+  • AGENTS.md (pointer file)
+  • CLAUDE.md (pointer file)
+  • .claude/agents/ (subagents - if Claude Code)
+
+Preserved (never overwritten):
+  • .spec/ (task tracking)
+  • USER_INSTRUCTIONS.md (your custom instructions)
 
 Overwrite .workflow/config.yml? (keeps your customizations if 'n') [y/N]: n
-Overwrite AGENTS.md? (keeps your customizations if 'n') [y/N]: y
-Overwrite CLAUDE.md? (keeps your customizations if 'n') [y/N]: y
 ```
 
 **Recommended approach:**
 - Keep your customized `config.yml` (answer 'n')
-- Update `AGENTS.md` and `CLAUDE.md` for latest workflow features (answer 'y')
+- Let the system update all auto-generated files (happens automatically)
+- Add your customizations to `USER_INSTRUCTIONS.md` instead of editing AGENTS.md or CLAUDE.md
 
 ---
 
@@ -149,34 +159,37 @@ After running `init.sh`, your project will have:
 ```
 your-project/
 ├── .workflow/
-│   ├── config.yml                    # Your project configuration
+│   ├── config.yml                      # Your project configuration
+│   ├── AGENTS_INSTRUCTIONS.md          # Full universal AI instructions (auto-generated)
+│   ├── CLAUDE_INSTRUCTIONS.md          # Full Claude Code instructions (auto-generated)
 │   ├── playbooks/
-│   │   ├── coordinator.md            # Master router
-│   │   ├── feature.md                # Feature implementation
-│   │   ├── bugfix.md                 # Bug fixing
-│   │   ├── commit.md                 # Pre-commit validation
-│   │   ├── tdd.md                    # TDD cycle
-│   │   ├── architecture-check.md     # Architecture validation
-│   │   ├── run-tests.md              # Test execution
-│   │   ├── run-lint.md               # Linting execution
-│   │   └── reporting-guidelines.md   # Visibility rules
+│   │   ├── coordinator.md              # Master router
+│   │   ├── feature.md                  # Feature implementation
+│   │   ├── bugfix.md                   # Bug fixing
+│   │   ├── commit.md                   # Pre-commit validation
+│   │   ├── tdd.md                      # TDD cycle
+│   │   ├── architecture-check.md       # Architecture validation
+│   │   ├── run-tests.md                # Test execution
+│   │   ├── run-lint.md                 # Linting execution
+│   │   └── reporting-guidelines.md     # Visibility rules
 │   └── templates/
-│       ├── feature-template.md       # .spec/ file templates
+│       ├── feature-template.md         # .spec/ file templates
 │       ├── bugfix-template.md
 │       └── refactor-template.md
-├── .claude/                           # Claude Code specific (if selected)
+├── .claude/                             # Claude Code specific (if selected)
 │   └── agents/
-│       ├── architecture-review.md    # Subagent: architecture validation
-│       ├── lint.md                   # Subagent: linting checks
-│       └── test.md                   # Subagent: test execution
+│       ├── architecture-review.md      # Subagent: architecture validation
+│       ├── lint.md                     # Subagent: linting checks
+│       └── test.md                     # Subagent: test execution
 ├── .spec/
-│   ├── .sequence                      # Sequence counter (auto-managed)
-│   ├── overall-status.md             # Project dashboard
-│   ├── 001-feature-xxx.md            # Feature specs (sequenced)
-│   ├── 002-fix-xxx.md                # Bug fix specs (sequenced)
-│   └── 003-feature-yyy.md            # More specs...
-├── AGENTS.md                          # Universal AI instructions (ALL tools)
-└── CLAUDE.md                          # Claude Code-specific optimizations
+│   ├── .sequence                        # Sequence counter (auto-managed)
+│   ├── overall-status.md               # Project dashboard
+│   ├── 001-feature-xxx.md              # Feature specs (sequenced)
+│   ├── 002-fix-xxx.md                  # Bug fix specs (sequenced)
+│   └── 003-feature-yyy.md              # More specs...
+├── AGENTS.md                            # Pointer to .workflow/AGENTS_INSTRUCTIONS.md (auto-generated)
+├── CLAUDE.md                            # Pointer to .workflow/CLAUDE_INSTRUCTIONS.md (auto-generated)
+└── USER_INSTRUCTIONS.md                 # Your custom instructions (never overwritten)
 ```
 
 **Note on `.spec/` Sequence Numbering:**
@@ -195,15 +208,22 @@ Examples:
 ### Which File Should Your AI Assistant Use?
 
 **For Claude Code users**: Use **`CLAUDE.md`**
-- Contains Claude Code-specific optimizations
+- Pointer file that references `.workflow/CLAUDE_INSTRUCTIONS.md` (full instructions)
+- Also reads `USER_INSTRUCTIONS.md` (your custom instructions)
+- Contains Claude Code-specific optimizations and subagent usage
 - Includes parallel execution patterns
-- Optimized for Claude Code's tool system
 
 **For ALL other AI assistants** (ChatGPT, Gemini, Codex, Cursor, Copilot, etc.): Use **`AGENTS.md`**
+- Pointer file that references `.workflow/AGENTS_INSTRUCTIONS.md` (full instructions)
+- Also reads `USER_INSTRUCTIONS.md` (your custom instructions)
 - Universal instructions that work with any AI tool
 - Language-specific examples for your project
 - Detailed workflow usage guides
-- Platform-specific guidance for common issues
+
+**Important Notes:**
+- `AGENTS.md` and `CLAUDE.md` are auto-generated pointer files (always overwritten during updates)
+- Full instructions live in `.workflow/AGENTS_INSTRUCTIONS.md` and `.workflow/CLAUDE_INSTRUCTIONS.md`
+- Add your custom instructions to `USER_INSTRUCTIONS.md` (never overwritten by updates)
 
 **If your AI tool uses a different default file** (e.g., `GEMINI.md`, `COPILOT.md`, etc.):
 - Create that file in your project root
