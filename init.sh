@@ -203,6 +203,7 @@ if [ "$QUICK_UPDATE" = "true" ]; then
     OVERWRITE_CONFIG="false"
     OVERWRITE_AGENTS="false"
     OVERWRITE_CLAUDE="false"
+    OVERWRITE_CLAUDE_AGENTS="false"
 fi
 
 # Only ask configuration questions if not doing quick update
@@ -450,11 +451,22 @@ if [ "$QUICK_UPDATE" = "false" ] && [ "$IS_UPDATE" = "true" ]; then
             ask_bool "Overwrite existing CLAUDE.md?" "false" OVERWRITE_CLAUDE
         fi
     fi
+
+    # Ask about .claude/agents if it exists and user selected Claude Code
+    if [ "$IS_CLAUDE_CODE" = "true" ] && [ -d "$TARGET_DIR/.claude/agents" ]; then
+        OVERWRITE_CLAUDE_AGENTS="true"
+        ask_bool "Overwrite existing .claude/agents/ subagents?" "true" OVERWRITE_CLAUDE_AGENTS
+    elif [ "$IS_CLAUDE_CODE" = "true" ]; then
+        OVERWRITE_CLAUDE_AGENTS="true"
+    else
+        OVERWRITE_CLAUDE_AGENTS="false"
+    fi
 elif [ "$QUICK_UPDATE" = "false" ]; then
     # Fresh install - create everything
     OVERWRITE_CONFIG="true"
     OVERWRITE_AGENTS="true"
     OVERWRITE_CLAUDE="true"
+    OVERWRITE_CLAUDE_AGENTS="true"
 fi
 
 mkdir -p "$TARGET_DIR/.workflow"
@@ -1496,13 +1508,14 @@ npm test -- --coverage         # Run again for coverage (wasteful)
 ---
 EOF
 
-# Create Claude Code subagents
-echo -e "${BLUE}Creating Claude Code subagents...${NC}"
+# Create Claude Code subagents (if overwrite is allowed or fresh install)
+if [ "$OVERWRITE_CLAUDE_AGENTS" = "true" ]; then
+    echo -e "${BLUE}Creating Claude Code subagents...${NC}"
 
-mkdir -p "$TARGET_DIR/.claude/agents"
+    mkdir -p "$TARGET_DIR/.claude/agents"
 
-# Create architecture review subagent
-cat > "$TARGET_DIR/.claude/agents/architecture-review.md" << 'EOF'
+    # Create architecture review subagent
+    cat > "$TARGET_DIR/.claude/agents/architecture-review.md" << 'EOF'
 ---
 name: architecture-review
 description: Validate Clean Architecture compliance by checking dependency rules across layers. Use proactively during pre-commit validation.
@@ -1523,8 +1536,8 @@ This playbook will guide you through:
 Follow the playbook exactly and report all findings to the user.
 EOF
 
-# Create lint subagent
-cat > "$TARGET_DIR/.claude/agents/lint.md" << 'EOF'
+    # Create lint subagent
+    cat > "$TARGET_DIR/.claude/agents/lint.md" << 'EOF'
 ---
 name: lint
 description: Run static analysis and linting checks on the codebase. Use proactively during pre-commit validation.
@@ -1545,8 +1558,8 @@ This playbook will guide you through:
 Follow the playbook exactly and report all findings to the user.
 EOF
 
-# Create test subagent
-cat > "$TARGET_DIR/.claude/agents/test.md" << 'EOF'
+    # Create test subagent
+    cat > "$TARGET_DIR/.claude/agents/test.md" << 'EOF'
 ---
 name: test
 description: Execute the test suite with coverage reporting. Use proactively during pre-commit validation.
@@ -1567,11 +1580,12 @@ This playbook will guide you through:
 Follow the playbook exactly and report all findings to the user.
 EOF
 
-echo -e "${GREEN}✓ Created subagents in .claude/agents/:${NC}"
-echo -e "  ${BLUE}architecture-review.md${NC} - Validate Clean Architecture compliance"
-echo -e "  ${BLUE}lint.md${NC} - Run static analysis and linting"
-echo -e "  ${BLUE}test.md${NC} - Execute test suite with coverage"
-
+    echo -e "${GREEN}✓ Created subagents in .claude/agents/:${NC}"
+    echo -e "  ${BLUE}architecture-review.md${NC} - Validate Clean Architecture compliance"
+    echo -e "  ${BLUE}lint.md${NC} - Run static analysis and linting"
+    echo -e "  ${BLUE}test.md${NC} - Execute test suite with coverage"
+else
+    echo -e "${YELLOW}⊘ Skipped: .claude/agents/ (keeping existing)${NC}"
 fi
 
 # Continue with the rest of CLAUDE.md
@@ -1716,7 +1730,7 @@ if [ "$OVERWRITE_CONFIG" = "true" ]; then
 else
     echo "  ⊘ .workflow/config.yml           - Kept existing"
 fi
-echo "  ✓ .workflow/playbooks/           - Workflow playbooks (7 files)"
+echo "  ✓ .workflow/playbooks/           - Workflow playbooks (9 files)"
 echo "  ✓ .workflow/templates/           - Spec file templates"
 if [ "$OVERWRITE_AGENTS" = "true" ]; then
     echo "  ✓ AGENTS.md                      - Universal AI instructions"
@@ -1727,6 +1741,11 @@ if [ "$OVERWRITE_CLAUDE" = "true" ]; then
     echo "  ✓ CLAUDE.md                      - Claude Code instructions"
 else
     echo "  ⊘ CLAUDE.md                      - Kept existing"
+fi
+if [ "$OVERWRITE_CLAUDE_AGENTS" = "true" ]; then
+    echo "  ✓ .claude/agents/                - Claude Code subagents (3 files)"
+elif [ "$IS_CLAUDE_CODE" = "true" ] && [ -d "$TARGET_DIR/.claude/agents" ]; then
+    echo "  ⊘ .claude/agents/                - Kept existing"
 fi
 if [ "$TRACKING_ENABLED" = "true" ]; then
     SPEC_STATUS_FILE="$TARGET_DIR/.spec/overall-status.md"
@@ -1741,7 +1760,12 @@ echo -e "\n${BLUE}Next steps:${NC}"
 echo "  1. Review .workflow/config.yml and adjust if needed"
 echo "  2. Commit the workflow files to your repository"
 echo "  3. Share AGENTS.md with your team"
-echo "  4. Start using workflows:"
+if [ "$IS_CLAUDE_CODE" = "true" ]; then
+    echo "  4. View your subagents in Claude Code: /agents"
+    echo "  5. Start using workflows:"
+else
+    echo "  4. Start using workflows:"
+fi
 echo "     - For implementation: Ask AI to read .workflow/playbooks/coordinator.md"
 echo "     - For commits: Ask AI to read .workflow/playbooks/commit.md"
 
