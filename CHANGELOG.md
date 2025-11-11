@@ -14,6 +14,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0-beta] - 2025-01-11
+
+### Added
+- **Template System**: Extracted all instruction content from init.sh into reusable template files
+  - Created `templates/instructions/` for all instruction files
+  - Created `templates/agents/` for Claude Code subagent definitions
+  - Reduced init.sh from 2083 lines to 894 lines (57% reduction)
+  - Added `process_template()` function using `envsubst` for variable substitution
+  - Benefits: Much easier to maintain, version control, and customize instructions
+
+### Changed
+- **MANDATORY WORKFLOW ENFORCEMENT**: Added emphatic warnings to all instruction files
+  - Added prominent "MANDATORY WORKFLOW" section at top of all instruction files
+  - Clear FORBIDDEN vs REQUIRED sections
+  - Explicit "Direct implementation without workflow = FAILURE" message
+  - Added execution pattern examples (correct vs wrong)
+  - Updated both pointer files (AGENTS.md, CLAUDE.md) and full instruction files
+
+- **Continuous Execution Guidance**: Clarified that AI agents should NOT pause between steps
+  - Added "Execute CONTINUOUSLY" requirement to all instructions
+  - Added execution pattern diagrams showing correct continuous flow
+  - Enhanced Codex-specific guidance with 5 explicit rules and self-check question
+  - Clarified "step-by-step" means announce then execute, not wait for confirmation
+
+- **File Structure**: Reorganized instruction file architecture
+  - `.workflow/AGENTS_INSTRUCTIONS.md` - Full universal AI instructions (auto-generated)
+  - `.workflow/CLAUDE_INSTRUCTIONS.md` - Full Claude Code instructions (auto-generated)
+  - `AGENTS.md` - Pointer file with mandatory workflow warnings (auto-generated)
+  - `CLAUDE.md` - Pointer file with mandatory workflow warnings (auto-generated)
+  - `USER_INSTRUCTIONS.md` - User customizations (never overwritten)
+
+### Improved
+- **Documentation**: Updated README.md to reflect new template-based architecture
+- **Maintainability**: Template system makes updates significantly easier
+- **Clarity**: Stronger, more explicit guidance prevents AI agents from skipping workflows or pausing unnecessarily
+
+---
+
 ## [0.4.0-beta] - 2025-11-09
 
 ### Fixed
