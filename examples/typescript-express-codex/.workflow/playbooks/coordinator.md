@@ -30,7 +30,7 @@ Reading: .workflow/playbooks/coordinator.md
 Detecting intent and routing to appropriate workflow...
 ```
 
-**After outputting the above message, IMMEDIATELY AND AUTOMATICALLY proceed to Step 1. DO NOT wait for user confirmation.**
+**After outputting the above message, proceed to Step 1.**
 
 ---
 
@@ -76,7 +76,7 @@ I'm not sure what type of work this is. Please clarify:
 What would you like to do?
 ```
 
-**EXCEPTION: ONLY in this case (UNCLEAR intent), wait for user response, then re-run Step 1.**
+Wait for user response, then re-run Step 1.
 
 ---
 
@@ -103,7 +103,7 @@ Routing to: .workflow/playbooks/{playbook-name}.md
 Now executing {playbook name} workflow...
 ```
 
-**After outputting the above message, IMMEDIATELY AND AUTOMATICALLY proceed to Step 3. DO NOT wait for user confirmation.**
+**After outputting the above message, proceed to Step 3.**
 
 ---
 
@@ -223,5 +223,5 @@ Summary:
 
 ### If user request is ambiguous:
 1. Ask for clarification
-2. **EXCEPTION: ONLY in this case, wait for user response**
+2. Wait for user response
 3. Re-run Step 1 with clarified request

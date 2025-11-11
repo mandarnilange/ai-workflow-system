@@ -1,13 +1,13 @@
 # AI Workflow System Configuration
-# Generated: Sat Nov  8 21:01:06 IST 2025
+# Generated: Mon Nov 10 21:36:18 IST 2025
 
 system:
-  version: "0.1.0-beta"
-  config_version: "0.1"
+  version: "0.3.0-beta"
+  config_version: "0.2"
 
 project:
-  name: "My Project"
-  description: "A sample project"
+  name: "Example Claude Code"
+  description: "Example for claude code"
   language: "TypeScript"
   framework: "Express.js"
 

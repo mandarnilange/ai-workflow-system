@@ -132,8 +132,8 @@ Next: Step 2 - Run Validators (3 validators in parallel)
 ## Step 2: Running Validators
 
 Executing 3 validators in parallel:
-1. 🧪 Test Suite (npm test -- --coverage)
-2. 🔍 Static Analysis (npm run lint)
+1. 🧪 Test Suite (.workflow/playbooks/run-tests.md)
+2. 🔍 Static Analysis (.workflow/playbooks/run-lint.md)
 3. 🏛️ Architecture Validation (.workflow/playbooks/architecture-check.md)
 
 Please wait...
@@ -143,24 +143,40 @@ All THREE validators must run in parallel and ALL must pass.
 
 ### 2.1 Launch Validators in Parallel
 
-Run these commands concurrently (if your AI tool supports parallel execution):
+**IMPORTANT**: Choose the appropriate method based on your AI tool:
+
+#### For Claude Code Users
+
+If using Claude Code with subagents configured in `.claude/agents/`, invoke all three subagents in parallel using the Task tool.
+
+**CRITICAL**: You MUST send a SINGLE message with THREE Task tool calls to run them in parallel:
+
+```
+Task(subagent_type="test", description="Execute test suite", prompt="Run the test suite with coverage and report results")
+Task(subagent_type="lint", description="Run linting checks", prompt="Run static analysis and linting, report any issues")
+Task(subagent_type="architecture-review", description="Validate architecture", prompt="Validate Clean Architecture compliance and report violations")
+```
+
+**This ensures true parallel execution** - all three validators run concurrently instead of sequentially.
+
+#### For All Other AI Tools (or Claude Code without subagents)
+
+Read and execute the three playbooks directly:
 
 **Validator 1: Test Suite**
-```bash
-npm test -- --coverage
-```
+Read and follow `.workflow/playbooks/run-tests.md`
 
 **Validator 2: Static Analysis**
-```bash
-npm run lint
-```
+Read and follow `.workflow/playbooks/run-lint.md`
 
 **Validator 3: Architecture Validation**
 Read and follow `.workflow/playbooks/architecture-check.md`
 
+If your tool supports parallel operations, execute all three simultaneously.
+
 ### 2.2 Collect Results
 
-**AUTOMATICALLY wait for all three processes to complete (not user input).** Collect:
+Wait for all three to complete. Collect:
 - Exit codes (0 = pass, non-zero = fail)
 - Test coverage percentage
 - Number of tests passing/total
@@ -188,11 +204,9 @@ Cannot commit until all validators pass.
 Fixing issues before proceeding...
 ```
 
-**EXCEPTION: STOP here and wait for user to fix issues, then re-run Step 2. Do NOT proceed to Step 3.**
+STOP here. Fix issues, then re-run Step 2. Do NOT proceed to Step 3.
 
 **If ALL validators pass:**
-
-**IMMEDIATELY AND AUTOMATICALLY continue to Step 3. DO NOT wait for user confirmation.**
 
 **Report to user**:
 ```
@@ -410,7 +424,7 @@ If ANY item unchecked, playbook is NOT complete.
 1. Report failures to user clearly
 2. Show specific errors from each failing validator
 3. Do NOT continue to Step 3
-4. **EXCEPTION: ONLY in this case, wait for user to fix issues**
+4. Wait for user to fix issues
 5. Offer to re-run from Step 2 after fixes
 
 ### If commit fails
@@ -434,23 +448,37 @@ If ANY item unchecked, playbook is NOT complete.
 ## Notes for Different AI Assistants
 
 **Claude Code**:
-- Use parallel tool execution for Step 2.1 validators when possible
+- **PREFERRED**: Use Task tool with subagents in Step 2.1 if `.claude/agents/` directory exists
+  - Invoke all three subagents in a SINGLE message with THREE Task tool calls:
+    - Task(subagent_type="test", ...)
+    - Task(subagent_type="lint", ...)
+    - Task(subagent_type="architecture-review", ...)
+  - This ensures true parallel execution (concurrent, not sequential)
+- **FALLBACK**: If no subagents, execute bash commands directly in parallel:
+  - Bash: npm test -- --coverage
+  - Bash: npm run lint
+  - Bash: Run architecture validation script
 - Use MCP git tools for commit operations
 - Use Read/Edit tools for .spec/ file updates
 
 **ChatGPT**:
-- Suggest user runs validator commands manually
-- Provide exact copy/paste commands
+- Read and execute the three playbooks for validation:
+  - `.workflow/playbooks/run-tests.md`
+  - `.workflow/playbooks/run-lint.md`
+  - `.workflow/playbooks/architecture-check.md`
 - Guide through manual .spec/ file updates if needed
+- Provide exact copy/paste commands from playbooks
 
 **Cursor**:
+- Read and execute the three playbooks for validation
 - Execute commands directly via integrated terminal
 - Show validator output inline
 - Auto-stage files
 
 **Manual Execution**:
 - Follow checklist step-by-step
-- Run each validator command manually
+- Read each playbook manually for instructions
+- Execute validator commands from playbooks
 - Manually update .spec/ files
 - Verify each step before proceeding
 
@@ -459,16 +487,25 @@ If ANY item unchecked, playbook is NOT complete.
 ## Validator Details
 
 ### Test Suite Validator
-- Command: `npm test -- --coverage`
-- Pass criteria: All tests passing, 100% coverage
+- Playbook: `.workflow/playbooks/run-tests.md`
+- Subagent (Claude Code): `test` (via Task tool with subagent_type="test")
+- Agent definition: `.claude/agents/test.md`
+- Pass criteria: All tests passing, required coverage met
 - Output: Test count, coverage percentages
+- Model: haiku (fast, cost-effective)
 
 ### Linting Validator
-- Command: `npm run lint`
+- Playbook: `.workflow/playbooks/run-lint.md`
+- Subagent (Claude Code): `lint` (via Task tool with subagent_type="lint")
+- Agent definition: `.claude/agents/lint.md`
 - Pass criteria: Zero errors, zero warnings
 - Output: List of issues (if any)
+- Model: haiku (fast, cost-effective)
 
 ### Architecture Validator
 - Playbook: `.workflow/playbooks/architecture-check.md`
+- Subagent (Claude Code): `architecture-review` (via Task tool with subagent_type="architecture-review")
+- Agent definition: `.claude/agents/architecture-review.md`
 - Pass criteria: Zero violations
 - Output: Dependency graph compliance report
+- Model: haiku (fast, cost-effective)

@@ -5,7 +5,7 @@
 A language-agnostic, AI-assistant-agnostic workflow system that enforces TDD, Clean Architecture, and quality standards through markdown playbooks.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.4.0--beta-blue.svg)](https://github.com/mandarnilange/ai-workflow-system/releases)
+[![Version](https://img.shields.io/badge/version-0.5.0--beta-blue.svg)](https://github.com/mandarnilange/ai-workflow-system/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Code of Conduct](https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-purple.svg)](CODE_OF_CONDUCT.md)
 
@@ -64,10 +64,14 @@ The interactive setup will ask about:
 - Architecture layer paths
 - Git commit preferences
 - Naming conventions
-- **Primary AI assistant** (Claude Code, ChatGPT, Gemini, etc.)
-  - If you select **Claude Code**, additional optimizations are enabled:
+- **Primary AI assistant** (MANDATORY - you must explicitly select)
+  - No default option - you must choose from: Claude Code, ChatGPT, Gemini, Codex, Cursor, or Other
+  - If you select **Claude Code**, additional features are automatically configured:
     - Parallel execution instructions for validators
-    - Sub-agent usage recommendations
+    - **Three subagents** created in `.claude/agents/`:
+      - `architecture-review.md` - Run architecture validation
+      - `lint.md` - Run linting checks
+      - `test.md` - Run test suite
     - Performance optimization guidance
 
 ### Use in Your Project
@@ -109,10 +113,14 @@ git pull origin main  # If you already have it cloned
 
 **What happens during update:**
 
-The script will detect existing files and ask you:
-- ✅ **Always updated**: `.workflow/playbooks/` and `.workflow/templates/` (workflow system files)
-- ⚠️ **Asks before overwriting**: `.workflow/config.yml`, `AGENTS.md`, `CLAUDE.md`
-- 🔒 **Never touched**: `.spec/` files (your work tracking)
+The script will detect existing files and handle them as follows:
+- ✅ **Always updated** (auto-generated system files):
+  - `.workflow/playbooks/` and `.workflow/templates/` (workflow scripts)
+  - `.workflow/AGENTS_INSTRUCTIONS.md` and `.workflow/CLAUDE_INSTRUCTIONS.md` (full AI instructions)
+  - `AGENTS.md` and `CLAUDE.md` (pointer files)
+  - `.claude/agents/` (if Claude Code is configured)
+- ⚠️ **Asks before overwriting**: `.workflow/config.yml` (your project configuration)
+- 🔒 **Never touched**: `.spec/` files (your work tracking), `USER_INSTRUCTIONS.md` (your custom instructions)
 
 **Example update session:**
 ```
@@ -120,21 +128,27 @@ Existing Installation Detected
 
 Found existing files:
   • .workflow/config.yml
-  • AGENTS.md
-  • CLAUDE.md
 
 The following will be updated automatically:
   • .workflow/playbooks/ (workflow scripts)
   • .workflow/templates/ (spec templates)
+  • .workflow/AGENTS_INSTRUCTIONS.md (full universal instructions)
+  • .workflow/CLAUDE_INSTRUCTIONS.md (full Claude Code instructions)
+  • AGENTS.md (pointer file)
+  • CLAUDE.md (pointer file)
+  • .claude/agents/ (subagents - if Claude Code)
+
+Preserved (never overwritten):
+  • .spec/ (task tracking)
+  • USER_INSTRUCTIONS.md (your custom instructions)
 
 Overwrite .workflow/config.yml? (keeps your customizations if 'n') [y/N]: n
-Overwrite AGENTS.md? (keeps your customizations if 'n') [y/N]: y
-Overwrite CLAUDE.md? (keeps your customizations if 'n') [y/N]: y
 ```
 
 **Recommended approach:**
 - Keep your customized `config.yml` (answer 'n')
-- Update `AGENTS.md` and `CLAUDE.md` for latest workflow features (answer 'y')
+- Let the system update all auto-generated files (happens automatically)
+- Add your customizations to `USER_INSTRUCTIONS.md` instead of editing AGENTS.md or CLAUDE.md
 
 ---
 
@@ -145,27 +159,37 @@ After running `init.sh`, your project will have:
 ```
 your-project/
 ├── .workflow/
-│   ├── config.yml                    # Your project configuration
+│   ├── config.yml                      # Your project configuration
+│   ├── AGENTS_INSTRUCTIONS.md          # Full universal AI instructions (auto-generated)
+│   ├── CLAUDE_INSTRUCTIONS.md          # Full Claude Code instructions (auto-generated)
 │   ├── playbooks/
-│   │   ├── coordinator.md            # Master router
-│   │   ├── feature.md                # Feature implementation
-│   │   ├── bugfix.md                 # Bug fixing
-│   │   ├── commit.md                 # Pre-commit validation
-│   │   ├── tdd.md                    # TDD cycle
-│   │   ├── architecture-check.md     # Architecture validation
-│   │   └── reporting-guidelines.md   # Visibility rules
+│   │   ├── coordinator.md              # Master router
+│   │   ├── feature.md                  # Feature implementation
+│   │   ├── bugfix.md                   # Bug fixing
+│   │   ├── commit.md                   # Pre-commit validation
+│   │   ├── tdd.md                      # TDD cycle
+│   │   ├── architecture-check.md       # Architecture validation
+│   │   ├── run-tests.md                # Test execution
+│   │   ├── run-lint.md                 # Linting execution
+│   │   └── reporting-guidelines.md     # Visibility rules
 │   └── templates/
-│       ├── feature-template.md       # .spec/ file templates
+│       ├── feature-template.md         # .spec/ file templates
 │       ├── bugfix-template.md
 │       └── refactor-template.md
+├── .claude/                             # Claude Code specific (if selected)
+│   └── agents/
+│       ├── architecture-review.md      # Subagent: architecture validation
+│       ├── lint.md                     # Subagent: linting checks
+│       └── test.md                     # Subagent: test execution
 ├── .spec/
-│   ├── .sequence                      # Sequence counter (auto-managed)
-│   ├── overall-status.md             # Project dashboard
-│   ├── 001-feature-xxx.md            # Feature specs (sequenced)
-│   ├── 002-fix-xxx.md                # Bug fix specs (sequenced)
-│   └── 003-feature-yyy.md            # More specs...
-├── AGENTS.md                          # Universal AI instructions (ALL tools)
-└── CLAUDE.md                          # Claude Code-specific optimizations
+│   ├── .sequence                        # Sequence counter (auto-managed)
+│   ├── overall-status.md               # Project dashboard
+│   ├── 001-feature-xxx.md              # Feature specs (sequenced)
+│   ├── 002-fix-xxx.md                  # Bug fix specs (sequenced)
+│   └── 003-feature-yyy.md              # More specs...
+├── AGENTS.md                            # Pointer to .workflow/AGENTS_INSTRUCTIONS.md (auto-generated)
+├── CLAUDE.md                            # Pointer to .workflow/CLAUDE_INSTRUCTIONS.md (auto-generated)
+└── USER_INSTRUCTIONS.md                 # Your custom instructions (never overwritten)
 ```
 
 **Note on `.spec/` Sequence Numbering:**
@@ -184,15 +208,22 @@ Examples:
 ### Which File Should Your AI Assistant Use?
 
 **For Claude Code users**: Use **`CLAUDE.md`**
-- Contains Claude Code-specific optimizations
+- Pointer file that references `.workflow/CLAUDE_INSTRUCTIONS.md` (full instructions)
+- Also reads `USER_INSTRUCTIONS.md` (your custom instructions)
+- Contains Claude Code-specific optimizations and subagent usage
 - Includes parallel execution patterns
-- Optimized for Claude Code's tool system
 
 **For ALL other AI assistants** (ChatGPT, Gemini, Codex, Cursor, Copilot, etc.): Use **`AGENTS.md`**
+- Pointer file that references `.workflow/AGENTS_INSTRUCTIONS.md` (full instructions)
+- Also reads `USER_INSTRUCTIONS.md` (your custom instructions)
 - Universal instructions that work with any AI tool
 - Language-specific examples for your project
 - Detailed workflow usage guides
-- Platform-specific guidance for common issues
+
+**Important Notes:**
+- `AGENTS.md` and `CLAUDE.md` are auto-generated pointer files (always overwritten during updates)
+- Full instructions live in `.workflow/AGENTS_INSTRUCTIONS.md` and `.workflow/CLAUDE_INSTRUCTIONS.md`
+- Add your custom instructions to `USER_INSTRUCTIONS.md` (never overwritten by updates)
 
 **If your AI tool uses a different default file** (e.g., `GEMINI.md`, `COPILOT.md`, etc.):
 - Create that file in your project root
@@ -203,6 +234,76 @@ Examples:
 ```bash
 echo "# Gemini Instructions\n\nSee AGENTS.md for complete workflow instructions." > GEMINI.md
 ```
+
+---
+
+## Claude Code Subagents
+
+If you selected **Claude Code** during initialization, the system automatically creates three subagents in `.claude/agents/`. These provide quick access to common validation tasks:
+
+### Available Subagents
+
+1. **`architecture-review.md`** - Validates Clean Architecture compliance
+   - References: `.workflow/playbooks/architecture-check.md`
+   - Checks dependency rules across layers
+
+2. **`lint.md`** - Runs static analysis and linting
+   - References: `.workflow/playbooks/run-lint.md`
+   - Executes configured linter (ESLint, Pylint, etc.)
+
+3. **`test.md`** - Executes test suite with coverage
+   - References: `.workflow/playbooks/run-tests.md`
+   - Runs tests and reports coverage
+
+### How Subagents Work
+
+Each subagent is defined using Claude Code's standard agent format with YAML frontmatter and a system prompt:
+
+```markdown
+---
+name: test
+description: Execute the test suite with coverage reporting
+---
+
+You are a test execution specialist ensuring code quality through comprehensive testing.
+
+When invoked, read and execute the playbook at `.workflow/playbooks/run-tests.md`.
+
+This playbook will guide you through:
+1. Loading test configuration from .workflow/config.yml
+2. Executing the test suite with coverage
+3. Collecting test results and coverage metrics
+4. Reporting pass/fail status and coverage percentages
+
+Follow the playbook exactly and report all findings to the user.
+```
+
+**Key components:**
+- **name**: Unique identifier for the subagent
+- **description**: Brief description of when this subagent should be invoked
+- **System prompt**: Defines the subagent's role and points to the corresponding playbook. Can be multiple paragraphs with specific instructions, best practices, and constraints.
+
+This design keeps validation logic centralized in playbooks while providing Claude Code-native subagents for easy invocation.
+
+### Using Subagents
+
+**Viewing available subagents:**
+```
+/agents
+```
+
+This shows all available subagents including the three validation subagents created during initialization.
+
+**Manual invocation:**
+You can explicitly request a specific subagent:
+```
+> Use the test subagent to run the test suite
+> Use the lint subagent to check code quality
+> Use the architecture-review subagent to validate dependencies
+```
+
+**During commit workflow:**
+When executing `.workflow/playbooks/commit.md`, the playbook instructs Claude Code to read and execute the three subagent files in parallel for comprehensive validation.
 
 ---
 
@@ -237,7 +338,11 @@ Adding authentication logic...
 Running tests... ALL PASSING ✅ (156/156)
 
 ## Step 4: Validation
-Running 3 validators in parallel...
+Running 3 validators in parallel:
+- .workflow/playbooks/run-tests.md
+- .workflow/playbooks/run-lint.md
+- .workflow/playbooks/architecture-check.md
+
 ✅ Tests: 156/156 (100% coverage)
 ✅ Architecture: Zero violations
 ✅ Linting: No issues
@@ -274,7 +379,14 @@ Status: FAILING ✅ (reproduces crash)
 All tests: 156/156 PASSING ✅
 
 ## Step 5: Validation
-✅ All validators PASSED
+Running 3 validators in parallel:
+- .workflow/playbooks/run-tests.md
+- .workflow/playbooks/run-lint.md
+- .workflow/playbooks/architecture-check.md
+
+✅ Tests: 156/156 (100% coverage)
+✅ Architecture: Zero violations
+✅ Linting: No issues
 
 ## Step 6: Commit
 ✅ Commit: def5678
@@ -294,8 +406,12 @@ AI:
 Updated .spec/003-feature-xyz.md (8/9 tasks, 89%)
 
 ## Step 2: Running Validators
-Running 3 validators in parallel...
-✅ Tests: 156/156 (100%)
+Running 3 validators in parallel:
+- .workflow/playbooks/run-tests.md
+- .workflow/playbooks/run-lint.md
+- .workflow/playbooks/architecture-check.md
+
+✅ Tests: 156/156 (100% coverage)
 ✅ Architecture: Zero violations
 ✅ Linting: No issues
 
@@ -375,7 +491,15 @@ All playbooks are located in `.workflow/playbooks/`. **Note**: You don't need to
 **Purpose**: Clean Architecture compliance validation
 **When**: Called by commit playbook before commits
 
-### 7. reporting-guidelines.md
+### 7. run-tests.md
+**Purpose**: Execute test suite with coverage reporting
+**When**: Called by commit playbook, or via Claude Code subagents
+
+### 8. run-lint.md
+**Purpose**: Run static analysis and linting checks
+**When**: Called by commit playbook, or via Claude Code subagents
+
+### 9. reporting-guidelines.md
 **Purpose**: Enforce user visibility during workflow execution
 **When**: Read by ALL playbooks to ensure proper reporting
 

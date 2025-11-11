@@ -116,7 +116,7 @@ Creating: .spec/feature-health-check.md
 Updating: .spec/overall-status.md
 ```
 
-**After outputting this, IMMEDIATELY AND AUTOMATICALLY execute Step 1 actions. DO NOT wait for user confirmation.**
+**After outputting this, IMMEDIATELY execute Step 1 actions.**
 
 ---
 
@@ -126,9 +126,9 @@ Updating: .spec/overall-status.md
 
 **WHEN**: After completing ANY step in the playbook
 
-**ACTION**: Output this message, then IMMEDIATELY AND AUTOMATICALLY move to next step. DO NOT wait for user confirmation.
+**ACTION**: Output this message, then move to next step
 
-**MANDATORY**: Always report completion. Never skip to next step silently. But also never pause after reporting - continue immediately.
+**MANDATORY**: Always report completion. Never skip to next step silently.
 
 **Template**:
 ```

@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import os from 'os';
 import { createRequest, createResponse } from 'node-mocks-http';
 import { buildApp } from '../../src/presentation/server';
+import { userFixtures } from '../../src/domain/users/userFixtures';
 
 describe('server bootstrap', () => {
   afterEach(() => {
@@ -41,5 +42,31 @@ describe('server bootstrap', () => {
       serverIp: '10.1.1.5',
       message: 'Service is healthy'
     });
+  });
+
+  it('should expose /api/users when using default container', async () => {
+    const app = buildApp();
+
+    const req = createRequest({
+      method: 'GET',
+      url: '/api/users'
+    });
+
+    const res = createResponse({
+      eventEmitter: EventEmitter
+    });
+
+    const finished = new Promise<void>((resolve, reject) => {
+      const done = () => resolve();
+      res.on('end', done);
+      res.on('finish', done);
+      res.on('error', reject);
+    });
+
+    app(req, res);
+    await finished;
+
+    expect(res.statusCode).toBe(200);
+    expect(res._getJSONData()).toEqual({ users: userFixtures.asJson() });
   });
 });

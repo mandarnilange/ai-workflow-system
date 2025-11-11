@@ -1,18 +1,19 @@
 # My Gemini sample - Overall Status
 
-**Last Updated**: 2025-11-09
+**Last Updated**: 2025-11-11
 
 ## Summary
-- Total Features: 1
+- Total Features: 2
 - Total Refactors: 1
-- Completed: 1 (50%)
-- In Progress: 1
+- Completed: 1 (33%)
+- In Progress: 2
 - Blocked: 0
 
 ## Active Work
 
 ### In Progress
 1. [Refactor: Change /health endpoint to /healthz](001-refactor-health-endpoint-to-healthz.md) - 100%
+2. [Feature: API Users Endpoint](002-feature-api-users-endpoint.md) - 0%
 
 ### Recently Completed
 1. [Feature: Health Endpoint](feature-health-endpoint.md) - 100% (Completed: 2025-11-08)
@@ -22,10 +23,11 @@
 
 ## Statistics
 - Test Coverage: **100% (target: 100%)**
-- Open Tasks: 0
+- Open Tasks: 15
 - Completed Tasks: 8
 
 ## Recent Activity
+- 2025-11-11: Started Feature: API Users Endpoint (002-feature-api-users-endpoint.md)
 - 2025-11-09: Completed Refactor: Change /health endpoint to /healthz (001-refactor-health-endpoint-to-healthz.md)
 - 2025-11-08: Completed Feature: Health Endpoint (feature-health-endpoint.md)
 - 2025-11-08: Project initialized with AI Workflow System

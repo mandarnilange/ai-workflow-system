@@ -13,6 +13,14 @@ export const buildApp = (container?: AppContainer): Express => {
     }
   });
 
+  app.get('/api/users', async (req, res, next: NextFunction) => {
+    try {
+      await resolvedContainer.usersController.handle(req, res);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   return app;
 };
 
