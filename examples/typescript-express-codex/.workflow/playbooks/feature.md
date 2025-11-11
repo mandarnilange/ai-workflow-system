@@ -37,7 +37,7 @@ This workflow will:
 Let's begin...
 ```
 
-**After outputting the above message, IMMEDIATELY AND AUTOMATICALLY proceed to Prerequisites Check. DO NOT wait for user confirmation.**
+**After outputting the above message, proceed to Prerequisites Check.**
 
 ---
 
@@ -130,7 +130,7 @@ Updated:
 Next: Step 2 - Exploration & Planning
 ```
 
-**After outputting the above message, IMMEDIATELY AND AUTOMATICALLY proceed to Step 2. DO NOT wait for user confirmation.**
+**After outputting the above message, proceed to Step 2.**
 
 ---
 
@@ -146,7 +146,7 @@ Copy and output this message to the user:
 Understanding existing codebase and planning implementation approach...
 ```
 
-**After outputting the above message, IMMEDIATELY AND AUTOMATICALLY proceed with exploration activities below. DO NOT wait for user confirmation.**
+**After outputting the above message, proceed with exploration activities below.**
 
 ### 2.1 Explore Existing Code (if needed)
 
@@ -520,5 +520,5 @@ If ANY checkbox is unchecked, playbook is NOT complete.
 ### If unclear about requirements:
 1. STOP implementation
 2. Ask user specific questions
-3. **EXCEPTION: ONLY in this case, wait for clarification**
+3. Wait for clarification
 4. Resume with clear understanding

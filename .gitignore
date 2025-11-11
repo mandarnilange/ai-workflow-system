@@ -19,6 +19,8 @@ Thumbs.db
 # Example projects - ignore generated files
 examples/*/node_modules/
 examples/*/coverage/
+examples/*/locov-report/
+examples/*/.nyc_output/
 examples/*/dist/
 examples/*/build/
 examples/*/.nyc_output/

@@ -432,7 +432,7 @@ Why TDD matters:
 ✅ Enables confident refactoring
 ```
 
-**EXCEPTION: ONLY in this TDD violation case, STOP execution and wait for user acknowledgment before proceeding.**
+**STOP execution. Wait for user acknowledgment.**
 
 ### If test not run before implementation:
 

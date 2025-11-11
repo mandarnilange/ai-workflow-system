@@ -124,6 +124,7 @@ All playbooks are in `.workflow/playbooks/`:
               # Run tests
           # Coverage report
               # Run linter
+
 ```
 
 ---
@@ -214,7 +215,7 @@ Assistant: [Uses Task tool with subagent_type=Explore]
 
 **✅ CORRECT**:
 ```bash
-              # Single command gets both tests + coverage
+${COVERAGE_COMMAND}              # Single command gets both tests + coverage
 ```
 
 **❌ WRONG**:
