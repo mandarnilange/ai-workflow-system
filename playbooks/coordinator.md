@@ -76,7 +76,9 @@ I'm not sure what type of work this is. Please clarify:
 What would you like to do?
 ```
 
-Wait for user response, then re-run Step 1.
+Wait for user response, then re-run Step 1 immediately without any extra confirmation.
+
+⚠️ **After intent is clarified, continue the coordinator workflow uninterrupted until routing is complete.**
 
 ---
 
@@ -103,7 +105,7 @@ Routing to: .workflow/playbooks/{playbook-name}.md
 Now executing {playbook name} workflow...
 ```
 
-**After outputting the above message, proceed to Step 3.**
+**After outputting the routing message, do NOT wait for user acknowledgment. Immediately proceed to Step 3 and read the routed playbook. Only pause if the playbook explicitly instructs you to or if you encounter a blocker that requires user input.**
 
 ---
 
