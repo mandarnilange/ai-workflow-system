@@ -1,0 +1,231 @@
+# Claude Code Instructions
+
+**Complete instructions for Claude Code with optimizations**
+
+---
+
+## ⚠️ CRITICAL: MANDATORY WORKFLOW SYSTEM ⚠️
+
+**This project requires STRICT adherence to the workflow playbooks.**
+
+### ❌ FORBIDDEN
+- Starting code implementation directly
+- Skipping playbook execution
+- Writing code before reading coordinator.md
+- Silent execution without reporting
+
+### ✅ MANDATORY
+- Read `.workflow/playbooks/coordinator.md` FIRST for ANY implementation work
+- Follow playbook instructions step-by-step (CONTINUOUSLY - do not pause between steps)
+- Announce each step BEFORE executing it
+- Report progress throughout execution
+- **CRITICAL**: Execute all steps CONTINUOUSLY without waiting for user confirmation
+
+**Direct implementation without workflow = FAILURE**
+
+### 📝 Execution Pattern (IMPORTANT)
+
+**CORRECT execution pattern** (continuous):
+```
+Read playbook → Execute Step 1 → Report result → Execute Step 2 → Report result → Execute Step 3 → Report result → Complete
+```
+
+**WRONG execution pattern** (waiting):
+```
+Read playbook → Execute Step 1 → Report result → WAIT FOR USER ❌
+```
+
+**DO NOT PAUSE** between steps. Execute the entire workflow continuously unless the playbook explicitly says to stop or the user interrupts.
+
+---
+
+## Workflow System
+
+This project uses a **generic markdown playbook system** in `.workflow/`.
+
+All workflows are documented in playbooks that work with any AI assistant.
+
+---
+
+## For ANY Implementation Work
+
+Read and execute: **`.workflow/playbooks/coordinator.md`**
+
+The coordinator will detect intent and route you to the appropriate workflow.
+
+---
+
+## Quick Reference
+
+| User Request | Playbook to Execute |
+|--------------|---------------------|
+| "implement X" | `.workflow/playbooks/coordinator.md` |
+| "add feature Y" | `.workflow/playbooks/coordinator.md` |
+| "fix bug Z" | `.workflow/playbooks/coordinator.md` |
+| "refactor W" | `.workflow/playbooks/coordinator.md` |
+| "commit changes" | `.workflow/playbooks/commit.md` |
+
+---
+
+## Playbook System
+
+All playbooks are in `.workflow/playbooks/`:
+
+- **coordinator.md** - Master router (detects intent, routes to appropriate workflow)
+- **feature.md** - Feature implementation workflow with TDD
+- **bugfix.md** - Bug fix workflow with TDD
+- **commit.md** - Pre-commit validation and git commit
+- **tdd.md** - Test-Driven Development cycle (Red-Green-Refactor)
+- **architecture-check.md** - Clean Architecture validation
+- **reporting-guidelines.md** - User visibility requirements (READ FIRST!)
+
+**Read `.workflow/README.md` for complete documentation.**
+
+---
+
+## Project Context
+
+**Tech Stack**:
+- Language: ${LANGUAGE}
+- Framework: ${FRAMEWORK}
+- Testing: ${TEST_FRAMEWORK}
+
+**Architecture**: Clean Architecture (Uncle Bob's principles)
+- ${DOMAIN_PATH} → ${APPLICATION_PATH} → ${INFRASTRUCTURE_PATH} → ${PRESENTATION_PATH} → ${DI_PATH}
+
+**Quality Standards** (Non-Negotiable):
+- ${COVERAGE_REQUIREMENT}% test coverage (statements, branches, functions, lines)
+- Zero architecture violations
+- Zero linting errors
+- TDD required: ${TDD_REQUIRED}
+
+---
+
+## Code Quality Standards
+
+### ${LANGUAGE}
+
+- Functions: ${FUNCTION_CONVENTION}
+- Variables: ${VARIABLE_CONVENTION}
+- Constants: ${CONSTANT_CONVENTION}
+- Class files: ${CLASS_FILE_CONVENTION}
+
+### Testing
+
+- Framework: ${TEST_FRAMEWORK}
+- Test directory: ${TEST_DIR}
+- Test pattern: ${TEST_PATTERN}
+- Coverage: ${COVERAGE_REQUIREMENT}%
+- TDD: ${TDD_REQUIRED}
+
+### Naming Conventions
+
+- Classes: PascalCase
+- Functions: ${FUNCTION_CONVENTION}
+- Use cases: ${USE_CASE_PATTERN} pattern
+- Test descriptions: "should [expected behavior] when [condition]"
+
+---
+
+## Architecture Rules
+
+**Dependency Rule** (dependencies point inward only):
+- Domain → Nothing (pure ${LANGUAGE})
+- Application → Domain only
+- Infrastructure → Application + Domain
+- Presentation → Application + Domain (never Infrastructure directly)
+- DI Container → All layers (wires everything together)
+
+---
+
+## Git Commit Standards
+
+**Format**:
+```
+<type>: <subject>
+
+<optional body>
+```
+
+**Types**: feat, fix, refactor, test, docs, chore
+
+**Rules**:
+- Subject: imperative mood, lowercase, no period, <50 chars
+- Body: explain WHY (not WHAT), optional
+
+---
+
+## Common Commands
+
+```bash
+${TEST_COMMAND}              # Run tests
+${COVERAGE_COMMAND}          # Coverage report
+${LINT_COMMAND}              # Run linter
+${BUILD_COMMAND_SECTION}
+```
+
+---
+
+## Important Notes
+
+1. **Always use playbooks** - Don't manually orchestrate workflows
+2. **TDD is mandatory** - Tests before code (if configured: ${TDD_REQUIRED})
+3. **${COVERAGE_REQUIREMENT}% coverage required** - No compromises
+4. **Architecture compliance** - Validated before every commit
+5. **Task tracking** - .spec/ files must be updated (if enabled: ${TRACKING_ENABLED})
+
+---
+${CLAUDE_CODE_OPTIMIZATIONS}
+
+## Examples
+
+### Example 1: User wants to add a feature
+```
+User: "implement health check endpoint"
+
+Claude:
+1. Read .workflow/playbooks/coordinator.md
+2. Coordinator detects intent: FEATURE
+3. Routes to .workflow/playbooks/feature.md
+4. Follow feature.md step-by-step
+5. Report completion
+```
+
+### Example 2: User wants to commit
+```
+User: "commit these changes"
+
+Claude:
+1. Read .workflow/playbooks/commit.md
+2. Follow commit.md step-by-step:
+   - Update .spec/ files
+   - Run validators (tests, linting, architecture)
+   - Create git commit
+   - Report summary
+```
+
+### Example 3: User reports a bug
+```
+User: "fix crash when email is null"
+
+Claude:
+1. Read .workflow/playbooks/coordinator.md
+2. Coordinator detects intent: BUGFIX
+3. Routes to .workflow/playbooks/bugfix.md
+4. Follow bugfix.md step-by-step
+5. Report completion
+```
+
+---
+
+## For More Information
+
+See complete documentation:
+- `.workflow/README.md` - Overview and philosophy
+- `.workflow/config.yml` - Project configuration
+- `.workflow/playbooks/*.md` - All workflow playbooks
+- `.workflow/templates/*.md` - Templates for .spec/ files
+
+---
+
+**That's it. The playbooks contain all workflow logic. Just read and follow them.**

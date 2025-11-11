@@ -1,0 +1,70 @@
+# Claude Code Instructions
+
+> **This file is auto-generated. Do not edit directly.**
+>
+> **Add custom instructions to:** [USER_INSTRUCTIONS.md](USER_INSTRUCTIONS.md)
+
+---
+
+## ⚠️ MANDATORY WORKFLOW - READ THIS FIRST ⚠️
+
+**CRITICAL**: This project uses a **MANDATORY workflow system**. You MUST follow it.
+
+### ❌ FORBIDDEN: Direct Implementation
+
+**DO NOT** start writing code directly. **DO NOT** skip the workflow.
+
+### ✅ REQUIRED: Follow the Workflow Playbooks
+
+**BEFORE writing ANY code**, you MUST:
+
+1. **Read** `.workflow/playbooks/coordinator.md`
+2. **Follow** the playbook instructions step-by-step
+3. **Report** each step to the user as you execute it
+4. **Execute CONTINUOUSLY** - do NOT pause between steps waiting for user confirmation
+
+**IMPORTANT**: "Step-by-step" means announce each step, then immediately execute it. Do NOT wait for user to say "continue" between steps. Execute the entire workflow in one continuous session.
+
+**If you implement code without following the workflow, you have FAILED.**
+
+---
+
+## 📖 Complete Instructions
+
+For full Claude Code documentation, see:
+
+**[.workflow/CLAUDE_INSTRUCTIONS.md](.workflow/CLAUDE_INSTRUCTIONS.md)**
+
+This contains:
+- Workflow system overview
+- Parallel execution optimizations
+- Subagent usage
+- Project context
+- Quick reference
+
+---
+
+## 👤 User-Specific Instructions
+
+For project-specific customizations, see:
+
+**[USER_INSTRUCTIONS.md](USER_INSTRUCTIONS.md)**
+
+Add your custom:
+- Team conventions
+- Domain-specific rules
+- Project context
+- Coding standards
+
+---
+
+## 🚀 Quick Start
+
+1. Read `.workflow/CLAUDE_INSTRUCTIONS.md` for complete system documentation
+2. Read `USER_INSTRUCTIONS.md` for project-specific context
+3. Start implementation: Read `.workflow/playbooks/coordinator.md`
+4. Commit changes: Read `.workflow/playbooks/commit.md`
+
+---
+
+**For other AI tools**, read [AGENTS.md](AGENTS.md) instead.
