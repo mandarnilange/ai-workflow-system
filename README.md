@@ -17,6 +17,8 @@ A language-agnostic, AI-assistant-agnostic workflow system that enforces TDD, Cl
 
 - ✅ **Language-Agnostic** - Supports TypeScript, Python, Java, Go, Rust, C#, and more
 
+- ✅ **PRD Planning** - Plan multiple features upfront with dependency tracking
+
 - ✅ **TDD Enforced** - Red-Green-Refactor cycle with mandatory tests-first approach
 
 - ✅ **Architecture Validation** - Clean Architecture compliance checking
@@ -164,6 +166,7 @@ your-project/
 │   ├── CLAUDE_INSTRUCTIONS.md          # Full Claude Code instructions (auto-generated)
 │   ├── playbooks/
 │   │   ├── coordinator.md              # Master router
+│   │   ├── prd-planning.md             # PRD multi-feature planning
 │   │   ├── feature.md                  # Feature implementation
 │   │   ├── bugfix.md                   # Bug fixing
 │   │   ├── commit.md                   # Pre-commit validation
@@ -175,6 +178,7 @@ your-project/
 │   └── templates/
 │       ├── feature-template.md         # .spec/ file templates
 │       ├── bugfix-template.md
+│       ├── prd-template.md             # PRD planning template
 │       └── refactor-template.md
 ├── .claude/                             # Claude Code specific (if selected)
 │   └── agents/
@@ -423,6 +427,123 @@ Message: add user authentication endpoint
 ✅ Commit Complete
 ```
 
+### Planning a PRD with Multiple Features
+
+```
+User: "plan a PRD with 3 features: user authentication, product catalog, shopping cart.
+Product catalog depends on user auth. Shopping cart depends on both."
+
+AI:
+🎯 Workflow Coordinator
+Detected Intent: PLAN
+Routing to: .workflow/playbooks/prd-planning.md
+
+✅ PRD Analysis Complete
+
+I've identified the following features:
+
+1. User Authentication
+   - Description: User authentication system
+   - Priority: Not specified
+   - Dependencies: None
+
+2. Product Catalog
+   - Description: Product catalog browsing
+   - Priority: Not specified
+   - Dependencies: User Authentication
+
+3. Shopping Cart
+   - Description: Shopping cart functionality
+   - Priority: Not specified
+   - Dependencies: User Authentication, Product Catalog
+
+Total Features: 3
+
+Is this correct? Should I proceed with creating spec files?
+
+[User confirms: "yes"]
+
+📁 Initializing .spec/ Directory
+Current sequence number: 000
+Next feature will be: 001
+
+Creating spec files for 3 features...
+
+✅ Created: .spec/001-feature-user-authentication.md
+   - Sequence: 001
+   - Status: Pending
+   - Priority: Medium
+   - Tasks: 0/24 (0%)
+
+✅ Created: .spec/002-feature-product-catalog.md
+   - Sequence: 002
+   - Status: Pending
+   - Priority: Medium
+   - Tasks: 0/24 (0%)
+
+✅ Created: .spec/003-feature-shopping-cart.md
+   - Sequence: 003
+   - Status: Pending
+   - Priority: Medium
+   - Tasks: 0/24 (0%)
+
+✅ Updated: .spec/overall-status.md
+
+Dashboard Summary:
+- Total Features: 3
+- Pending: 3 (newly added)
+- In Progress: 0
+- Completed: 0
+
+📋 Implementation Recommendations
+
+Recommended implementation order:
+
+Phase 1 - No Dependencies (can start immediately):
+1. [001-feature-user-authentication] User Authentication (Priority: Medium)
+
+Phase 2 - Depends on Phase 1:
+2. [002-feature-product-catalog] Product Catalog (Priority: Medium)
+   - Depends on: User Authentication
+
+Phase 3 - Depends on Phase 2:
+3. [003-feature-shopping-cart] Shopping Cart (Priority: Medium)
+   - Depends on: User Authentication, Product Catalog
+
+To implement a feature, use:
+"Implement feature 001" or "Implement user authentication"
+
+✅ PRD Planning Workflow Complete
+
+Summary:
+- Features planned: 3
+- Spec files created: 3
+- Dashboard updated: Yes
+- Ready for implementation: 1
+
+Files created:
+- .spec/001-feature-user-authentication.md
+- .spec/002-feature-product-catalog.md
+- .spec/003-feature-shopping-cart.md
+
+Next Steps:
+1. Review spec files in .spec/ directory
+2. Add more detail to feature descriptions if needed
+3. Start implementation with: "Implement feature 001"
+
+Recommended first implementation:
+- User Authentication (.spec/001-feature-user-authentication.md)
+```
+
+**What happens after planning:**
+- Each feature has its own spec file (Status: Pending)
+- You can implement features in any order
+- Use: `"Implement feature 001"` to start TDD workflow
+- Feature status updates: Pending → In Progress → Completed
+
+**PRD Template Available:**
+See `templates/prd-template.md` for a structured PRD format (optional).
+
 ---
 
 ## Configuration
@@ -469,39 +590,44 @@ All playbooks are located in `.workflow/playbooks/`. **Note**: You don't need to
 
 ### 1. coordinator.md
 **Purpose**: Master router - detects intent and routes to appropriate workflow
-**When**: Automatically invoked by AGENTS.md/CLAUDE.md for ANY implementation work (features, bugs, refactors)
+**When**: Automatically invoked by AGENTS.md/CLAUDE.md for ANY implementation work (features, bugs, refactors, PRD planning)
 
-### 2. feature.md
+### 2. prd-planning.md
+**Purpose**: Plan and create spec files for multiple features from a PRD
+**When**: Planning multiple features upfront (without implementing them)
+**Keywords**: "plan", "PRD", "spec", "outline", "breakdown", "prepare features"
+
+### 3. feature.md
 **Purpose**: Feature implementation with TDD
 **When**: Adding new functionality
 
-### 3. bugfix.md
+### 4. bugfix.md
 **Purpose**: Bug fixing with TDD
 **When**: Fixing broken functionality
 
-### 4. commit.md
+### 5. commit.md
 **Purpose**: Pre-commit validation and git commit
 **When**: Before EVERY commit (mandatory)
 
-### 5. tdd.md
+### 6. tdd.md
 **Purpose**: Test-Driven Development cycle (Red-Green-Refactor)
 **When**: Called by other playbooks during implementation
 
-### 6. architecture-check.md
+### 7. architecture-check.md
 **Purpose**: Clean Architecture compliance validation
 **When**: Called by commit playbook before commits
 
-### 7. run-tests.md
+### 8. run-tests.md
 **Purpose**: Execute test suite with coverage reporting
 **When**: Called by commit playbook, or via Claude Code subagents
 
-### 8. run-lint.md
+### 9. run-lint.md
 **Purpose**: Run static analysis and linting checks
 **When**: Called by commit playbook, or via Claude Code subagents
 
-### 9. reporting-guidelines.md
-**Purpose**: Enforce user visibility during workflow execution
-**When**: Read by ALL playbooks to ensure proper reporting
+### 10. reporting-guidelines.md
+**Purpose**: User visibility and reporting rules
+**When**: Referenced by all playbooks to ensure step-by-step communication
 
 ---
 
@@ -689,6 +815,37 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 ### Q: How do I update to the latest version?
 **A**: Pull latest changes, run `./init.sh` again, and review/merge config changes.
+
+---
+
+## Related Documentation
+
+### Comparison with GitHub Spec-Kit
+
+Wondering how this system compares to GitHub's spec-kit? See our detailed comparison:
+
+**📄 [AI Workflow System vs GitHub Spec-Kit](docs/comparison-with-spec-kit.md)**
+
+**TL;DR**:
+- **Spec-Kit**: Focuses on **specification quality** (requirements validation, constitution pattern)
+- **AI Workflow System**: Focuses on **implementation quality** (TDD + Clean Architecture enforcement) **with PRD planning**
+- **Both Approaches Work**: Use AI Workflow System alone for integrated planning + implementation, OR use both for maximum quality
+
+Key differences:
+- ✅ **PRD Planning**: Both support multi-feature planning
+  - AI Workflow: Dependency analysis + implementation order recommendations
+  - Spec-Kit: Constitution pattern + cross-artifact consistency
+- ✅ **TDD Enforcement**: AI Workflow System enforces mandatory tests-first (Spec-Kit doesn't)
+- ✅ **Architecture Validation**: AI Workflow System validates Clean Architecture compliance (Spec-Kit doesn't)
+- ✅ **Quality Gates**: AI Workflow System has pre-commit validators (Spec-Kit has optional spec validation)
+- ✅ **Integrated Workflow**: AI Workflow System provides seamless planning → implementation transition
+
+**Recommendations**:
+- **AI Workflow System alone**: For most projects (planning + quality enforcement in one system)
+- **Both together**: For enterprise projects requiring specification validation + implementation quality
+- **Spec-Kit alone**: For specification-only work (rare)
+
+See the full comparison document for detailed analysis, use cases, and migration paths.
 
 ---
 

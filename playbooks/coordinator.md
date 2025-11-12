@@ -45,6 +45,10 @@ Does request contain: "commit", "save changes", "push", "create PR"?
   → YES: Intent = COMMIT (go to Step 2)
   → NO: Continue below
 
+Does request contain: "plan", "PRD", "spec", "outline", "breakdown", "prepare features"?
+  → YES: Intent = PLAN (go to Step 2)
+  → NO: Continue below
+
 Does request contain: "implement", "add", "create", "build", "new feature"?
   → YES: Intent = FEATURE (go to Step 2)
   → NO: Continue below
@@ -67,11 +71,12 @@ Ask user to clarify:
 ```
 I'm not sure what type of work this is. Please clarify:
 
-1. **New feature** - Add new functionality
-2. **Bug fix** - Fix broken behavior
-3. **Refactoring** - Improve code without changing behavior
-4. **Commit** - Save current changes
-5. **Other** - Please describe
+1. **Plan PRD** - Plan multiple features from a PRD
+2. **New feature** - Add new functionality
+3. **Bug fix** - Fix broken behavior
+4. **Refactoring** - Improve code without changing behavior
+5. **Commit** - Save current changes
+6. **Other** - Please describe
 
 What would you like to do?
 ```
@@ -89,6 +94,7 @@ Based on detected intent, read and execute the appropriate playbook:
 | Intent | Playbook to Execute |
 |--------|---------------------|
 | COMMIT | `.workflow/playbooks/commit.md` |
+| PLAN | `.workflow/playbooks/prd-planning.md` |
 | FEATURE | `.workflow/playbooks/feature.md` |
 | BUGFIX | `.workflow/playbooks/bugfix.md` |
 | REFACTOR | `.workflow/playbooks/feature.md` (reuse) |
@@ -203,6 +209,30 @@ Summary:
 - Bug fixed and tested
 - Tests: 256/256 (100%)
 - Commit: def5678
+```
+
+### Example 4: PRD Planning Request
+
+```
+User: "plan a PRD with 3 features: user auth, product catalog, shopping cart"
+
+Step 1: Detect Intent
+- Contains "plan" and "PRD" → Intent = PLAN
+
+Step 2: Route to Playbook
+- Intent = PLAN → Execute .workflow/playbooks/prd-planning.md
+
+Step 3: Execute Playbook
+[Follows all steps in prd-planning.md]
+
+Step 4: Report
+✅ PRD Planning Workflow Complete
+Summary:
+- Features planned: 3
+- Spec files created: 3
+- .spec/ files updated: yes
+- Ready for implementation: 1 (no dependencies)
+- Next: "Implement feature 001"
 ```
 
 ---
