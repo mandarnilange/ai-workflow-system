@@ -60,6 +60,7 @@ Analyze the input and extract:
 - Priority (if mentioned: High, Medium, Low)
 - Dependencies (if mentioned)
 - Acceptance criteria (if provided)
+- **Iterative Phase**: (Walking Skeleton, MVP, Enhancement)
 
 ### 1.3 Validate Understanding
 
@@ -252,6 +253,13 @@ Review all created spec files and identify:
 ### 5.2 Recommend Implementation Order
 
 Based on:
+- **Iterative Strategy**:
+  1. **Walking Skeleton**: End-to-end connectivity with minimal features
+  2. **MVP**: Core value proposition features
+  3. **Enhancements**: "Nice to have" features
+
+**Walking Skeleton Strategy**: Start by implementing ONE simple user journey that flows end-to-end through all architectural layers (UI → Application → Domain → Infrastructure). This validates your architecture early with minimal code. For example, in an e-commerce system, the skeleton might be "User views one product" (before cart, checkout, payments). Once the skeleton works, iteratively add MVP features, then enhancements.
+
 - Dependencies (no-dependency features first)
 - Priority (High → Medium → Low)
 - Complexity (simpler features first, if possible)

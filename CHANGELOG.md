@@ -41,6 +41,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `LANGUAGE_LOWER` variable for syntax highlighting in code blocks
   - Enhanced `process_template()` function with architecture validation variables
 
+#### Added (XP & Guidelines)
+- **XP Principles & Core Philosophy**
+  - Added "Core Philosophy" section to `AGENTS_INSTRUCTIONS.md`
+  - Enforced Simplicity, Feedback, Courage, and Respect values
+- **Testing Rigor**
+  - Added mandatory "Identify Edge Cases" step to TDD playbook
+  - Updated testing standards to strictly require edge case coverage
+- **Iterative Planning**
+  - Updated `prd-planning.md` to enforce iterative phases (Walking Skeleton, MVP, Enhancements)
 #### Changed
 - **Directory Structure Simplified**
   - Moved all playbooks from `playbooks/*.md` to `templates/playbooks/*.template`

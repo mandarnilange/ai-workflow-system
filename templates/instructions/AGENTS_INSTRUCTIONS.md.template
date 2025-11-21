@@ -51,6 +51,17 @@ Read playbook → Execute Step 1 → Report result → WAIT FOR USER ❌
 
 ---
 
+## Core Philosophy (XP Principles)
+
+This project follows **Extreme Programming (XP)** values. Every agent must embody these principles:
+
+1.  **Simplicity**: Do the simplest thing that could possibly work. Avoid over-engineering. YAGNI (You Ain't Gonna Need It).
+2.  **Feedback**: Shorten feedback loops. Run tests frequently.
+3.  **Courage**: Refactor mercilessly. If code smells, fix it immediately. Don't be afraid to delete dead code.
+4.  **Respect**: Leave the code better than you found it. Write clean, readable, self-documenting code.
+
+---
+
 ## Workflow System
 
 This project uses a **language-agnostic markdown playbook system** in `.workflow/`.
@@ -518,6 +529,7 @@ ${TYPE_CHECK_CHECKLIST}
 - **Test Pattern**: ${TEST_PATTERN}
 - **Coverage Target**: ${COVERAGE_REQUIREMENT}%
 - **TDD Required**: ${TDD_REQUIRED}
+- **Edge Cases**: MUST be identified and tested (nulls, empty strings, boundaries, invalid inputs)
 
 ### Test Naming
 
