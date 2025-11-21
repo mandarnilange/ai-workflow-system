@@ -165,6 +165,10 @@ process_template() {
     export TYPE_CHECK_COMMAND_SECTION BUILD_COMMAND_SECTION
     export TYPE_CHECK_CHECKLIST TEST_EXAMPLES
     export CLAUDE_CODE_OPTIMIZATIONS
+    # Language-specific architecture validation variables
+    export FILE_EXTENSION TEST_FILE_EXTENSION SOURCE_DIR
+    export IMPORT_PATTERN IMPORT_FROM_PATTERN FIND_FILES_PATTERN
+    export LANGUAGE_LOWER
 
     # Use envsubst to substitute variables and write to output
     envsubst < "$template_file" > "$output_file"
@@ -301,6 +305,92 @@ ask_bool "Enforce coverage requirement" "true" ENFORCE_COVERAGE
 ask_bool "Require TDD (tests before code)" "true" TDD_REQUIRED
 ask "Test directory" "$TEST_DIR_DEFAULT" TEST_DIR
 ask "Test file pattern" "$TEST_PATTERN_DEFAULT" TEST_PATTERN
+
+# Language-specific file patterns and architecture validation variables
+# These are used for architecture-check playbook and other language-specific templates
+# Also set lowercase language name for code block syntax highlighting
+LANGUAGE_LOWER=$(echo "$LANGUAGE" | tr '[:upper:]' '[:lower:]')
+
+case "$LANGUAGE" in
+    "TypeScript")
+        FILE_EXTENSION=".ts"
+        TEST_FILE_EXTENSION=".test.ts"
+        SOURCE_DIR="src"
+        IMPORT_PATTERN="^import"
+        IMPORT_FROM_PATTERN="^import.*from.*'\\.\\."
+        FIND_FILES_PATTERN="*.ts"
+        EXAMPLE_IMPORT="import { User } from '../domain/User'"
+        EXAMPLE_CLASS="class User {"
+        EXAMPLE_FUNCTION="function add(a: number, b: number): number {"
+        ;;
+    "Python")
+        FILE_EXTENSION=".py"
+        TEST_FILE_EXTENSION="_test.py"
+        SOURCE_DIR="src"
+        IMPORT_PATTERN="^(import|from)"
+        IMPORT_FROM_PATTERN="^(import|from).*\\.\\."
+        FIND_FILES_PATTERN="*.py"
+        EXAMPLE_IMPORT="from ..domain.user import User"
+        EXAMPLE_CLASS="class User:"
+        EXAMPLE_FUNCTION="def add(a: int, b: int) -> int:"
+        ;;
+    "Java")
+        FILE_EXTENSION=".java"
+        TEST_FILE_EXTENSION="Test.java"
+        SOURCE_DIR="src/main/java"
+        IMPORT_PATTERN="^import"
+        IMPORT_FROM_PATTERN="^import"
+        FIND_FILES_PATTERN="*.java"
+        EXAMPLE_IMPORT="import com.example.domain.User;"
+        EXAMPLE_CLASS="public class User {"
+        EXAMPLE_FUNCTION="public int add(int a, int b) {"
+        ;;
+    "Go")
+        FILE_EXTENSION=".go"
+        TEST_FILE_EXTENSION="_test.go"
+        SOURCE_DIR="."
+        IMPORT_PATTERN="^import"
+        IMPORT_FROM_PATTERN="^import.*\"\\.\\."
+        FIND_FILES_PATTERN="*.go"
+        EXAMPLE_IMPORT="import \"../domain\""
+        EXAMPLE_CLASS="type User struct {"
+        EXAMPLE_FUNCTION="func Add(a int, b int) int {"
+        ;;
+    "Rust")
+        FILE_EXTENSION=".rs"
+        TEST_FILE_EXTENSION=".rs"
+        SOURCE_DIR="src"
+        IMPORT_PATTERN="^use"
+        IMPORT_FROM_PATTERN="^use.*super::"
+        FIND_FILES_PATTERN="*.rs"
+        EXAMPLE_IMPORT="use super::User;"
+        EXAMPLE_CLASS="struct User {"
+        EXAMPLE_FUNCTION="fn add(a: i32, b: i32) -> i32 {"
+        ;;
+    "C#")
+        FILE_EXTENSION=".cs"
+        TEST_FILE_EXTENSION="Tests.cs"
+        SOURCE_DIR="src"
+        IMPORT_PATTERN="^using"
+        IMPORT_FROM_PATTERN="^using"
+        FIND_FILES_PATTERN="*.cs"
+        EXAMPLE_IMPORT="using Domain;"
+        EXAMPLE_CLASS="public class User {"
+        EXAMPLE_FUNCTION="public int Add(int a, int b) {"
+        ;;
+    *)
+        # Generic defaults for other languages
+        FILE_EXTENSION=".${LANGUAGE,,}"
+        TEST_FILE_EXTENSION="_test.${LANGUAGE,,}"
+        SOURCE_DIR="src"
+        IMPORT_PATTERN="^import"
+        IMPORT_FROM_PATTERN="^import.*\\.\\."
+        FIND_FILES_PATTERN="*.${LANGUAGE,,}"
+        EXAMPLE_IMPORT="import User"
+        EXAMPLE_CLASS="class User"
+        EXAMPLE_FUNCTION="function add(a, b)"
+        ;;
+esac
 
 echo -e "\n${GREEN}=== Code Quality Tools ===${NC}\n"
 
@@ -583,17 +673,26 @@ else
     echo -e "${YELLOW}⊘ Skipped: .workflow/config.yml (keeping existing)${NC}"
 fi
 
-# Copy playbooks
-echo -e "\n${BLUE}Copying playbooks...${NC}"
+# Process playbook templates
+echo -e "\n${BLUE}Processing playbook templates...${NC}"
 
 mkdir -p "$TARGET_DIR/.workflow/playbooks"
 mkdir -p "$TARGET_DIR/.workflow/templates"
 
-cp -r "$SCRIPT_DIR/playbooks/"* "$TARGET_DIR/.workflow/playbooks/"
-cp -r "$SCRIPT_DIR/templates/"* "$TARGET_DIR/.workflow/templates/"
+# Process all playbook templates with language-specific variable substitution
+if [ -d "$SCRIPT_DIR/templates/playbooks" ]; then
+    for template in "$SCRIPT_DIR/templates/playbooks/"*.template; do
+        if [ -f "$template" ]; then
+            filename=$(basename "$template" .template)
+            process_template "$template" "$TARGET_DIR/.workflow/playbooks/$filename"
+            echo -e "${GREEN}✓ Processed: $filename${NC}"
+        fi
+    done
+fi
 
-echo -e "${GREEN}✓ Copied playbooks to .workflow/playbooks/${NC}"
-echo -e "${GREEN}✓ Copied templates to .workflow/templates/${NC}"
+# Copy spec file templates
+cp -r "$SCRIPT_DIR/templates/"* "$TARGET_DIR/.workflow/templates/"
+echo -e "${GREEN}✓ Copied spec templates to .workflow/templates/${NC}"
 
 # Determine language-specific code examples (used for both AGENTS and CLAUDE instructions)
 case "$LANGUAGE" in

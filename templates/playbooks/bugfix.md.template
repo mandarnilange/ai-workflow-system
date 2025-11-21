@@ -253,7 +253,7 @@ Following TDD playbook (`.workflow/playbooks/tdd.md`):
 ### 3.2 Run Test (Must FAIL)
 
 ```bash
-npm test
+${TEST_COMMAND}
 ```
 
 **Verify**:
@@ -323,7 +323,7 @@ Writing minimal code change to fix the bug...
 ### 4.2 Run Tests (Must PASS)
 
 ```bash
-npm test
+${TEST_COMMAND}
 ```
 
 **Verify**:
@@ -394,7 +394,7 @@ All THREE validators must pass.
 ### 5.1 Run Full Test Suite
 
 ```bash
-npm test -- --coverage
+${COVERAGE_COMMAND}
 ```
 
 **Requirements**:
@@ -412,12 +412,12 @@ Read and follow `.workflow/playbooks/architecture-check.md`
 ### 5.3 Run Linting
 
 ```bash
-npm run lint
+${LINT_COMMAND}
 ```
 
 **Requirements**:
 - [ ] Zero linting errors
-- [ ] Zero TypeScript errors
+${TYPE_CHECK_CHECKLIST}
 
 ### 5.4 Manual Verification (if applicable)
 

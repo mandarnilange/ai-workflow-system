@@ -45,7 +45,7 @@ Let's begin...
 
 - [ ] User has clearly described the feature
 - [ ] You understand what needs to be implemented
-- [ ] Project dependencies are installed (`npm install` completed)
+- [ ] Project dependencies are installed
 
 If unclear, ask user for clarification before proceeding.
 
@@ -164,25 +164,25 @@ Break down feature into layers (Clean Architecture):
 
 **For each layer, identify what's needed:**
 
-1. **Domain Layer** (`src/domain/`):
+1. **Domain Layer** (${DOMAIN_PATH}):
    - New entities?
    - New repository interfaces?
    - Updated domain models?
 
-2. **Application Layer** (`src/application/`):
+2. **Application Layer** (${APPLICATION_PATH}):
    - New use cases?
    - What operations?
 
-3. **Infrastructure Layer** (`src/infrastructure/`):
+3. **Infrastructure Layer** (${INFRASTRUCTURE_PATH}):
    - Repository implementations?
    - External service integrations?
 
-4. **Presentation Layer** (`src/presentation/`):
+4. **Presentation Layer** (${PRESENTATION_PATH}):
    - New controllers?
    - New routes?
    - Request/response handling?
 
-5. **DI Layer** (`src/di/`):
+5. **DI Layer** (${DI_PATH}):
    - Dependency wiring?
 
 ### 2.3 Update .spec/ File with Detailed Tasks
@@ -357,12 +357,12 @@ All THREE validators must pass before proceeding.
 ### 4.1 Run Full Test Suite
 
 ```bash
-npm test -- --coverage
+${COVERAGE_COMMAND}
 ```
 
 **Requirements**:
 - [ ] All tests passing
-- [ ] Coverage = 100% (statements, branches, functions, lines)
+- [ ] Coverage = ${COVERAGE_REQUIREMENT}% (statements, branches, functions, lines)
 
 **If fails**:
 - Identify failing tests
@@ -387,12 +387,12 @@ Read and follow `.workflow/playbooks/architecture-check.md`
 ### 4.3 Run Linting
 
 ```bash
-npm run lint
+${LINT_COMMAND}
 ```
 
 **Requirements**:
 - [ ] Zero linting errors
-- [ ] Zero TypeScript errors
+${TYPE_CHECK_CHECKLIST}
 - [ ] Code follows style guidelines
 
 **If fails**:

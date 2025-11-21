@@ -44,20 +44,20 @@ Let's begin...
 │   Frameworks & Drivers              │
 │   (Web, DB, UI, Devices, etc.)      │
 └─────────────────────────────────────┘
-      ▲                               
-      │                               
+      ▲
+      │
 ┌─────────────────────────────────────┐
 │   Interface Adapters                │
 │   (Controllers, Presenters, Gateways)│
 └─────────────────────────────────────┘
-      ▲                               
-      │                               
+      ▲
+      │
 ┌─────────────────────────────────────┐
 │   Application (Use Cases)           │
 │   (Application Business Rules)      │
 └─────────────────────────────────────┘
-      ▲                               
-      │                               
+      ▲
+      │
 ┌─────────────────────────────────────┐
 │   Domain (Entities/Interfaces)      │
 │   (Enterprise Business Rules)       │
@@ -72,7 +72,7 @@ From `.workflow/config.yml`:
 
 | Layer | Can Depend On |
 |-------|---------------|
-| Domain | Nothing (pure TypeScript) |
+| Domain | Nothing (pure ${LANGUAGE}) |
 | Application | Domain only |
 | Infrastructure | Application + Domain |
 | Presentation | Application + Domain (NOT Infrastructure) |
@@ -92,12 +92,12 @@ Identifying layer directories and source files...
 ### 1.1 Identify Layer Directories
 
 ```bash
-ls -la src/
+ls -la ${SOURCE_DIR}/
 ```
 
 Expected structure:
 ```
-src/
+${SOURCE_DIR}/
 ├── domain/          # Pure business logic
 ├── application/     # Use cases
 ├── infrastructure/  # Implementations
@@ -108,7 +108,7 @@ src/
 ### 1.2 List All Source Files
 
 ```bash
-find src/ -name "*.ts" -type f
+find ${SOURCE_DIR}/ -name "${FIND_FILES_PATTERN}" -type f
 ```
 
 Note all files in each layer.
@@ -141,7 +141,7 @@ Validating: Domain has no dependencies on other layers...
 ### 2.1 Find All Domain Files
 
 ```bash
-find src/domain/ -name "*.ts" -type f
+find ${DOMAIN_PATH}/ -name "${FIND_FILES_PATTERN}" -type f
 ```
 
 ### 2.2 Check Imports in Domain Files
@@ -149,39 +149,34 @@ find src/domain/ -name "*.ts" -type f
 For each domain file, check imports:
 
 ```bash
-grep -n "^import" src/domain/**/*.ts
+grep -n "${IMPORT_PATTERN}" ${DOMAIN_PATH}/**/*${FILE_EXTENSION}
 ```
 
 **Validation Rules**:
 
 ✅ **Allowed in Domain**:
 - No imports from other project layers
-- Only TypeScript built-ins
+- Only ${LANGUAGE} built-ins
 - Only type imports (if truly needed)
 
 ❌ **NOT Allowed in Domain**:
-- Imports from `application/`
-- Imports from `infrastructure/`
-- Imports from `presentation/`
-- Imports from `di/`
+- Imports from \`application/\`
+- Imports from \`infrastructure/\`
+- Imports from \`presentation/\`
+- Imports from \`di/\`
 - External libraries (except pure type definitions)
 
 **Example**:
-```typescript
+\`\`\`${LANGUAGE_LOWER}
 // ✅ ALLOWED in Domain
-export interface User {
+${EXAMPLE_CLASS}
   id: string
   name: string
   email: string
 }
 
-export interface UserRepository {
-  findAll(): Promise<User[]>
-}
-
 // ❌ NOT ALLOWED in Domain
-import { SomeUseCase } from '../application/SomeUseCase' // Violates rule
-import express from 'express' // External dependency
+${EXAMPLE_IMPORT} // From application layer - violates rule
 ```
 
 ### 2.3 Report Domain Violations
@@ -190,8 +185,8 @@ import express from 'express' // External dependency
 ```
 ❌ Domain Layer: {count} Violations
 
-File: src/domain/User.ts
-Line 3: import { SomeUseCase } from '../application/SomeUseCase'
+File: ${DOMAIN_PATH}/User${FILE_EXTENSION}
+Line 3: ${EXAMPLE_IMPORT}
 Reason: Domain cannot depend on Application layer
 
 Action required:
@@ -224,44 +219,39 @@ Validating: Application depends only on Domain...
 ### 3.1 Find All Application Files
 
 ```bash
-find src/application/ -name "*.ts" -type f
+find ${APPLICATION_PATH}/ -name "${FIND_FILES_PATTERN}" -type f
 ```
 
 ### 3.2 Check Imports in Application Files
 
 ```bash
-grep -n "^import.*from.*'\.\." src/application/**/*.ts
+grep -n "${IMPORT_FROM_PATTERN}" ${APPLICATION_PATH}/**/*${FILE_EXTENSION}
 ```
 
 **Validation Rules**:
 
 ✅ **Allowed in Application**:
-- Imports from `domain/`
-- TypeScript built-ins
+- Imports from \`domain/\`
+- ${LANGUAGE} built-ins
 - Pure libraries (no framework-specific code)
 
 ❌ **NOT Allowed in Application**:
-- Imports from `infrastructure/`
-- Imports from `presentation/`
-- Imports from `di/`
+- Imports from \`infrastructure/\`
+- Imports from \`presentation/\`
+- Imports from \`di/\`
 - Framework imports (Express, etc.)
 
 **Example**:
-```typescript
+\`\`\`${LANGUAGE,,}
 // ✅ ALLOWED in Application
-import { User, UserRepository } from '../domain/User'
+${EXAMPLE_IMPORT}
 
-export class GetUsers {
-  constructor(private repository: UserRepository) {}
-
-  async execute() {
-    return await this.repository.findAll()
-  }
+${EXAMPLE_CLASS}
+  // Uses dependency injection for repository
 }
 
 // ❌ NOT ALLOWED in Application
-import { InMemoryUserRepository } from '../infrastructure/InMemoryUserRepository'
-import { Request, Response } from 'express'
+// Importing from infrastructure layer violates dependency rule
 ```
 
 ### 3.3 Report Application Violations
@@ -270,8 +260,8 @@ import { Request, Response } from 'express'
 ```
 ❌ Application Layer: {count} Violations
 
-File: src/application/GetUsers.ts
-Line 5: import { InMemoryUserRepository } from '../infrastructure/...'
+File: ${APPLICATION_PATH}/GetUsers${FILE_EXTENSION}
+Line 5: import { Repository } from '../infrastructure/...'
 Reason: Application cannot depend on Infrastructure layer
 
 Action required:
@@ -303,42 +293,38 @@ Validating: Infrastructure depends only on Application + Domain...
 ### 4.1 Find All Infrastructure Files
 
 ```bash
-find src/infrastructure/ -name "*.ts" -type f
+find ${INFRASTRUCTURE_PATH}/ -name "${FIND_FILES_PATTERN}" -type f
 ```
 
 ### 4.2 Check Imports
 
 ```bash
-grep -n "^import.*from.*'\.\." src/infrastructure/**/*.ts
+grep -n "${IMPORT_FROM_PATTERN}" ${INFRASTRUCTURE_PATH}/**/*${FILE_EXTENSION}
 ```
 
 **Validation Rules**:
 
 ✅ **Allowed in Infrastructure**:
-- Imports from `domain/`
-- Imports from `application/`
+- Imports from \`domain/\`
+- Imports from \`application/\`
 - External libraries
 - Framework code (Express, databases, etc.)
 
 ❌ **NOT Allowed in Infrastructure**:
-- Imports from `presentation/`
-- Imports from `di/`
+- Imports from \`presentation/\`
+- Imports from \`di/\`
 
 **Example**:
-```typescript
+\`\`\`${LANGUAGE,,}
 // ✅ ALLOWED in Infrastructure
-import { User, UserRepository } from '../domain/User'
+${EXAMPLE_IMPORT}
 
-export class InMemoryUserRepository implements UserRepository {
-  private users: User[] = []
-
-  async findAll(): Promise<User[]> {
-    return this.users
-  }
+${EXAMPLE_CLASS}
+  // Implements domain interface
 }
 
 // ❌ NOT ALLOWED in Infrastructure
-import { UserController } from '../presentation/UserController'
+// Importing from presentation layer violates dependency rule
 ```
 
 **If no violations**:
@@ -365,43 +351,37 @@ Validating: Presentation depends only on Application + Domain (NOT Infrastructur
 ### 5.1 Find All Presentation Files
 
 ```bash
-find src/presentation/ -name "*.ts" -type f
+find ${PRESENTATION_PATH}/ -name "${FIND_FILES_PATTERN}" -type f
 ```
 
 ### 5.2 Check Imports
 
 ```bash
-grep -n "^import.*from.*'\.\." src/presentation/**/*.ts
+grep -n "${IMPORT_FROM_PATTERN}" ${PRESENTATION_PATH}/**/*${FILE_EXTENSION}
 ```
 
 **Validation Rules**:
 
 ✅ **Allowed in Presentation**:
-- Imports from `domain/`
-- Imports from `application/`
+- Imports from \`domain/\`
+- Imports from \`application/\`
 - Framework imports (Express Request/Response)
 
 ❌ **NOT Allowed in Presentation**:
-- Imports from `infrastructure/` (CRITICAL)
-- Imports from `di/`
+- Imports from \`infrastructure/\` (CRITICAL)
+- Imports from \`di/\`
 
 **Example**:
-```typescript
+\`\`\`${LANGUAGE,,}
 // ✅ ALLOWED in Presentation
-import { GetUsers } from '../application/GetUsers'
-import { Request, Response } from 'express'
+${EXAMPLE_IMPORT}
 
-export class UserController {
-  constructor(private getUsers: GetUsers) {}
-
-  async getAll(req: Request, res: Response) {
-    const result = await this.getUsers.execute()
-    res.json(result)
-  }
+${EXAMPLE_CLASS}
+  // Uses application layer use case
 }
 
 // ❌ NOT ALLOWED in Presentation
-import { InMemoryUserRepository } from '../infrastructure/InMemoryUserRepository'
+// Importing from infrastructure layer - most common violation!
 ```
 
 **This is the most common violation** - Presentation should NEVER import from Infrastructure directly.
@@ -410,8 +390,8 @@ import { InMemoryUserRepository } from '../infrastructure/InMemoryUserRepository
 ```
 ❌ Presentation Layer: {count} Violations
 
-File: src/presentation/UserController.ts
-Line 2: import { InMemoryUserRepository } from '../infrastructure/...'
+File: ${PRESENTATION_PATH}/UserController${FILE_EXTENSION}
+Line 2: import { Repository } from '../infrastructure/...'
 Reason: Presentation cannot depend on Infrastructure layer (most common violation!)
 
 Action required:
@@ -523,85 +503,45 @@ See detailed violation reports above for specific issues and fixes.
 
 ### Violation 1: Presentation imports Infrastructure
 
-```typescript
+\`\`\`${LANGUAGE,,}
 // ❌ WRONG
-// src/presentation/UserController.ts
-import { InMemoryUserRepository } from '../infrastructure/InMemoryUserRepository'
+// ${PRESENTATION_PATH}/UserController${FILE_EXTENSION}
+// Importing repository directly from infrastructure
 
-export class UserController {
-  constructor() {
-    this.repository = new InMemoryUserRepository()
-  }
-}
-```
+// ✅ CORRECT
+// ${PRESENTATION_PATH}/UserController${FILE_EXTENSION}
+// Use application layer use case instead
+\`\`\`
 
 **Fix**: Use dependency injection
 
-```typescript
-// ✅ CORRECT
-// src/presentation/UserController.ts
-import { GetUsers } from '../application/GetUsers'
-
-export class UserController {
-  constructor(private getUsers: GetUsers) {}
-}
-
-// Wiring happens in DI layer:
-// src/di/container.ts
-const repository = new InMemoryUserRepository()
-const getUsers = new GetUsers(repository)
-const controller = new UserController(getUsers)
-```
-
 ### Violation 2: Application imports Infrastructure
 
-```typescript
+\`\`\`${LANGUAGE,,}
 // ❌ WRONG
-// src/application/GetUsers.ts
-import { InMemoryUserRepository } from '../infrastructure/InMemoryUserRepository'
+// ${APPLICATION_PATH}/GetUsers${FILE_EXTENSION}
+// Importing concrete repository from infrastructure
 
-export class GetUsers {
-  private repository = new InMemoryUserRepository()
-}
-```
+// ✅ CORRECT
+// ${APPLICATION_PATH}/GetUsers${FILE_EXTENSION}
+// Use interface from domain + dependency injection
+\`\`\`
 
 **Fix**: Use interface + dependency injection
 
-```typescript
-// ✅ CORRECT
-// src/application/GetUsers.ts
-import { UserRepository } from '../domain/User'
-
-export class GetUsers {
-  constructor(private repository: UserRepository) {}
-}
-```
-
 ### Violation 3: Domain imports anything
 
-```typescript
+\`\`\`${LANGUAGE,,}
 // ❌ WRONG
-// src/domain/User.ts
-import { GetUsers } from '../application/GetUsers'
+// ${DOMAIN_PATH}/User${FILE_EXTENSION}
+// Importing from application layer
 
-export interface User {
-  useCase: GetUsers // Wrong!
-}
-```
+// ✅ CORRECT
+// ${DOMAIN_PATH}/User${FILE_EXTENSION}
+// Pure domain logic, no imports from other layers
+\`\`\`
 
 **Fix**: Keep domain pure
-
-```typescript
-// ✅ CORRECT
-// src/domain/User.ts
-export interface User {
-  id: string
-  name: string
-  email: string
-}
-
-// No imports from other layers
-```
 
 ---
 
@@ -613,9 +553,9 @@ export interface User {
 - Report violations
 
 ### Automated Tools (optional)
-- `dependency-cruiser` - NPM package for dependency validation
-- `madge` - Circular dependency detection
-- Custom ESLint rules
+- Language-specific dependency analyzers
+- Custom lint rules
+- CI/CD integration
 
 ---
 

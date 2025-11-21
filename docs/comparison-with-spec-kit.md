@@ -1,7 +1,7 @@
 # AI Workflow System vs GitHub Spec-Kit: Comprehensive Comparison
 
-**Last Updated**: November 2025
-**AI Workflow System Version**: 0.5.0-beta (with PRD Planning)
+**Last Updated**: January 2025
+**AI Workflow System Version**: 0.7.0-beta (Language-Agnostic + PRD Planning)
 **Spec-Kit**: github/spec-kit (open-source)
 
 ---
@@ -52,9 +52,11 @@ Both systems improve AI-assisted software development but with **different stren
 | **Real-Time Updates** | ✅ Updated during implementation | ❌ Not applicable |
 | **Technical Details** | | |
 | **Directory Structure** | `.spec/` (planning + tracking) | `.specify/` (specifications only) |
-| **Workflow Control** | Markdown playbooks | Slash commands |
+| **Workflow Control** | Templated markdown playbooks | Slash commands |
+| **Playbook Templating** | ✅ Language-specific variable substitution | ❌ Not applicable |
+| **Architecture Validation** | ✅ Language-aware (file extensions, import patterns) | ❌ Not included |
 | **AI Assistant Support** | Claude, ChatGPT, Gemini, Codex, Cursor, etc. | Same |
-| **Language Support** | Any (config-based) | Any |
+| **Language Support** | ✅ Fully templated (TypeScript, Python, Java, Go, Rust, C#) | Any |
 | **Git Integration** | Pre-commit validation hooks | Branch-based feature management |
 | **Setup Complexity** | Interactive script (`./init.sh`) | `uv` package manager |
 | **License** | MIT | MIT |
@@ -897,7 +899,9 @@ If you have existing `.spec/` tracking files:
 (Check github/spec-kit for latest roadmap)
 
 ### AI Workflow System Recent Enhancements
-- ✅ **PRD Planning Playbook** - Multi-feature planning with dependency analysis (COMPLETED)
+- ✅ **Language-Agnostic Templating** - All playbooks use variable substitution (v0.7.0) (COMPLETED)
+- ✅ **Architecture Validation** - Language-specific file extensions and import patterns (COMPLETED)
+- ✅ **PRD Planning Playbook** - Multi-feature planning with dependency analysis (v0.6.0) (COMPLETED)
 - ✅ **Enhanced Multi-Feature Support** - Automatic implementation order recommendations (COMPLETED)
 - ✅ **Flexible Input Formats** - Accepts any PRD format (structured, bullet, paragraph) (COMPLETED)
 
@@ -982,5 +986,8 @@ If you have existing `.spec/` tracking files:
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: November 12, 2025
+**Document Version**: 1.1
+**Last Updated**: January 21, 2025
+**Changelog**:
+- v1.1 (Jan 2025): Updated for language-agnostic templating system (v0.7.0)
+- v1.0 (Nov 2025): Initial comparison with PRD planning features

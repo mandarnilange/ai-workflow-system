@@ -5,9 +5,33 @@
 A language-agnostic, AI-assistant-agnostic workflow system that enforces TDD, Clean Architecture, and quality standards through markdown playbooks.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.5.0--beta-blue.svg)](https://github.com/mandarnilange/ai-workflow-system/releases)
+[![Version](https://img.shields.io/badge/version-0.7.0--beta-blue.svg)](https://github.com/mandarnilange/ai-workflow-system/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Code of Conduct](https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-purple.svg)](CODE_OF_CONDUCT.md)
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Updating an Existing Installation](#updating-an-existing-installation)
+- [What Gets Created](#what-gets-created)
+- [Claude Code Subagents](#claude-code-subagents)
+- [Workflow Examples](#workflow-examples)
+- [Configuration](#configuration)
+- [Available Playbooks](#available-playbooks)
+- [Supported Languages & Frameworks](#supported-languages--frameworks)
+- [Supported AI Assistants](#supported-ai-assistants)
+- [Architecture](#architecture)
+- [Examples](#examples)
+- [Contributing](#contributing)
+- [Philosophy](#philosophy)
+- [FAQ](#faq)
+- [Related Documentation](#related-documentation)
+- [License](#license)
+- [Credits](#credits)
+- [Support](#support)
 
 ---
 
@@ -15,7 +39,7 @@ A language-agnostic, AI-assistant-agnostic workflow system that enforces TDD, Cl
 
 - ✅ **AI-Agnostic** - Works with Claude, ChatGPT, Gemini, Codex, Cursor, Copilot, and more
 
-- ✅ **Language-Agnostic** - Supports TypeScript, Python, Java, Go, Rust, C#, and more
+- ✅ **Language-Agnostic** - Fully templated playbooks adapt to TypeScript, Python, Java, Go, Rust, C#, and more
 
 - ✅ **PRD Planning** - Plan multiple features upfront with dependency tracking
 
@@ -633,14 +657,25 @@ All playbooks are located in `.workflow/playbooks/`. **Note**: You don't need to
 
 ## Supported Languages & Frameworks
 
-### Languages
-- TypeScript/JavaScript
-- Python
-- Java
-- Go
-- Rust
-- C#
-- Any language with a test framework
+### How Language Support Works
+
+The workflow system uses **templated playbooks** that automatically adapt to your chosen language during initialization:
+
+- **Architecture validation** uses language-specific file patterns (`.ts`, `.py`, `.java`, etc.)
+- **Import checking** uses language-appropriate regex patterns
+- **Code examples** in playbooks match your language syntax
+- **Commands** pull from config.yml (test, lint, build commands)
+
+**Result**: Whether you select TypeScript, Python, Java, Go, Rust, or C#, the generated playbooks will use correct file extensions, import patterns, and validation logic for that language.
+
+### Fully Supported Languages
+- **TypeScript/JavaScript** - `.ts` files, ESLint, Jest, npm
+- **Python** - `.py` files, pylint/black, pytest, pip
+- **Java** - `.java` files, Checkstyle, JUnit, Maven
+- **Go** - `.go` files, golangci-lint, go test
+- **Rust** - `.rs` files, cargo test
+- **C#** - `.cs` files, ASP.NET Core
+- **Any language** with a test framework (generic defaults provided)
 
 ### Frameworks
 - Express.js, Fastify (Node.js)
@@ -824,28 +859,27 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 Wondering how this system compares to GitHub's spec-kit? See our detailed comparison:
 
-**📄 [AI Workflow System vs GitHub Spec-Kit](docs/comparison-with-spec-kit.md)**
+**📄 [AI Workflow System vs GitHub Spec-Kit](docs/comparison-with-spec-kit.md)** *(Updated for v0.7.0 - Language-Agnostic Architecture)*
 
 **TL;DR**:
 - **Spec-Kit**: Focuses on **specification quality** (requirements validation, constitution pattern)
-- **AI Workflow System**: Focuses on **implementation quality** (TDD + Clean Architecture enforcement) **with PRD planning**
+- **AI Workflow System**: Provides **end-to-end workflow** with language-agnostic templating - PRD planning with dependency analysis → TDD implementation → architecture validation → quality gates
 - **Both Approaches Work**: Use AI Workflow System alone for integrated planning + implementation, OR use both for maximum quality
 
-Key differences:
-- ✅ **PRD Planning**: Both support multi-feature planning
-  - AI Workflow: Dependency analysis + implementation order recommendations
-  - Spec-Kit: Constitution pattern + cross-artifact consistency
-- ✅ **TDD Enforcement**: AI Workflow System enforces mandatory tests-first (Spec-Kit doesn't)
-- ✅ **Architecture Validation**: AI Workflow System validates Clean Architecture compliance (Spec-Kit doesn't)
-- ✅ **Quality Gates**: AI Workflow System has pre-commit validators (Spec-Kit has optional spec validation)
-- ✅ **Integrated Workflow**: AI Workflow System provides seamless planning → implementation transition
+**Key Technical Advantages** (v0.7.0):
+- ✅ **Language-Agnostic Templating**: All playbooks use variable substitution - adapts to TypeScript, Python, Java, Go, Rust, C# automatically
+- ✅ **Architecture Validation**: Language-aware (correct file extensions, import patterns per language)
+- ✅ **PRD Planning**: Dependency analysis + implementation order recommendations
+- ✅ **TDD Enforcement**: Mandatory tests-first (Spec-Kit doesn't enforce)
+- ✅ **Quality Gates**: Pre-commit validators (tests + arch + lint)
+- ✅ **Integrated Workflow**: Seamless planning → implementation transition
 
 **Recommendations**:
 - **AI Workflow System alone**: For most projects (planning + quality enforcement in one system)
 - **Both together**: For enterprise projects requiring specification validation + implementation quality
 - **Spec-Kit alone**: For specification-only work (rare)
 
-See the full comparison document for detailed analysis, use cases, and migration paths.
+See the [full comparison document](docs/comparison-with-spec-kit.md) for detailed analysis, use cases, and migration paths.
 
 ---
 

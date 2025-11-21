@@ -8,9 +8,110 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned for 1.0.0
-- Extended testing and validation across multiple AI agents
+- Integration testing with real Python/Java/Go projects
+- Example projects for each supported language (Python, Java, Go, Rust, C#)
+- Real-world beta testing with 3-5 teams per language
+- CI/CD integration examples (GitHub Actions, GitLab CI)
 - Production hardening based on beta feedback
-- Additional language support (Ruby, PHP, Rust)
+- Additional language support (Ruby, PHP, Kotlin, Swift)
+
+---
+
+## [0.7.0-beta] - 2025-01-21
+
+### 🚀 Major Features - Language-Agnostic Architecture
+
+#### Added
+- **Language-Agnostic Playbook Templating System**
+  - All 10 playbooks converted to templates with variable substitution
+  - Playbooks now adapt to TypeScript, Python, Java, Go, Rust, C# automatically
+  - Language-specific file extensions (`.ts`, `.py`, `.java`, `.go`, `.rs`, `.cs`)
+  - Language-specific import patterns for architecture validation
+  - Language-specific code examples in playbooks
+
+- **Architecture Validation Improvements**
+  - Language-aware file pattern matching (`${FIND_FILES_PATTERN}`)
+  - Language-specific import regex patterns (`${IMPORT_PATTERN}`, `${IMPORT_FROM_PATTERN}`)
+  - Correct source directory detection per language (`${SOURCE_DIR}`)
+  - Template variables: `${FILE_EXTENSION}`, `${LANGUAGE_LOWER}`, `${EXAMPLE_IMPORT}`, `${EXAMPLE_CLASS}`, `${EXAMPLE_FUNCTION}`
+
+- **Init Script Enhancements**
+  - Language-specific variable definitions for 6 languages
+  - Template processing with `envsubst` for all playbooks
+  - `LANGUAGE_LOWER` variable for syntax highlighting in code blocks
+  - Enhanced `process_template()` function with architecture validation variables
+
+#### Changed
+- **Directory Structure Simplified**
+  - Moved all playbooks from `playbooks/*.md` to `templates/playbooks/*.template`
+  - Removed `playbooks/` directory entirely (single source of truth)
+  - All playbooks now processed through template system (even if no variables)
+
+- **Playbook Updates**
+  - `architecture-check.md`: Now uses language-specific patterns throughout
+  - `feature.md`: Uses `${TYPE_CHECK_CHECKLIST}`, `${COVERAGE_COMMAND}`, `${LINT_COMMAND}`
+  - `bugfix.md`: Uses `${TEST_COMMAND}`, `${COVERAGE_COMMAND}`, `${LINT_COMMAND}`, `${TYPE_CHECK_CHECKLIST}`
+  - All 10 playbooks: Converted to `.template` format
+
+- **Documentation**
+  - README.md: Added Table of Contents, updated to 0.7.0-beta
+  - README.md: Enhanced "Supported Languages & Frameworks" section explaining templating
+  - README.md: Updated Spec-Kit comparison with language-agnostic features
+  - docs/comparison-with-spec-kit.md: Updated to v1.1 with language-agnostic architecture details
+
+#### Fixed
+- **Critical Issue**: Removed hardcoded TypeScript patterns from playbooks (#critical-language-agnostic-issue)
+- **Critical Issue**: Architecture validation now works for Python, Java, Go, Rust, C#
+- **Critical Issue**: Import checking uses correct regex per language
+- Removed hardcoded "Zero TypeScript errors" from feature.md and bugfix.md checklists
+
+### 🔧 Technical Details
+
+#### Template Variables Added
+```bash
+FILE_EXTENSION          # .ts, .py, .java, .go, .rs, .cs
+TEST_FILE_EXTENSION     # .test.ts, _test.py, Test.java, _test.go, .rs, Tests.cs
+SOURCE_DIR              # src, src/main/java, etc.
+IMPORT_PATTERN          # Language-specific import regex
+IMPORT_FROM_PATTERN     # Language-specific relative import regex
+FIND_FILES_PATTERN      # *.ts, *.py, *.java, etc.
+LANGUAGE_LOWER          # typescript, python, java, go, rust, c#
+EXAMPLE_IMPORT          # Language-specific import example
+EXAMPLE_CLASS           # Language-specific class syntax
+EXAMPLE_FUNCTION        # Language-specific function syntax
+```
+
+#### Language Support Matrix
+| Language   | File Ext | Import Pattern        | Test Pattern    | Status |
+|------------|----------|-----------------------|-----------------|--------|
+| TypeScript | `.ts`    | `^import`            | `*.test.ts`     | ✅ Full |
+| Python     | `.py`    | `^(import\|from)`    | `test_*.py`     | ✅ Full |
+| Java       | `.java`  | `^import`            | `*Test.java`    | ✅ Full |
+| Go         | `.go`    | `^import`            | `*_test.go`     | ✅ Full |
+| Rust       | `.rs`    | `^use`               | `*.rs`          | ✅ Full |
+| C#         | `.cs`    | `^using`             | `*Tests.cs`     | ✅ Full |
+
+### 🔄 Migration & Compatibility
+- **Backward Compatible**: Quick update mode preserves existing config.yml
+- **Automatic Migration**: Running `./init.sh` regenerates playbooks with language-specific content
+- **No Breaking Changes**: User workflow remains the same
+
+### 📊 Metrics
+- **10 playbooks** converted to templates
+- **6 languages** fully supported with language-specific patterns
+- **9 new template variables** for language adaptation
+- **0 breaking changes** to user workflow
+
+### 🎯 What's Next (Path to 1.0)
+- Integration testing with real Python/Java/Go projects
+- Example projects for each supported language
+- Real-world beta testing with 3-5 teams per language
+- CI/CD integration examples
+- Performance optimization
+
+### 🙏 Acknowledgments
+- Review feedback from AI_WORKFLOW_REVIEW.md addressing critical language-agnostic issues
+- Community feedback on TypeScript-only limitations
 
 ---
 
