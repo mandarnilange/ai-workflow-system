@@ -7,12 +7,58 @@
 
 ---
 
+## ⚠️ CRITICAL: MANDATORY WORKFLOW SYSTEM ⚠️
+
+**This project requires STRICT adherence to the workflow playbooks.**
+
+### ❌ FORBIDDEN
+- Starting code implementation directly
+- Skipping playbook execution
+- Writing code before reading coordinator.md
+- Silent execution without reporting
+
+### ✅ MANDATORY
+- Read `.workflow/playbooks/coordinator.md` FIRST for ANY implementation work
+- Follow playbook instructions step-by-step (CONTINUOUSLY - do not pause between steps)
+- Announce each step BEFORE executing it
+- Report progress throughout execution
+- **CRITICAL**: Execute all steps CONTINUOUSLY without waiting for user confirmation
+
+**Direct implementation without workflow = FAILURE**
+
+### 📝 Execution Pattern (IMPORTANT)
+
+**CORRECT execution pattern** (continuous):
+```
+Read playbook → Execute Step 1 → Report result → Execute Step 2 → Report result → Execute Step 3 → Report result → Complete
+```
+
+**WRONG execution pattern** (waiting):
+```
+Read playbook → Execute Step 1 → Report result → WAIT FOR USER ❌
+```
+
+**DO NOT PAUSE** between steps. Execute the entire workflow continuously unless the playbook explicitly says to stop or the user interrupts.
+
+---
+
 ## Project: ${PROJECT_NAME}
 
 **Language**: ${LANGUAGE}
 **Framework**: ${FRAMEWORK}
 **Test Framework**: ${TEST_FRAMEWORK}
 **Architecture**: Clean Architecture (Uncle Bob's principles)
+
+---
+
+## Core Philosophy (XP Principles)
+
+This project follows **Extreme Programming (XP)** values. Every agent must embody these principles:
+
+1.  **Simplicity**: Do the simplest thing that could possibly work. Avoid over-engineering. YAGNI (You Ain't Gonna Need It).
+2.  **Feedback**: Shorten feedback loops. Run tests frequently.
+3.  **Courage**: Refactor mercilessly. If code smells, fix it immediately. Don't be afraid to delete dead code.
+4.  **Respect**: Leave the code better than you found it. Write clean, readable, self-documenting code.
 
 ---
 
@@ -104,7 +150,7 @@ Step 3: Route to .workflow/playbooks/bugfix.md
 Step 4: Execute bugfix.md:
 
   ## Step 1: Root Cause Analysis
-  Analyzing file: ${DOMAIN_PATH}/${EXAMPLE_CLASS}.${LANGUAGE}
+  Analyzing file: ${DOMAIN_PATH}/${EXAMPLE_CLASS}${FILE_EXTENSION}
   Issue: Missing null check on line 45
 
   ## Step 2: Write Failing Test (TDD)
@@ -219,7 +265,7 @@ Running: ${TEST_COMMAND}
 Result: FAILED ✅ (Expected - test written first)
 
 🟢 GREEN: Implementing feature...
-Writing: ${DOMAIN_PATH}/${EXAMPLE_CLASS}.${LANGUAGE}
+Writing: ${DOMAIN_PATH}/${EXAMPLE_CLASS}${FILE_EXTENSION}
 Running: ${TEST_COMMAND}
 Result: ALL TESTS PASSING ✅
 
@@ -285,19 +331,28 @@ Follow reporting-guidelines.md exactly. When you see "Report to user:", output t
 
 ### For Codex
 
-**Issue**: Codex may pause after each report waiting for confirmation.
+**CRITICAL ISSUE**: Codex has a tendency to pause after each report waiting for user confirmation. **DO NOT DO THIS.**
 
-**Solution**: After reporting, IMMEDIATELY continue to next action. Do NOT wait for user input.
+**YOU MUST**: Execute workflows CONTINUOUSLY without pausing between steps.
 
-Pattern:
+**Execution Pattern (MANDATORY)**:
 ```
-Report → Continue → Report → Continue → Report → Continue
+Report Step 1 → IMMEDIATELY Execute Step 2 → Report Step 2 → IMMEDIATELY Execute Step 3 → Continue until complete
 ```
 
-NOT:
+**NEVER DO THIS**:
 ```
-Report → Wait → Report → Wait  ❌ WRONG
+Report Step 1 → PAUSE and wait for user → ❌ WRONG - DO NOT WAIT
 ```
+
+**Rules for Codex**:
+1. After reporting a step completion, IMMEDIATELY start the next step
+2. Do NOT wait for user to say "continue" or "proceed"
+3. Do NOT ask "Should I continue?" or "Ready for next step?"
+4. Execute the ENTIRE playbook in ONE continuous session
+5. Only stop if: (a) Playbook explicitly says to stop, (b) User interrupts, or (c) Error occurs
+
+**Self-check**: Before pausing, ask yourself "Did the playbook tell me to stop here?" If NO, then CONTINUE IMMEDIATELY.
 
 ### For Claude Code
 
@@ -474,6 +529,7 @@ ${TYPE_CHECK_CHECKLIST}
 - **Test Pattern**: ${TEST_PATTERN}
 - **Coverage Target**: ${COVERAGE_REQUIREMENT}%
 - **TDD Required**: ${TDD_REQUIRED}
+- **Edge Cases**: MUST be identified and tested (nulls, empty strings, boundaries, invalid inputs)
 
 ### Test Naming
 

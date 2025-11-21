@@ -44,7 +44,7 @@ When a playbook says **"Report to user:"**, you MUST:
 1. **Find the reporting template** in that section
 2. **Fill in the placeholders** with actual values (e.g., replace `{feature_name}` with actual feature name)
 3. **Output the formatted message** to the user
-4. **Continue to next action** (don't wait for response)
+4. **Immediately execute the next action** (unless actively waiting for required user input, such as clarification or missing information). Do NOT pause to confirm that the user saw your message—they will interrupt if needed.
 
 **Example**:
 - Playbook says: "Report to user: Step 1 complete"

@@ -44,20 +44,20 @@ Let's begin...
 │   Frameworks & Drivers              │
 │   (Web, DB, UI, Devices, etc.)      │
 └─────────────────────────────────────┘
-      ▲                               
-      │                               
+      ▲
+      │
 ┌─────────────────────────────────────┐
 │   Interface Adapters                │
 │   (Controllers, Presenters, Gateways)│
 └─────────────────────────────────────┘
-      ▲                               
-      │                               
+      ▲
+      │
 ┌─────────────────────────────────────┐
 │   Application (Use Cases)           │
 │   (Application Business Rules)      │
 └─────────────────────────────────────┘
-      ▲                               
-      │                               
+      ▲
+      │
 ┌─────────────────────────────────────┐
 │   Domain (Entities/Interfaces)      │
 │   (Enterprise Business Rules)       │
@@ -160,28 +160,23 @@ grep -n "^import" src/domain/**/*.ts
 - Only type imports (if truly needed)
 
 ❌ **NOT Allowed in Domain**:
-- Imports from `application/`
-- Imports from `infrastructure/`
-- Imports from `presentation/`
-- Imports from `di/`
+- Imports from \`application/\`
+- Imports from \`infrastructure/\`
+- Imports from \`presentation/\`
+- Imports from \`di/\`
 - External libraries (except pure type definitions)
 
 **Example**:
-```typescript
+\`\`\`typescript
 // ✅ ALLOWED in Domain
-export interface User {
+User
   id: string
   name: string
   email: string
 }
 
-export interface UserRepository {
-  findAll(): Promise<User[]>
-}
-
 // ❌ NOT ALLOWED in Domain
-import { SomeUseCase } from '../application/SomeUseCase' // Violates rule
-import express from 'express' // External dependency
+import { User } from './User' // From application layer - violates rule
 ```
 
 ### 2.3 Report Domain Violations
@@ -191,7 +186,7 @@ import express from 'express' // External dependency
 ❌ Domain Layer: {count} Violations
 
 File: src/domain/User.ts
-Line 3: import { SomeUseCase } from '../application/SomeUseCase'
+Line 3: import { User } from './User'
 Reason: Domain cannot depend on Application layer
 
 Action required:
@@ -236,32 +231,27 @@ grep -n "^import.*from.*'\.\." src/application/**/*.ts
 **Validation Rules**:
 
 ✅ **Allowed in Application**:
-- Imports from `domain/`
+- Imports from \`domain/\`
 - TypeScript built-ins
 - Pure libraries (no framework-specific code)
 
 ❌ **NOT Allowed in Application**:
-- Imports from `infrastructure/`
-- Imports from `presentation/`
-- Imports from `di/`
+- Imports from \`infrastructure/\`
+- Imports from \`presentation/\`
+- Imports from \`di/\`
 - Framework imports (Express, etc.)
 
 **Example**:
-```typescript
+\`\`\`${LANGUAGE,,}
 // ✅ ALLOWED in Application
-import { User, UserRepository } from '../domain/User'
+import { User } from './User'
 
-export class GetUsers {
-  constructor(private repository: UserRepository) {}
-
-  async execute() {
-    return await this.repository.findAll()
-  }
+User
+  // Uses dependency injection for repository
 }
 
 // ❌ NOT ALLOWED in Application
-import { InMemoryUserRepository } from '../infrastructure/InMemoryUserRepository'
-import { Request, Response } from 'express'
+// Importing from infrastructure layer violates dependency rule
 ```
 
 ### 3.3 Report Application Violations
@@ -271,7 +261,7 @@ import { Request, Response } from 'express'
 ❌ Application Layer: {count} Violations
 
 File: src/application/GetUsers.ts
-Line 5: import { InMemoryUserRepository } from '../infrastructure/...'
+Line 5: import { Repository } from '../infrastructure/...'
 Reason: Application cannot depend on Infrastructure layer
 
 Action required:
@@ -315,30 +305,26 @@ grep -n "^import.*from.*'\.\." src/infrastructure/**/*.ts
 **Validation Rules**:
 
 ✅ **Allowed in Infrastructure**:
-- Imports from `domain/`
-- Imports from `application/`
+- Imports from \`domain/\`
+- Imports from \`application/\`
 - External libraries
 - Framework code (Express, databases, etc.)
 
 ❌ **NOT Allowed in Infrastructure**:
-- Imports from `presentation/`
-- Imports from `di/`
+- Imports from \`presentation/\`
+- Imports from \`di/\`
 
 **Example**:
-```typescript
+\`\`\`${LANGUAGE,,}
 // ✅ ALLOWED in Infrastructure
-import { User, UserRepository } from '../domain/User'
+import { User } from './User'
 
-export class InMemoryUserRepository implements UserRepository {
-  private users: User[] = []
-
-  async findAll(): Promise<User[]> {
-    return this.users
-  }
+User
+  // Implements domain interface
 }
 
 // ❌ NOT ALLOWED in Infrastructure
-import { UserController } from '../presentation/UserController'
+// Importing from presentation layer violates dependency rule
 ```
 
 **If no violations**:
@@ -377,31 +363,25 @@ grep -n "^import.*from.*'\.\." src/presentation/**/*.ts
 **Validation Rules**:
 
 ✅ **Allowed in Presentation**:
-- Imports from `domain/`
-- Imports from `application/`
+- Imports from \`domain/\`
+- Imports from \`application/\`
 - Framework imports (Express Request/Response)
 
 ❌ **NOT Allowed in Presentation**:
-- Imports from `infrastructure/` (CRITICAL)
-- Imports from `di/`
+- Imports from \`infrastructure/\` (CRITICAL)
+- Imports from \`di/\`
 
 **Example**:
-```typescript
+\`\`\`${LANGUAGE,,}
 // ✅ ALLOWED in Presentation
-import { GetUsers } from '../application/GetUsers'
-import { Request, Response } from 'express'
+import { User } from './User'
 
-export class UserController {
-  constructor(private getUsers: GetUsers) {}
-
-  async getAll(req: Request, res: Response) {
-    const result = await this.getUsers.execute()
-    res.json(result)
-  }
+User
+  // Uses application layer use case
 }
 
 // ❌ NOT ALLOWED in Presentation
-import { InMemoryUserRepository } from '../infrastructure/InMemoryUserRepository'
+// Importing from infrastructure layer - most common violation!
 ```
 
 **This is the most common violation** - Presentation should NEVER import from Infrastructure directly.
@@ -411,7 +391,7 @@ import { InMemoryUserRepository } from '../infrastructure/InMemoryUserRepository
 ❌ Presentation Layer: {count} Violations
 
 File: src/presentation/UserController.ts
-Line 2: import { InMemoryUserRepository } from '../infrastructure/...'
+Line 2: import { Repository } from '../infrastructure/...'
 Reason: Presentation cannot depend on Infrastructure layer (most common violation!)
 
 Action required:
@@ -523,85 +503,45 @@ See detailed violation reports above for specific issues and fixes.
 
 ### Violation 1: Presentation imports Infrastructure
 
-```typescript
+\`\`\`${LANGUAGE,,}
 // ❌ WRONG
 // src/presentation/UserController.ts
-import { InMemoryUserRepository } from '../infrastructure/InMemoryUserRepository'
+// Importing repository directly from infrastructure
 
-export class UserController {
-  constructor() {
-    this.repository = new InMemoryUserRepository()
-  }
-}
-```
+// ✅ CORRECT
+// src/presentation/UserController.ts
+// Use application layer use case instead
+\`\`\`
 
 **Fix**: Use dependency injection
 
-```typescript
-// ✅ CORRECT
-// src/presentation/UserController.ts
-import { GetUsers } from '../application/GetUsers'
-
-export class UserController {
-  constructor(private getUsers: GetUsers) {}
-}
-
-// Wiring happens in DI layer:
-// src/di/container.ts
-const repository = new InMemoryUserRepository()
-const getUsers = new GetUsers(repository)
-const controller = new UserController(getUsers)
-```
-
 ### Violation 2: Application imports Infrastructure
 
-```typescript
+\`\`\`${LANGUAGE,,}
 // ❌ WRONG
 // src/application/GetUsers.ts
-import { InMemoryUserRepository } from '../infrastructure/InMemoryUserRepository'
+// Importing concrete repository from infrastructure
 
-export class GetUsers {
-  private repository = new InMemoryUserRepository()
-}
-```
+// ✅ CORRECT
+// src/application/GetUsers.ts
+// Use interface from domain + dependency injection
+\`\`\`
 
 **Fix**: Use interface + dependency injection
 
-```typescript
-// ✅ CORRECT
-// src/application/GetUsers.ts
-import { UserRepository } from '../domain/User'
-
-export class GetUsers {
-  constructor(private repository: UserRepository) {}
-}
-```
-
 ### Violation 3: Domain imports anything
 
-```typescript
+\`\`\`${LANGUAGE,,}
 // ❌ WRONG
 // src/domain/User.ts
-import { GetUsers } from '../application/GetUsers'
+// Importing from application layer
 
-export interface User {
-  useCase: GetUsers // Wrong!
-}
-```
-
-**Fix**: Keep domain pure
-
-```typescript
 // ✅ CORRECT
 // src/domain/User.ts
-export interface User {
-  id: string
-  name: string
-  email: string
-}
+// Pure domain logic, no imports from other layers
+\`\`\`
 
-// No imports from other layers
-```
+**Fix**: Keep domain pure
 
 ---
 
@@ -613,9 +553,9 @@ export interface User {
 - Report violations
 
 ### Automated Tools (optional)
-- `dependency-cruiser` - NPM package for dependency validation
-- `madge` - Circular dependency detection
-- Custom ESLint rules
+- Language-specific dependency analyzers
+- Custom lint rules
+- CI/CD integration
 
 ---
 

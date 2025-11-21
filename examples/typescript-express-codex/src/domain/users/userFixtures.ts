@@ -21,5 +21,9 @@ export const userFixtures = {
   },
   asJson() {
     return demoUsers.map((user) => user.toJSON());
+  },
+  findById(id: string): User | undefined {
+    const match = demoUsers.find((user) => user.toJSON().id === id);
+    return match ? new User(match.toJSON()) : undefined;
   }
 };

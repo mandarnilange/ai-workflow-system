@@ -44,6 +44,7 @@ You MUST announce RED/GREEN/REFACTOR phases clearly to the user.
 
 Test: "{test name}"
 File: {test file path}
+Edge Cases Considered: {list of edge cases}
 What it tests: {brief description}
 
 Writing test now...
@@ -58,6 +59,17 @@ Before writing test, clarify:
 - What errors should be handled?
 
 If unclear, ask user for clarification.
+
+### 1.2 Identify Edge Cases (CRITICAL)
+
+**Before writing the test, explicitly list edge cases:**
+- Null/Undefined inputs
+- Empty strings/arrays
+- Boundary values (0, -1, MAX_INT)
+- Invalid formats (email, dates)
+- Network failures/timeouts
+
+**Report these edge cases to the user.**
 
 ### 1.2 Identify Test File Location
 

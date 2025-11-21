@@ -4,6 +4,7 @@ import { OsSystemInfoGateway } from '../infrastructure/system/OsSystemInfoGatewa
 import { UsersController } from '../presentation/controllers/UsersController';
 import { ListUsersUseCase } from '../application/users/ListUsersUseCase';
 import { InMemoryUsersRepository } from '../infrastructure/users';
+import { GetUserByIdUseCase } from '../application/users/GetUserByIdUseCase';
 
 export type AppContainer = {
   healthController: HealthController;
@@ -16,7 +17,8 @@ export const createContainer = (): AppContainer => {
   const healthController = new HealthController(checkHealthUseCase);
   const usersRepository = new InMemoryUsersRepository();
   const listUsersUseCase = new ListUsersUseCase(usersRepository);
-  const usersController = new UsersController(listUsersUseCase);
+  const getUserByIdUseCase = new GetUserByIdUseCase(usersRepository);
+  const usersController = new UsersController(listUsersUseCase, getUserByIdUseCase);
 
   return { healthController, usersController };
 };

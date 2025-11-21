@@ -7,12 +7,58 @@
 
 ---
 
-## Project: 
+## ⚠️ CRITICAL: MANDATORY WORKFLOW SYSTEM ⚠️
 
-**Language**: 
-**Framework**: 
-**Test Framework**: 
+**This project requires STRICT adherence to the workflow playbooks.**
+
+### ❌ FORBIDDEN
+- Starting code implementation directly
+- Skipping playbook execution
+- Writing code before reading coordinator.md
+- Silent execution without reporting
+
+### ✅ MANDATORY
+- Read `.workflow/playbooks/coordinator.md` FIRST for ANY implementation work
+- Follow playbook instructions step-by-step (CONTINUOUSLY - do not pause between steps)
+- Announce each step BEFORE executing it
+- Report progress throughout execution
+- **CRITICAL**: Execute all steps CONTINUOUSLY without waiting for user confirmation
+
+**Direct implementation without workflow = FAILURE**
+
+### 📝 Execution Pattern (IMPORTANT)
+
+**CORRECT execution pattern** (continuous):
+```
+Read playbook → Execute Step 1 → Report result → Execute Step 2 → Report result → Execute Step 3 → Report result → Complete
+```
+
+**WRONG execution pattern** (waiting):
+```
+Read playbook → Execute Step 1 → Report result → WAIT FOR USER ❌
+```
+
+**DO NOT PAUSE** between steps. Execute the entire workflow continuously unless the playbook explicitly says to stop or the user interrupts.
+
+---
+
+## Project: My Gemini sample
+
+**Language**: TypeScript
+**Framework**: Express.js
+**Test Framework**: Jest
 **Architecture**: Clean Architecture (Uncle Bob's principles)
+
+---
+
+## Core Philosophy (XP Principles)
+
+This project follows **Extreme Programming (XP)** values. Every agent must embody these principles:
+
+1.  **Simplicity**: Do the simplest thing that could possibly work. Avoid over-engineering. YAGNI (You Ain't Gonna Need It).
+2.  **Feedback**: Shorten feedback loops. Run tests frequently.
+3.  **Courage**: Refactor mercilessly. If code smells, fix it immediately. Don't be afraid to delete dead code.
+4.  **Respect**: Leave the code better than you found it. Write clean, readable, self-documenting code.
 
 ---
 
@@ -22,7 +68,7 @@ This project uses a **language-agnostic markdown playbook system** in `.workflow
 
 All workflows are:
 - ✅ **Tool-agnostic** - Work with any AI assistant
-- ✅ **Language-agnostic** - Adapted to  conventions
+- ✅ **Language-agnostic** - Adapted to TypeScript conventions
 - ✅ **Human-readable** - Developers can follow them manually
 - ✅ **Version-controlled** - Tracked in git for team consistency
 
@@ -61,20 +107,20 @@ Step 4: Execute feature.md step-by-step:
 
   ## Step 2: Exploration
   Reading existing auth code...
-  Understanding  authentication patterns...
+  Understanding Express.js authentication patterns...
   ✅ Exploration complete
 
   ## Step 3: TDD Implementation
 
   🔴 RED Phase:
-  Writing failing test: "user.test"
+  Writing failing test: "User.test.ts"
   Test: "should generate valid JWT token when credentials valid"
-  Running: 
+  Running: npm test
   Result: FAILED ✅ (Expected - test written first)
 
   🟢 GREEN Phase:
-  Implementing: getUser()
-  Running: 
+  Implementing: getUserById()
+  Running: npm test
   Result: ALL TESTS PASSING ✅
 
   🔵 REFACTOR Phase:
@@ -83,9 +129,9 @@ Step 4: Execute feature.md step-by-step:
 
   ## Step 4: Validation
   Running validators in parallel:
-  - Tests:  → 156/156 PASSING ✅
-  - Coverage:  → % ✅
-  - Linting:  → No issues ✅
+  - Tests: npm test → 156/156 PASSING ✅
+  - Coverage: npm test -- --coverage → 100% ✅
+  - Linting: npm run lint → No issues ✅
 
   ## Step 5: Completion
   ✅ Feature complete: User authentication with JWT
@@ -95,7 +141,7 @@ Step 4: Execute feature.md step-by-step:
 #### Example 2: Fixing a Bug
 
 ```
-User: "fix null pointer error in getUser"
+User: "fix null pointer error in getUserById"
 
 AI Assistant:
 Step 1: Read .workflow/playbooks/coordinator.md
@@ -104,18 +150,18 @@ Step 3: Route to .workflow/playbooks/bugfix.md
 Step 4: Execute bugfix.md:
 
   ## Step 1: Root Cause Analysis
-  Analyzing file: /User.
+  Analyzing file: src/domain/User.ts
   Issue: Missing null check on line 45
 
   ## Step 2: Write Failing Test (TDD)
   🔴 RED: Test reproduces bug
   Test: "should handle null input gracefully"
-  Running: 
+  Running: npm test
   Result: FAILING ✅ (Reproduces the bug)
 
   ## Step 3: Fix Bug
   🟢 GREEN: Adding null check
-  Running: 
+  Running: npm test
   Result: ALL TESTS PASSING ✅
 
   ## Step 4: Validation
@@ -140,9 +186,9 @@ Step 2: Execute commit.md:
 
   ## Step 2: Run All Validators
   Running validators in parallel:
-  - Tests:  → PASSING ✅
-  - Coverage: % → PASSING ✅
-  - Linting:  → PASSING ✅
+  - Tests: npm test → PASSING ✅
+  - Coverage: 100% → PASSING ✅
+  - Linting: npm run lint → PASSING ✅
   - Architecture: Clean Architecture check → PASSING ✅
 
   ## Step 3: Git Commit
@@ -213,21 +259,21 @@ Creating .spec/feature-user-authentication.md...
 
 ## Step 2: TDD Implementation
 🔴 RED: Writing failing test...
-Writing test: user.test
+Writing test: User.test.ts
 Test: "should validate JWT token"
-Running: 
+Running: npm test
 Result: FAILED ✅ (Expected - test written first)
 
 🟢 GREEN: Implementing feature...
-Writing: /User.
-Running: 
+Writing: src/domain/User.ts
+Running: npm test
 Result: ALL TESTS PASSING ✅
 
 ## Step 3: Validation
 Running 3 validators in parallel...
-- Tests:  → PASSING ✅
-- Coverage: % → PASSING ✅
-- Linting:  → PASSING ✅
+- Tests: npm test → PASSING ✅
+- Coverage: 100% → PASSING ✅
+- Linting: npm run lint → PASSING ✅
 ✅ All validators passed
 ```
 
@@ -285,19 +331,28 @@ Follow reporting-guidelines.md exactly. When you see "Report to user:", output t
 
 ### For Codex
 
-**Issue**: Codex may pause after each report waiting for confirmation.
+**CRITICAL ISSUE**: Codex has a tendency to pause after each report waiting for user confirmation. **DO NOT DO THIS.**
 
-**Solution**: After reporting, IMMEDIATELY continue to next action. Do NOT wait for user input.
+**YOU MUST**: Execute workflows CONTINUOUSLY without pausing between steps.
 
-Pattern:
+**Execution Pattern (MANDATORY)**:
 ```
-Report → Continue → Report → Continue → Report → Continue
+Report Step 1 → IMMEDIATELY Execute Step 2 → Report Step 2 → IMMEDIATELY Execute Step 3 → Continue until complete
 ```
 
-NOT:
+**NEVER DO THIS**:
 ```
-Report → Wait → Report → Wait  ❌ WRONG
+Report Step 1 → PAUSE and wait for user → ❌ WRONG - DO NOT WAIT
 ```
+
+**Rules for Codex**:
+1. After reporting a step completion, IMMEDIATELY start the next step
+2. Do NOT wait for user to say "continue" or "proceed"
+3. Do NOT ask "Should I continue?" or "Ready for next step?"
+4. Execute the ENTIRE playbook in ONE continuous session
+5. Only stop if: (a) Playbook explicitly says to stop, (b) User interrupts, or (c) Error occurs
+
+**Self-check**: Before pausing, ask yourself "Did the playbook tell me to stop here?" If NO, then CONTINUE IMMEDIATELY.
 
 ### For Claude Code
 
@@ -340,21 +395,21 @@ Located in `.workflow/playbooks/`:
 
 All project-specific settings are in `.workflow/config.yml`:
 
-- **Test command**: ``
-- **Coverage command**: ``
-- **Required coverage**: %
-- **Lint command**: ``
-- **Build command**: ``
-- **TDD required**: 
+- **Test command**: `npm test`
+- **Coverage command**: `npm test -- --coverage`
+- **Required coverage**: 100%
+- **Lint command**: `npm run lint`
+- **Build command**: `npm run build`
+- **TDD required**: true
 
 ---
 
 ## Quality Standards (Non-Negotiable)
 
-- ✅ **% test coverage** (statements, branches, functions, lines)
+- ✅ **100% test coverage** (statements, branches, functions, lines)
 - ✅ **Zero architecture violations**
 - ✅ **Zero linting errors**
-- ✅ **TDD required**: 
+- ✅ **TDD required**: true
 
 ---
 
@@ -364,7 +419,7 @@ All project-specific settings are in `.workflow/config.yml`:
 
 **Allowed Dependencies** (all dependencies point INWARD toward Domain):
 
-- **Domain** → Nothing (pure , zero external dependencies)
+- **Domain** → Nothing (pure TypeScript, zero external dependencies)
 - **Application** → Domain only
 - **Infrastructure** → Application + Domain
 - **Presentation** → Application + Domain (NEVER Infrastructure directly)
@@ -373,13 +428,13 @@ All project-specific settings are in `.workflow/config.yml`:
 ### Layer Paths
 
 ```
-
+src/domain
   ↑
-
+src/application
   ↑
-  →  
+src/infrastructure  →  src/presentation
                 ↑              ↑
-                  
+                  src/di
 ```
 
 **CRITICAL**: Presentation layer must NEVER import from Infrastructure. Use dependency injection.
@@ -430,14 +485,16 @@ feat: add stuff  # Too vague
 
 ```bash
 # Testing
-              # Run all tests
-          # Run tests with coverage report
+npm test              # Run all tests
+npm test -- --coverage          # Run tests with coverage report
 
 # Code Quality
-              # Run linter
-            # Check code formatting
-        # Run type checker
+npm run lint              # Run linter
+npx prettier --check .            # Check code formatting
+npx tsc --noEmit        # Run type checker
 
+# Build
+npm run build             # Build the project
 ```
 
 ---
@@ -446,10 +503,10 @@ feat: add stuff  # Too vague
 
 Before EVERY commit, ALL of these must pass:
 
-- [ ] **Tests**: All tests passing (``)
-- [ ] **Coverage**: % coverage achieved (``)
-- [ ] **Linting**: Zero linting errors (``)
-- [ ] **Type Checking**: Zero type errors (``)
+- [ ] **Tests**: All tests passing (`npm test`)
+- [ ] **Coverage**: 100% coverage achieved (`npm test -- --coverage`)
+- [ ] **Linting**: Zero linting errors (`npm run lint`)
+- [ ] **Type Checking**: Zero type errors (`npx tsc --noEmit`)
 - [ ] **Architecture**: Zero dependency violations
 - [ ] **.spec/ files**: Task tracking files updated and accurate
 
@@ -459,21 +516,22 @@ Before EVERY commit, ALL of these must pass:
 
 ## Code Quality Standards
 
-###  Conventions
+### TypeScript Conventions
 
-- **Functions**:  (e.g., `getUser`)
-- **Variables**: 
-- **Constants**: 
+- **Functions**: camelCase (e.g., `getUserById`)
+- **Variables**: camelCase
+- **Constants**: UPPER_SNAKE_CASE
 - **Classes**: PascalCase (e.g., `User`)
-- **Files**: 
+- **Files**: PascalCase
 
 ### Testing Standards
 
-- **Framework**: 
-- **Test Location**: 
-- **Test Pattern**: 
-- **Coverage Target**: %
-- **TDD Required**: 
+- **Framework**: Jest
+- **Test Location**: tests/
+- **Test Pattern**: *.test.ts
+- **Coverage Target**: 100%
+- **TDD Required**: true
+- **Edge Cases**: MUST be identified and tested (nulls, empty strings, boundaries, invalid inputs)
 
 ### Test Naming
 
@@ -483,7 +541,17 @@ should [expected behavior] when [condition]
 ```
 
 Examples:
+```typescript
+describe('User', () => {
+  it('should return user when valid id provided', () => {
+    // Arrange-Act-Assert
+  })
 
+  it('should throw error when user not found', () => {
+    // Arrange-Act-Assert
+  })
+})
+```
 
 ---
 
@@ -506,7 +574,7 @@ Templates are available in `.workflow/templates/`.
 
 ✅ **Test-Driven Development (TDD)** - Tests before code, always
 ✅ **Clean Architecture** - Strict dependency rules enforced
-✅ **% Test Coverage** - No compromises
+✅ **100% Test Coverage** - No compromises
 ✅ **Comprehensive Tracking** - All work tracked in .spec/
 ✅ **Validated Commits** - All quality gates must pass
 

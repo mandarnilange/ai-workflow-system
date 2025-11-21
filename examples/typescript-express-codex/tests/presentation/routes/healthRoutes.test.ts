@@ -7,11 +7,16 @@ import { HealthController } from '../../../src/presentation/controllers/HealthCo
 import { CheckHealthUseCase, HealthCheckPort } from '../../../src/application/health/CheckHealthUseCase';
 import { UsersController } from '../../../src/presentation/controllers/UsersController';
 import { ListUsersPort } from '../../../src/application/users/ListUsersUseCase';
+import { GetUserByIdPort } from '../../../src/application/users/GetUserByIdUseCase';
 
 describe('health routes', () => {
   it('should return health payload for GET /health', async () => {
     const usersUseCase: ListUsersPort = {
       execute: jest.fn().mockResolvedValue([])
+    };
+
+    const getUserUseCase: GetUserByIdPort = {
+      execute: jest.fn()
     };
 
     const container: AppContainer = {
@@ -20,7 +25,7 @@ describe('health routes', () => {
           getServerIp: jest.fn().mockResolvedValue('203.0.113.5')
         })
       ),
-      usersController: new UsersController(usersUseCase)
+      usersController: new UsersController(usersUseCase, getUserUseCase)
     };
 
     const app = buildApp(container);
@@ -61,9 +66,13 @@ describe('health routes', () => {
       execute: jest.fn().mockResolvedValue([])
     };
 
+    const getUserUseCase: GetUserByIdPort = {
+      execute: jest.fn()
+    };
+
     const container: AppContainer = {
       healthController: new HealthController(failingUseCase),
-      usersController: new UsersController(usersUseCase)
+      usersController: new UsersController(usersUseCase, getUserUseCase)
     };
 
     const app = buildApp(container);

@@ -2,6 +2,7 @@ import { User, UserProps } from '../../domain/users/User';
 
 export interface UsersRepository {
   list(): Promise<User[]>;
+  findById?(id: string): Promise<User | undefined>;
 }
 
 export interface ListUsersPort {

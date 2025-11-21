@@ -86,43 +86,43 @@ All playbooks are in `.workflow/playbooks/`:
 ## Project Context
 
 **Tech Stack**:
-- Language: 
-- Framework: 
-- Testing: 
+- Language: TypeScript
+- Framework: Express.js
+- Testing: Jest
 
 **Architecture**: Clean Architecture (Uncle Bob's principles)
--  →  →  →  → 
+- src/domain → src/application → src/infrastructure → src/presentation → src/di
 
 **Quality Standards** (Non-Negotiable):
-- % test coverage (statements, branches, functions, lines)
+- 100% test coverage (statements, branches, functions, lines)
 - Zero architecture violations
 - Zero linting errors
-- TDD required: 
+- TDD required: true
 
 ---
 
 ## Code Quality Standards
 
-### 
+### TypeScript
 
-- Functions: 
-- Variables: 
-- Constants: 
-- Class files: 
+- Functions: camelCase
+- Variables: camelCase
+- Constants: UPPER_SNAKE_CASE
+- Class files: PascalCase
 
 ### Testing
 
-- Framework: 
-- Test directory: 
-- Test pattern: 
-- Coverage: %
-- TDD: 
+- Framework: Jest
+- Test directory: tests/
+- Test pattern: *.test.ts
+- Coverage: 100%
+- TDD: true
 
 ### Naming Conventions
 
 - Classes: PascalCase
-- Functions: 
-- Use cases:  pattern
+- Functions: camelCase
+- Use cases: VerbNoun pattern
 - Test descriptions: "should [expected behavior] when [condition]"
 
 ---
@@ -130,7 +130,7 @@ All playbooks are in `.workflow/playbooks/`:
 ## Architecture Rules
 
 **Dependency Rule** (dependencies point inward only):
-- Domain → Nothing (pure )
+- Domain → Nothing (pure TypeScript)
 - Application → Domain only
 - Infrastructure → Application + Domain
 - Presentation → Application + Domain (never Infrastructure directly)
@@ -158,10 +158,12 @@ All playbooks are in `.workflow/playbooks/`:
 ## Common Commands
 
 ```bash
-              # Run tests
-          # Coverage report
-              # Run linter
+npm test              # Run tests
+npm test -- --coverage          # Coverage report
+npm run lint              # Run linter
 
+# Build
+npm run build             # Build the project
 ```
 
 ---
@@ -169,10 +171,10 @@ All playbooks are in `.workflow/playbooks/`:
 ## Important Notes
 
 1. **Always use playbooks** - Don't manually orchestrate workflows
-2. **TDD is mandatory** - Tests before code (if configured: )
-3. **% coverage required** - No compromises
+2. **TDD is mandatory** - Tests before code (if configured: true)
+3. **100% coverage required** - No compromises
 4. **Architecture compliance** - Validated before every commit
-5. **Task tracking** - .spec/ files must be updated (if enabled: )
+5. **Task tracking** - .spec/ files must be updated (if enabled: true)
 
 ---
 

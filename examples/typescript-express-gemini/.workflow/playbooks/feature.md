@@ -45,7 +45,7 @@ Let's begin...
 
 - [ ] User has clearly described the feature
 - [ ] You understand what needs to be implemented
-- [ ] Project dependencies are installed (`npm install` completed)
+- [ ] Project dependencies are installed
 
 If unclear, ask user for clarification before proceeding.
 
@@ -79,7 +79,7 @@ Examples:
 # Read current sequence (or initialize to 1)
 SEQUENCE=$(cat .spec/.sequence 2>/dev/null || echo "1")
 # Format as 3-digit zero-padded
-SEQ_NUM=$(printf "%03d" $SEQUENCE)
+SEQ_NUM=$(printf "%03d" )
 # Increment for next use
 echo $((SEQUENCE + 1)) > .spec/.sequence
 ```
@@ -164,25 +164,25 @@ Break down feature into layers (Clean Architecture):
 
 **For each layer, identify what's needed:**
 
-1. **Domain Layer** (`src/domain/`):
+1. **Domain Layer** (src/domain):
    - New entities?
    - New repository interfaces?
    - Updated domain models?
 
-2. **Application Layer** (`src/application/`):
+2. **Application Layer** (src/application):
    - New use cases?
    - What operations?
 
-3. **Infrastructure Layer** (`src/infrastructure/`):
+3. **Infrastructure Layer** (src/infrastructure):
    - Repository implementations?
    - External service integrations?
 
-4. **Presentation Layer** (`src/presentation/`):
+4. **Presentation Layer** (src/presentation):
    - New controllers?
    - New routes?
    - Request/response handling?
 
-5. **DI Layer** (`src/di/`):
+5. **DI Layer** (src/di):
    - Dependency wiring?
 
 ### 2.3 Update .spec/ File with Detailed Tasks
@@ -392,7 +392,7 @@ npm run lint
 
 **Requirements**:
 - [ ] Zero linting errors
-- [ ] Zero TypeScript errors
+- [ ] **Type Checking**: Zero type errors (`npx tsc --noEmit`)
 - [ ] Code follows style guidelines
 
 **If fails**:

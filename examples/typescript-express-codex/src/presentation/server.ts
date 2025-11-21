@@ -21,6 +21,14 @@ export const buildApp = (container?: AppContainer): Express => {
     }
   });
 
+  app.get('/api/users/:id', async (req, res, next: NextFunction) => {
+    try {
+      await resolvedContainer.usersController.show(req, res);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   return app;
 };
 

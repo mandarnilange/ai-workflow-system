@@ -6,4 +6,8 @@ export class InMemoryUsersRepository implements UsersRepository {
   list(): Promise<User[]> {
     return Promise.resolve(userFixtures.list());
   }
+
+  findById(id: string): Promise<User | undefined> {
+    return Promise.resolve(userFixtures.findById(id));
+  }
 }

@@ -23,6 +23,8 @@
 3. **Report** each step to the user as you execute it
 4. **Execute CONTINUOUSLY** - do NOT pause between steps waiting for user confirmation
 
+**Only pause if you are actively waiting for missing info. Once the user supplies it, immediately resume the in-progress workflow without sending another acknowledgement.**
+
 **IMPORTANT**: "Step-by-step" means announce each step, then immediately execute it. Do NOT wait for user to say "continue" between steps. Execute the entire workflow in one continuous session.
 
 **If you implement code without following the workflow, you have FAILED.**

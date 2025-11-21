@@ -75,7 +75,7 @@ Examples:
 # Read current sequence (or initialize to 1)
 SEQUENCE=$(cat .spec/.sequence 2>/dev/null || echo "1")
 # Format as 3-digit zero-padded
-SEQ_NUM=$(printf "%03d" $SEQUENCE)
+SEQ_NUM=$(printf "%03d" )
 # Increment for next use
 echo $((SEQUENCE + 1)) > .spec/.sequence
 ```
@@ -417,7 +417,7 @@ npm run lint
 
 **Requirements**:
 - [ ] Zero linting errors
-- [ ] Zero TypeScript errors
+- [ ] **Type Checking**: Zero type errors (`npx tsc --noEmit`)
 
 ### 5.4 Manual Verification (if applicable)
 
