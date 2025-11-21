@@ -7,6 +7,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Install Script**: Fixed remote installation failing with "No such file or directory" error
+  - Updated `install.sh` to download all required template subdirectories
+  - Now downloads `templates/playbooks/`, `templates/instructions/`, and `templates/agents/`
+  - Added missing `prd-template.md` to downloads
+  - Fixed directory structure to match repository layout
+
+- **Init Script - Quick Update Mode**: Fixed critical bug where template variables were not populated during updates
+  - Added `parse_config_yml()` function to read existing config.yml and extract all configuration values
+  - Quick update now properly populates all template variables from existing config
+  - Language-specific variables (FILE_EXTENSION, IMPORT_PATTERN, etc.) now derived from config
+  - Code examples (EXAMPLE_CLASS, EXAMPLE_FUNCTION, etc.) now set correctly
+  - Conditional sections (TYPE_CHECK_COMMAND_SECTION, BUILD_COMMAND_SECTION, TEST_EXAMPLES) now built properly
+  - Templates are now correctly processed with actual values instead of empty strings
+
+- **Init Script - Full Reconfigure Mode**: Fixed bug where hardcoded defaults were shown instead of current values
+  - Full reconfigure now loads existing config.yml values before asking questions
+  - Current values shown as defaults (e.g., actual project name instead of "My Project")
+  - User can press Enter to keep existing values, only changing what needs to update
+  - Improved UX: users see their current configuration while reconfiguring
+  - All configuration sections now use existing values as defaults: project info, testing, quality tools, build, architecture, and conventions
+
+- **Init Script - Shell Compatibility**: Fixed "bad substitution" and "syntax error near unexpected token" errors
+  - **Issue 1**: `${LANGUAGE,,}` bash 4.0+ syntax caused "bad substitution" error on systems with older bash
+  - **Fix 1**: Replaced all `${LANGUAGE,,}` with `${LANGUAGE_LOWER}` which uses portable `tr` command
+  - **Issue 2**: Multiline TEST_EXAMPLES strings with JavaScript arrow functions `() => {` caused "syntax error near unexpected token '('"
+  - **Root Cause**: Bash was trying to parse `() => {` inside double-quoted multiline strings as shell syntax
+  - **Fix 2**: Replaced multiline string assignments with `printf '%s\n'` for proper escaping
+  - **Issue 3**: Mismatched quote in Go language defaults - `TEST_DIR_DEFAULT="${TEST_DIR_DEFAULT:-./"}"` (line 563)
+  - **Root Cause**: Extra quote after slash `./"}"` closed the parameter expansion prematurely
+  - **Fix 3**: Corrected to `TEST_DIR_DEFAULT="${TEST_DIR_DEFAULT:-./}"`
+  - **Impact**: Script now works on macOS default shell and bash 3.x systems
+  - Fixed in both quick update and full configuration modes
+
+- **Init Script - Config Parsing**: Fixed critical parsing bugs causing template variable corruption
+  - **Issue**: Variables like `FRAMEWORK` were capturing multiple values (e.g., "Express.js\nJest") due to non-section-aware grep
+  - **Fix**: All config parsing now uses section-aware `awk` patterns (`/^section:/,/^[^ ]/`)
+  - **Issue**: Layer paths (DOMAIN_PATH, etc.) were empty due to `getline; getline;` reading too many lines
+  - **Fix**: Changed to single `getline` to correctly read the path line after matching layer name
+  - **Result**: Template variables now correctly populated:
+    - `FRAMEWORK` = "Express.js" (not "Express.js\nJest")
+    - `DOMAIN_PATH` = "src/domain" (not empty)
+    - All layer paths correctly extracted from YAML
+  - **Impact**: Fixes 8 template rendering issues reported in user testing:
+    - CLAUDE_INSTRUCTIONS.md: Malformed "Jest" on line 91 (fixed)
+    - CLAUDE_INSTRUCTIONS.md: Empty layer path arrows on line 95 (fixed)
+    - feature.md: Empty layer path parentheses on lines 167-185 (fixed)
+
+- **Template - File Extension**: Fixed incorrect file extension rendering in AGENTS_INSTRUCTIONS.md
+  - **Issue**: Example code paths showed `User.TypeScript` instead of `User.ts`
+  - **Root Cause**: Template used `${EXAMPLE_CLASS}.${LANGUAGE}` which concatenates class name with language name ("TypeScript", "Python", etc.)
+  - **Fix**: Changed to `${EXAMPLE_CLASS}${FILE_EXTENSION}` which uses the correct extension variable (".ts", ".py", etc.)
+  - **Locations Fixed**:
+    - Line 153: `${DOMAIN_PATH}/${EXAMPLE_CLASS}.${LANGUAGE}` → `${DOMAIN_PATH}/${EXAMPLE_CLASS}${FILE_EXTENSION}`
+    - Line 268: `${DOMAIN_PATH}/${EXAMPLE_CLASS}.${LANGUAGE}` → `${DOMAIN_PATH}/${EXAMPLE_CLASS}${FILE_EXTENSION}`
+  - **Impact**: AGENTS_INSTRUCTIONS.md now shows correct file paths in bugfix and feature examples (e.g., `src/domain/User.ts` instead of `src/domain/User.TypeScript`)
+
+- **Init Script - Nested Template Processing**: Fixed unprocessed variable in CLAUDE_CODE_OPTIMIZATIONS section
+  - **Issue**: `${COVERAGE_COMMAND}` variable remained unprocessed in CLAUDE_INSTRUCTIONS.md (line 257 in generated file)
+  - **Root Cause**: CLAUDE_CODE_OPTIMIZATIONS.md.template was read with `cat` instead of being processed with `envsubst`
+  - **Technical Details**: The CLAUDE_CODE_OPTIMIZATIONS content is stored in a variable and included in CLAUDE_INSTRUCTIONS.md. When using `cat`, template variables inside CLAUDE_CODE_OPTIMIZATIONS weren't substituted because `envsubst` only processes the outer template, not nested content
+  - **Fix**: Changed from `cat "$template"` to `envsubst < "$template"` to process variables before storing in variable
+  - **Locations Fixed**:
+    - Line 448: Quick update mode - now processes CLAUDE_CODE_OPTIMIZATIONS template with envsubst
+    - Line 1055: Full configuration mode - now processes CLAUDE_CODE_OPTIMIZATIONS template with envsubst
+  - **Impact**: CLAUDE_INSTRUCTIONS.md now shows actual command `npm test -- --coverage` instead of `${COVERAGE_COMMAND}` placeholder
+
 ### Planned for 1.0.0
 - Integration testing with real Python/Java/Go projects
 - Example projects for each supported language (Python, Java, Go, Rust, C#)

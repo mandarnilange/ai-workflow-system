@@ -143,6 +143,59 @@ ask_select_mandatory() {
     done
 }
 
+# Helper function to parse YAML config and populate variables
+parse_config_yml() {
+    local config_file="$1"
+
+    if [ ! -f "$config_file" ]; then
+        echo -e "${RED}Error: Config file not found: $config_file${NC}"
+        exit 1
+    fi
+
+    # Parse project section (use flag-based approach to extract section content)
+    PROJECT_NAME=$(awk '/^project:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  name:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    LANGUAGE=$(awk '/^project:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  language:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    FRAMEWORK=$(awk '/^project:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  framework:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+
+    # Parse testing section
+    TEST_FRAMEWORK=$(awk '/^testing:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  framework:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    TEST_COMMAND=$(awk '/^testing:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  test_command:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    COVERAGE_COMMAND=$(awk '/^testing:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  coverage_command:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    COVERAGE_REQUIREMENT=$(awk '/^testing:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  required_coverage:/{print}' "$config_file" | sed 's/.*: //')
+    TDD_REQUIRED=$(awk '/^testing:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  tdd_required:/{print}' "$config_file" | sed 's/.*: //')
+    TEST_DIR=$(awk '/^testing:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  test_directory:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    TEST_PATTERN=$(awk '/^testing:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  test_file_pattern:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+
+    # Parse quality section
+    LINTER=$(awk '/^quality:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  linter:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    LINT_COMMAND=$(awk '/^quality:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  lint_command:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    FORMATTER=$(awk '/^quality:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  formatter:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    FORMAT_COMMAND=$(awk '/^quality:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  format_command:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    TYPE_CHECKER=$(awk '/^quality:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  type_checker:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    TYPE_CHECK_COMMAND=$(awk '/^quality:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  type_check_command:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+
+    # Parse build section
+    BUILD_REQUIRED=$(awk '/^build:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  required:/{print}' "$config_file" | sed 's/.*: //')
+    BUILD_COMMAND=$(awk '/^build:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  command:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+
+    # Parse architecture section - extract layer paths
+    DOMAIN_PATH=$(awk '/layers:/,/^[^ ]/ {if (/name: "domain"/) {getline; if (/path:/) print}}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    APPLICATION_PATH=$(awk '/layers:/,/^[^ ]/ {if (/name: "application"/) {getline; if (/path:/) print}}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    INFRASTRUCTURE_PATH=$(awk '/layers:/,/^[^ ]/ {if (/name: "infrastructure"/) {getline; if (/path:/) print}}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    PRESENTATION_PATH=$(awk '/layers:/,/^[^ ]/ {if (/name: "presentation"/) {getline; if (/path:/) print}}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    DI_PATH=$(awk '/layers:/,/^[^ ]/ {if (/name: "di"/) {getline; if (/path:/) print}}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+
+    # Parse conventions section
+    CLASS_FILE_CONVENTION=$(awk '/^conventions:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  class_files:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    FUNCTION_CONVENTION=$(awk '/^conventions:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  functions:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    VARIABLE_CONVENTION=$(awk '/^conventions:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  variables:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    CONSTANT_CONVENTION=$(awk '/^conventions:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  constants:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    USE_CASE_PATTERN=$(awk '/^conventions:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  use_case_pattern:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+
+    # Parse tracking section
+    TRACKING_ENABLED=$(awk '/^tracking:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  enabled:/{print}' "$config_file" | sed 's/.*: //')
+}
+
 # Helper function to process templates with variable substitution
 process_template() {
     local template_file="$1"
@@ -225,6 +278,11 @@ fi
 
 # If quick update, skip all questions
 if [ "$QUICK_UPDATE" = "true" ]; then
+    echo -e "${BLUE}Quick update mode - reading existing configuration...${NC}"
+
+    # Parse existing config.yml to populate all variables
+    parse_config_yml "$CONFIG_FILE"
+
     # Detect IS_CLAUDE_CODE from existing config.yml
     if [ -f "$CONFIG_FILE" ] && grep -q "is_claude_code: true" "$CONFIG_FILE"; then
         IS_CLAUDE_CODE="true"
@@ -232,6 +290,168 @@ if [ "$QUICK_UPDATE" = "true" ]; then
         IS_CLAUDE_CODE="false"
     fi
 
+    # Derive language-specific variables based on parsed LANGUAGE
+    LANGUAGE_LOWER=$(echo "$LANGUAGE" | tr '[:upper:]' '[:lower:]')
+
+    case "$LANGUAGE" in
+        "TypeScript")
+            FILE_EXTENSION=".ts"
+            TEST_FILE_EXTENSION=".test.ts"
+            SOURCE_DIR="src"
+            IMPORT_PATTERN="^import"
+            IMPORT_FROM_PATTERN="^import.*from.*'\\.\\."
+            FIND_FILES_PATTERN="*.ts"
+            EXAMPLE_IMPORT="import { User } from '../domain/User'"
+            EXAMPLE_CLASS="class User {"
+            EXAMPLE_FUNCTION="function add(a: number, b: number): number {"
+            ;;
+        "Python")
+            FILE_EXTENSION=".py"
+            TEST_FILE_EXTENSION="_test.py"
+            SOURCE_DIR="src"
+            IMPORT_PATTERN="^(import|from)"
+            IMPORT_FROM_PATTERN="^(import|from).*\\.\\."
+            FIND_FILES_PATTERN="*.py"
+            EXAMPLE_IMPORT="from ..domain.user import User"
+            EXAMPLE_CLASS="class User:"
+            EXAMPLE_FUNCTION="def add(a: int, b: int) -> int:"
+            ;;
+        "Java")
+            FILE_EXTENSION=".java"
+            TEST_FILE_EXTENSION="Test.java"
+            SOURCE_DIR="src/main/java"
+            IMPORT_PATTERN="^import"
+            IMPORT_FROM_PATTERN="^import"
+            FIND_FILES_PATTERN="*.java"
+            EXAMPLE_IMPORT="import com.example.domain.User;"
+            EXAMPLE_CLASS="public class User {"
+            EXAMPLE_FUNCTION="public int add(int a, int b) {"
+            ;;
+        "Go")
+            FILE_EXTENSION=".go"
+            TEST_FILE_EXTENSION="_test.go"
+            SOURCE_DIR="."
+            IMPORT_PATTERN="^import"
+            IMPORT_FROM_PATTERN="^import.*\"\\.\\."
+            FIND_FILES_PATTERN="*.go"
+            EXAMPLE_IMPORT="import \"../domain\""
+            EXAMPLE_CLASS="type User struct {"
+            EXAMPLE_FUNCTION="func Add(a int, b int) int {"
+            ;;
+        "Rust")
+            FILE_EXTENSION=".rs"
+            TEST_FILE_EXTENSION=".rs"
+            SOURCE_DIR="src"
+            IMPORT_PATTERN="^use"
+            IMPORT_FROM_PATTERN="^use.*super::"
+            FIND_FILES_PATTERN="*.rs"
+            EXAMPLE_IMPORT="use super::User;"
+            EXAMPLE_CLASS="struct User {"
+            EXAMPLE_FUNCTION="fn add(a: i32, b: i32) -> i32 {"
+            ;;
+        "C#")
+            FILE_EXTENSION=".cs"
+            TEST_FILE_EXTENSION="Tests.cs"
+            SOURCE_DIR="src"
+            IMPORT_PATTERN="^using"
+            IMPORT_FROM_PATTERN="^using"
+            FIND_FILES_PATTERN="*.cs"
+            EXAMPLE_IMPORT="using Domain;"
+            EXAMPLE_CLASS="public class User {"
+            EXAMPLE_FUNCTION="public int Add(int a, int b) {"
+            ;;
+        *)
+            FILE_EXTENSION=".${LANGUAGE_LOWER}"
+            TEST_FILE_EXTENSION="_test.${LANGUAGE_LOWER}"
+            SOURCE_DIR="src"
+            IMPORT_PATTERN="^import"
+            IMPORT_FROM_PATTERN="^import.*\\.\\."
+            FIND_FILES_PATTERN="*.${LANGUAGE_LOWER}"
+            EXAMPLE_IMPORT="import User"
+            EXAMPLE_CLASS="class User"
+            EXAMPLE_FUNCTION="function add(a, b)"
+            ;;
+    esac
+
+    # Set language-specific code examples
+    case "$LANGUAGE" in
+        "TypeScript")
+            EXAMPLE_CLASS="User"
+            EXAMPLE_FUNCTION="getUserById"
+            EXAMPLE_TEST="User.test.ts"
+            EXAMPLE_IMPORT="import { User } from './User'"
+            ;;
+        "Python")
+            EXAMPLE_CLASS="User"
+            EXAMPLE_FUNCTION="get_user_by_id"
+            EXAMPLE_TEST="test_user.py"
+            EXAMPLE_IMPORT="from user import User"
+            ;;
+        "Java")
+            EXAMPLE_CLASS="User"
+            EXAMPLE_FUNCTION="getUserById"
+            EXAMPLE_TEST="UserTest.java"
+            EXAMPLE_IMPORT="import com.example.User;"
+            ;;
+        "Go")
+            EXAMPLE_CLASS="User"
+            EXAMPLE_FUNCTION="GetUserByID"
+            EXAMPLE_TEST="user_test.go"
+            EXAMPLE_IMPORT="import \"example.com/domain/user\""
+            ;;
+        *)
+            EXAMPLE_CLASS="User"
+            EXAMPLE_FUNCTION="getUser"
+            EXAMPLE_TEST="user.test"
+            EXAMPLE_IMPORT="import User"
+            ;;
+    esac
+
+    # Build conditional template sections
+    if [ "$TYPE_CHECKER" != "null" ]; then
+        TYPE_CHECK_COMMAND_SECTION="$TYPE_CHECK_COMMAND        # Run type checker"
+        TYPE_CHECK_CHECKLIST="- [ ] **Type Checking**: Zero type errors (\`$TYPE_CHECK_COMMAND\`)"
+    else
+        TYPE_CHECK_COMMAND_SECTION=""
+        TYPE_CHECK_CHECKLIST=""
+    fi
+
+    if [ "$BUILD_REQUIRED" = "true" ]; then
+        BUILD_COMMAND_SECTION="
+# Build
+$BUILD_COMMAND             # Build the project"
+    else
+        BUILD_COMMAND_SECTION=""
+    fi
+
+    # Test examples based on language (use printf to avoid shell parsing issues)
+    case "$LANGUAGE" in
+        "TypeScript"|"JavaScript")
+            TEST_EXAMPLES=$(printf '%s\n' "\`\`\`typescript" "describe('${EXAMPLE_CLASS}', () => {" "  it('should return user when valid id provided', () => {" "    // Arrange-Act-Assert" "  })" "" "  it('should throw error when user not found', () => {" "    // Arrange-Act-Assert" "  })" "})" "\`\`\`")
+            ;;
+        "Python")
+            TEST_EXAMPLES=$(printf '%s\n' "\`\`\`python" "class Test${EXAMPLE_CLASS}:" "    def test_should_return_user_when_valid_id_provided(self):" "        # Arrange-Act-Assert" "        pass" "" "    def test_should_raise_error_when_user_not_found(self):" "        # Arrange-Act-Assert" "        pass" "\`\`\`")
+            ;;
+        "Java")
+            TEST_EXAMPLES=$(printf '%s\n' "\`\`\`java" "class ${EXAMPLE_CLASS}Test {" "    @Test" "    void shouldReturnUserWhenValidIdProvided() {" "        // Arrange-Act-Assert" "    }" "" "    @Test" "    void shouldThrowExceptionWhenUserNotFound() {" "        // Arrange-Act-Assert" "    }" "}" "\`\`\`")
+            ;;
+        "Go")
+            TEST_EXAMPLES=$(printf '%s\n' "\`\`\`go" "func Test${EXAMPLE_CLASS}_ShouldReturnUserWhenValidIdProvided(t *testing.T) {" "    // Arrange-Act-Assert" "}" "" "func Test${EXAMPLE_CLASS}_ShouldReturnErrorWhenUserNotFound(t *testing.T) {" "    // Arrange-Act-Assert" "}" "\`\`\`")
+            ;;
+        *)
+            TEST_EXAMPLES=""
+            ;;
+    esac
+
+    # Claude Code optimizations section
+    if [ "$IS_CLAUDE_CODE" = "true" ]; then
+        CLAUDE_CODE_OPTIMIZATIONS=$(envsubst < "$SCRIPT_DIR/templates/instructions/CLAUDE_CODE_OPTIMIZATIONS.md.template")
+    else
+        CLAUDE_CODE_OPTIMIZATIONS=""
+    fi
+
+    echo -e "${GREEN}✓ Loaded configuration from existing config.yml${NC}"
+    echo -e ""
     echo -e "${BLUE}Quick update mode:${NC}"
     echo -e "  • Updating playbooks, templates, and instruction files"
     if [ "$IS_CLAUDE_CODE" = "true" ]; then
@@ -248,61 +468,117 @@ fi
 # Only ask configuration questions if not doing quick update
 if [ "$QUICK_UPDATE" = "false" ]; then
 
+# If this is an update (full reconfigure), load existing values as defaults
+if [ "$IS_UPDATE" = "true" ]; then
+    echo -e "${BLUE}Full reconfigure mode - loading current values as defaults...${NC}"
+    parse_config_yml "$CONFIG_FILE"
+    echo -e "${GREEN}✓ Loaded current configuration${NC}\n"
+
+    # Set defaults to current values
+    PROJECT_NAME_DEFAULT="$PROJECT_NAME"
+    LANGUAGE_DEFAULT="$LANGUAGE"
+    FRAMEWORK_DEFAULT="$FRAMEWORK"
+    TEST_FRAMEWORK_DEFAULT="$TEST_FRAMEWORK"
+    TEST_COMMAND_DEFAULT="$TEST_COMMAND"
+    COVERAGE_COMMAND_DEFAULT="$COVERAGE_COMMAND"
+    COVERAGE_REQUIREMENT_DEFAULT="$COVERAGE_REQUIREMENT"
+    TDD_REQUIRED_DEFAULT="$TDD_REQUIRED"
+    TEST_DIR_DEFAULT="$TEST_DIR"
+    TEST_PATTERN_DEFAULT="$TEST_PATTERN"
+    LINTER_DEFAULT="$LINTER"
+    LINT_COMMAND_DEFAULT="$LINT_COMMAND"
+    FORMATTER_DEFAULT="$FORMATTER"
+    FORMAT_COMMAND_DEFAULT="$FORMAT_COMMAND"
+    TYPE_CHECKER_DEFAULT="$TYPE_CHECKER"
+    TYPE_CHECK_COMMAND_DEFAULT="$TYPE_CHECK_COMMAND"
+    BUILD_REQUIRED_DEFAULT="$BUILD_REQUIRED"
+    BUILD_COMMAND_DEFAULT="$BUILD_COMMAND"
+    DOMAIN_PATH_DEFAULT="$DOMAIN_PATH"
+    APPLICATION_PATH_DEFAULT="$APPLICATION_PATH"
+    INFRASTRUCTURE_PATH_DEFAULT="$INFRASTRUCTURE_PATH"
+    PRESENTATION_PATH_DEFAULT="$PRESENTATION_PATH"
+    DI_PATH_DEFAULT="$DI_PATH"
+    CLASS_FILE_CONVENTION_DEFAULT="$CLASS_FILE_CONVENTION"
+    FUNCTION_CONVENTION_DEFAULT="$FUNCTION_CONVENTION"
+    VARIABLE_CONVENTION_DEFAULT="$VARIABLE_CONVENTION"
+    CONSTANT_CONVENTION_DEFAULT="$CONSTANT_CONVENTION"
+    USE_CASE_PATTERN_DEFAULT="$USE_CASE_PATTERN"
+    TRACKING_ENABLED_DEFAULT="$TRACKING_ENABLED"
+else
+    # Fresh install - use hardcoded defaults
+    PROJECT_NAME_DEFAULT="My Project"
+    LANGUAGE_DEFAULT="TypeScript"
+    FRAMEWORK_DEFAULT="Express.js"
+    COVERAGE_REQUIREMENT_DEFAULT="100"
+    TDD_REQUIRED_DEFAULT="true"
+    DOMAIN_PATH_DEFAULT="src/domain"
+    APPLICATION_PATH_DEFAULT="src/application"
+    INFRASTRUCTURE_PATH_DEFAULT="src/infrastructure"
+    PRESENTATION_PATH_DEFAULT="src/presentation"
+    DI_PATH_DEFAULT="src/di"
+    CLASS_FILE_CONVENTION_DEFAULT="PascalCase"
+    USE_CASE_PATTERN_DEFAULT="VerbNoun"
+    TRACKING_ENABLED_DEFAULT="true"
+    BUILD_REQUIRED_DEFAULT="true"
+fi
+
 echo -e "\n${GREEN}=== Project Information ===${NC}\n"
 
-ask "Project name" "My Project" PROJECT_NAME
+ask "Project name" "$PROJECT_NAME_DEFAULT" PROJECT_NAME
 ask "Project description" "A sample project" PROJECT_DESCRIPTION
 
-ask_select "Programming language" "TypeScript|Python|Java|Go|Rust|C#|Other" "TypeScript" LANGUAGE
-ask "Framework (e.g., Express.js, FastAPI, Spring Boot)" "Express.js" FRAMEWORK
+ask_select "Programming language" "TypeScript|Python|Java|Go|Rust|C#|Other" "$LANGUAGE_DEFAULT" LANGUAGE
+ask "Framework (e.g., Express.js, FastAPI, Spring Boot)" "$FRAMEWORK_DEFAULT" FRAMEWORK
 
 echo -e "\n${GREEN}=== Testing Configuration ===${NC}\n"
 
-# Set defaults based on language
-case "$LANGUAGE" in
-    "TypeScript")
-        TEST_FRAMEWORK_DEFAULT="Jest"
-        TEST_COMMAND_DEFAULT="npm test"
-        COVERAGE_COMMAND_DEFAULT="npm test -- --coverage"
-        TEST_DIR_DEFAULT="tests/"
-        TEST_PATTERN_DEFAULT="*.test.ts"
-        ;;
-    "Python")
-        TEST_FRAMEWORK_DEFAULT="pytest"
-        TEST_COMMAND_DEFAULT="pytest"
-        COVERAGE_COMMAND_DEFAULT="pytest --cov"
-        TEST_DIR_DEFAULT="tests/"
-        TEST_PATTERN_DEFAULT="test_*.py"
-        ;;
-    "Java")
-        TEST_FRAMEWORK_DEFAULT="JUnit"
-        TEST_COMMAND_DEFAULT="mvn test"
-        COVERAGE_COMMAND_DEFAULT="mvn test jacoco:report"
-        TEST_DIR_DEFAULT="src/test/"
-        TEST_PATTERN_DEFAULT="*Test.java"
-        ;;
-    "Go")
-        TEST_FRAMEWORK_DEFAULT="go test"
-        TEST_COMMAND_DEFAULT="go test ./..."
-        COVERAGE_COMMAND_DEFAULT="go test -cover ./..."
-        TEST_DIR_DEFAULT="./"
-        TEST_PATTERN_DEFAULT="*_test.go"
-        ;;
-    *)
-        TEST_FRAMEWORK_DEFAULT=""
-        TEST_COMMAND_DEFAULT=""
-        COVERAGE_COMMAND_DEFAULT=""
-        TEST_DIR_DEFAULT="tests/"
-        TEST_PATTERN_DEFAULT="*.test.*"
-        ;;
-esac
+# Set defaults based on language (only if not loaded from existing config)
+if [ "$IS_UPDATE" != "true" ] || [ -z "$TEST_FRAMEWORK_DEFAULT" ]; then
+    case "$LANGUAGE" in
+        "TypeScript")
+            TEST_FRAMEWORK_DEFAULT="${TEST_FRAMEWORK_DEFAULT:-Jest}"
+            TEST_COMMAND_DEFAULT="${TEST_COMMAND_DEFAULT:-npm test}"
+            COVERAGE_COMMAND_DEFAULT="${COVERAGE_COMMAND_DEFAULT:-npm test -- --coverage}"
+            TEST_DIR_DEFAULT="${TEST_DIR_DEFAULT:-tests/}"
+            TEST_PATTERN_DEFAULT="${TEST_PATTERN_DEFAULT:-*.test.ts}"
+            ;;
+        "Python")
+            TEST_FRAMEWORK_DEFAULT="${TEST_FRAMEWORK_DEFAULT:-pytest}"
+            TEST_COMMAND_DEFAULT="${TEST_COMMAND_DEFAULT:-pytest}"
+            COVERAGE_COMMAND_DEFAULT="${COVERAGE_COMMAND_DEFAULT:-pytest --cov}"
+            TEST_DIR_DEFAULT="${TEST_DIR_DEFAULT:-tests/}"
+            TEST_PATTERN_DEFAULT="${TEST_PATTERN_DEFAULT:-test_*.py}"
+            ;;
+        "Java")
+            TEST_FRAMEWORK_DEFAULT="${TEST_FRAMEWORK_DEFAULT:-JUnit}"
+            TEST_COMMAND_DEFAULT="${TEST_COMMAND_DEFAULT:-mvn test}"
+            COVERAGE_COMMAND_DEFAULT="${COVERAGE_COMMAND_DEFAULT:-mvn test jacoco:report}"
+            TEST_DIR_DEFAULT="${TEST_DIR_DEFAULT:-src/test/}"
+            TEST_PATTERN_DEFAULT="${TEST_PATTERN_DEFAULT:-*Test.java}"
+            ;;
+        "Go")
+            TEST_FRAMEWORK_DEFAULT="${TEST_FRAMEWORK_DEFAULT:-go test}"
+            TEST_COMMAND_DEFAULT="${TEST_COMMAND_DEFAULT:-go test ./...}"
+            COVERAGE_COMMAND_DEFAULT="${COVERAGE_COMMAND_DEFAULT:-go test -cover ./...}"
+            TEST_DIR_DEFAULT="${TEST_DIR_DEFAULT:-./}"
+            TEST_PATTERN_DEFAULT="${TEST_PATTERN_DEFAULT:-*_test.go}"
+            ;;
+        *)
+            TEST_FRAMEWORK_DEFAULT="${TEST_FRAMEWORK_DEFAULT:-}"
+            TEST_COMMAND_DEFAULT="${TEST_COMMAND_DEFAULT:-}"
+            COVERAGE_COMMAND_DEFAULT="${COVERAGE_COMMAND_DEFAULT:-}"
+            TEST_DIR_DEFAULT="${TEST_DIR_DEFAULT:-tests/}"
+            TEST_PATTERN_DEFAULT="${TEST_PATTERN_DEFAULT:-*.test.*}"
+            ;;
+    esac
+fi
 
 ask "Test framework" "$TEST_FRAMEWORK_DEFAULT" TEST_FRAMEWORK
 ask "Test command" "$TEST_COMMAND_DEFAULT" TEST_COMMAND
 ask "Coverage command" "$COVERAGE_COMMAND_DEFAULT" COVERAGE_COMMAND
-ask "Required test coverage (%)" "100" COVERAGE_REQUIREMENT
+ask "Required test coverage (%)" "${COVERAGE_REQUIREMENT_DEFAULT:-100}" COVERAGE_REQUIREMENT
 ask_bool "Enforce coverage requirement" "true" ENFORCE_COVERAGE
-ask_bool "Require TDD (tests before code)" "true" TDD_REQUIRED
+ask_bool "Require TDD (tests before code)" "${TDD_REQUIRED_DEFAULT:-true}" TDD_REQUIRED
 ask "Test directory" "$TEST_DIR_DEFAULT" TEST_DIR
 ask "Test file pattern" "$TEST_PATTERN_DEFAULT" TEST_PATTERN
 
@@ -380,12 +656,12 @@ case "$LANGUAGE" in
         ;;
     *)
         # Generic defaults for other languages
-        FILE_EXTENSION=".${LANGUAGE,,}"
-        TEST_FILE_EXTENSION="_test.${LANGUAGE,,}"
+        FILE_EXTENSION=".${LANGUAGE_LOWER}"
+        TEST_FILE_EXTENSION="_test.${LANGUAGE_LOWER}"
         SOURCE_DIR="src"
         IMPORT_PATTERN="^import"
         IMPORT_FROM_PATTERN="^import.*\\.\\."
-        FIND_FILES_PATTERN="*.${LANGUAGE,,}"
+        FIND_FILES_PATTERN="*.${LANGUAGE_LOWER}"
         EXAMPLE_IMPORT="import User"
         EXAMPLE_CLASS="class User"
         EXAMPLE_FUNCTION="function add(a, b)"
@@ -394,49 +670,51 @@ esac
 
 echo -e "\n${GREEN}=== Code Quality Tools ===${NC}\n"
 
-# Set defaults based on language
-case "$LANGUAGE" in
-    "TypeScript")
-        LINTER_DEFAULT="eslint"
-        LINT_COMMAND_DEFAULT="npm run lint"
-        FORMATTER_DEFAULT="prettier"
-        FORMAT_COMMAND_DEFAULT="npx prettier --check ."
-        TYPE_CHECKER_DEFAULT="tsc"
-        TYPE_CHECK_COMMAND_DEFAULT="npx tsc --noEmit"
-        ;;
-    "Python")
-        LINTER_DEFAULT="pylint"
-        LINT_COMMAND_DEFAULT="pylint src/"
-        FORMATTER_DEFAULT="black"
-        FORMAT_COMMAND_DEFAULT="black --check ."
-        TYPE_CHECKER_DEFAULT="mypy"
-        TYPE_CHECK_COMMAND_DEFAULT="mypy src/"
-        ;;
-    "Java")
-        LINTER_DEFAULT="checkstyle"
-        LINT_COMMAND_DEFAULT="mvn checkstyle:check"
-        FORMATTER_DEFAULT="google-java-format"
-        FORMAT_COMMAND_DEFAULT="mvn fmt:check"
-        TYPE_CHECKER_DEFAULT="null"
-        TYPE_CHECK_COMMAND_DEFAULT="null"
-        ;;
-    "Go")
-        LINTER_DEFAULT="golangci-lint"
-        LINT_COMMAND_DEFAULT="golangci-lint run"
-        FORMATTER_DEFAULT="gofmt"
-        FORMAT_COMMAND_DEFAULT="gofmt -l ."
-        TYPE_CHECKER_DEFAULT="null"
-        TYPE_CHECK_COMMAND_DEFAULT="null"
-        ;;
-    *)
-        LINTER_DEFAULT=""
-        LINT_COMMAND_DEFAULT=""
-        FORMATTER_DEFAULT=""
-        FORMAT_COMMAND_DEFAULT=""
-        TYPE_CHECKER_DEFAULT="null"
-        TYPE_CHECK_COMMAND_DEFAULT="null"
-        ;;
-esac
+# Set defaults based on language (only if not loaded from existing config)
+if [ "$IS_UPDATE" != "true" ] || [ -z "$LINTER_DEFAULT" ]; then
+    case "$LANGUAGE" in
+        "TypeScript")
+            LINTER_DEFAULT="${LINTER_DEFAULT:-eslint}"
+            LINT_COMMAND_DEFAULT="${LINT_COMMAND_DEFAULT:-npm run lint}"
+            FORMATTER_DEFAULT="${FORMATTER_DEFAULT:-prettier}"
+            FORMAT_COMMAND_DEFAULT="${FORMAT_COMMAND_DEFAULT:-npx prettier --check .}"
+            TYPE_CHECKER_DEFAULT="${TYPE_CHECKER_DEFAULT:-tsc}"
+            TYPE_CHECK_COMMAND_DEFAULT="${TYPE_CHECK_COMMAND_DEFAULT:-npx tsc --noEmit}"
+            ;;
+        "Python")
+            LINTER_DEFAULT="${LINTER_DEFAULT:-pylint}"
+            LINT_COMMAND_DEFAULT="${LINT_COMMAND_DEFAULT:-pylint src/}"
+            FORMATTER_DEFAULT="${FORMATTER_DEFAULT:-black}"
+            FORMAT_COMMAND_DEFAULT="${FORMAT_COMMAND_DEFAULT:-black --check .}"
+            TYPE_CHECKER_DEFAULT="${TYPE_CHECKER_DEFAULT:-mypy}"
+            TYPE_CHECK_COMMAND_DEFAULT="${TYPE_CHECK_COMMAND_DEFAULT:-mypy src/}"
+            ;;
+        "Java")
+            LINTER_DEFAULT="${LINTER_DEFAULT:-checkstyle}"
+            LINT_COMMAND_DEFAULT="${LINT_COMMAND_DEFAULT:-mvn checkstyle:check}"
+            FORMATTER_DEFAULT="${FORMATTER_DEFAULT:-google-java-format}"
+            FORMAT_COMMAND_DEFAULT="${FORMAT_COMMAND_DEFAULT:-mvn fmt:check}"
+            TYPE_CHECKER_DEFAULT="${TYPE_CHECKER_DEFAULT:-null}"
+            TYPE_CHECK_COMMAND_DEFAULT="${TYPE_CHECK_COMMAND_DEFAULT:-null}"
+            ;;
+        "Go")
+            LINTER_DEFAULT="${LINTER_DEFAULT:-golangci-lint}"
+            LINT_COMMAND_DEFAULT="${LINT_COMMAND_DEFAULT:-golangci-lint run}"
+            FORMATTER_DEFAULT="${FORMATTER_DEFAULT:-gofmt}"
+            FORMAT_COMMAND_DEFAULT="${FORMAT_COMMAND_DEFAULT:-gofmt -l .}"
+            TYPE_CHECKER_DEFAULT="${TYPE_CHECKER_DEFAULT:-null}"
+            TYPE_CHECK_COMMAND_DEFAULT="${TYPE_CHECK_COMMAND_DEFAULT:-null}"
+            ;;
+        *)
+            LINTER_DEFAULT="${LINTER_DEFAULT:-}"
+            LINT_COMMAND_DEFAULT="${LINT_COMMAND_DEFAULT:-}"
+            FORMATTER_DEFAULT="${FORMATTER_DEFAULT:-}"
+            FORMAT_COMMAND_DEFAULT="${FORMAT_COMMAND_DEFAULT:-}"
+            TYPE_CHECKER_DEFAULT="${TYPE_CHECKER_DEFAULT:-null}"
+            TYPE_CHECK_COMMAND_DEFAULT="${TYPE_CHECK_COMMAND_DEFAULT:-null}"
+            ;;
+    esac
+fi
 
 ask "Linter" "$LINTER_DEFAULT" LINTER
 ask "Lint command" "$LINT_COMMAND_DEFAULT" LINT_COMMAND
@@ -452,28 +730,31 @@ fi
 
 echo -e "\n${GREEN}=== Build Configuration ===${NC}\n"
 
-ask_bool "Does project require building?" "true" BUILD_REQUIRED
+ask_bool "Does project require building?" "${BUILD_REQUIRED_DEFAULT:-true}" BUILD_REQUIRED
 if [ "$BUILD_REQUIRED" = "true" ]; then
-    case "$LANGUAGE" in
-        "TypeScript")
-            BUILD_COMMAND_DEFAULT="npm run build"
-            BUILD_OUTPUT_DIR_DEFAULT="dist/"
-            ;;
-        "Java")
-            BUILD_COMMAND_DEFAULT="mvn package"
-            BUILD_OUTPUT_DIR_DEFAULT="target/"
-            ;;
-        "Go")
-            BUILD_COMMAND_DEFAULT="go build"
-            BUILD_OUTPUT_DIR_DEFAULT="bin/"
-            ;;
-        *)
-            BUILD_COMMAND_DEFAULT=""
-            BUILD_OUTPUT_DIR_DEFAULT="build/"
-            ;;
-    esac
+    # Set defaults based on language (only if not loaded from existing config)
+    if [ "$IS_UPDATE" != "true" ] || [ -z "$BUILD_COMMAND_DEFAULT" ]; then
+        case "$LANGUAGE" in
+            "TypeScript")
+                BUILD_COMMAND_DEFAULT="${BUILD_COMMAND_DEFAULT:-npm run build}"
+                BUILD_OUTPUT_DIR_DEFAULT="${BUILD_OUTPUT_DIR_DEFAULT:-dist/}"
+                ;;
+            "Java")
+                BUILD_COMMAND_DEFAULT="${BUILD_COMMAND_DEFAULT:-mvn package}"
+                BUILD_OUTPUT_DIR_DEFAULT="${BUILD_OUTPUT_DIR_DEFAULT:-target/}"
+                ;;
+            "Go")
+                BUILD_COMMAND_DEFAULT="${BUILD_COMMAND_DEFAULT:-go build}"
+                BUILD_OUTPUT_DIR_DEFAULT="${BUILD_OUTPUT_DIR_DEFAULT:-bin/}"
+                ;;
+            *)
+                BUILD_COMMAND_DEFAULT="${BUILD_COMMAND_DEFAULT:-}"
+                BUILD_OUTPUT_DIR_DEFAULT="${BUILD_OUTPUT_DIR_DEFAULT:-build/}"
+                ;;
+        esac
+    fi
     ask "Build command" "$BUILD_COMMAND_DEFAULT" BUILD_COMMAND
-    ask "Build output directory" "$BUILD_OUTPUT_DIR_DEFAULT" BUILD_OUTPUT_DIR
+    ask "Build output directory" "${BUILD_OUTPUT_DIR_DEFAULT:-build/}" BUILD_OUTPUT_DIR
 else
     BUILD_COMMAND="null"
     BUILD_OUTPUT_DIR="null"
@@ -484,11 +765,11 @@ echo -e "\n${GREEN}=== Architecture Configuration ===${NC}\n"
 ask_bool "Enforce Clean Architecture validation" "true" ARCHITECTURE_ENFORCE
 
 echo -e "\nDefine layer paths for Clean Architecture:"
-ask "  Domain layer path" "src/domain" DOMAIN_PATH
-ask "  Application layer path" "src/application" APPLICATION_PATH
-ask "  Infrastructure layer path" "src/infrastructure" INFRASTRUCTURE_PATH
-ask "  Presentation layer path" "src/presentation" PRESENTATION_PATH
-ask "  DI/Container layer path" "src/di" DI_PATH
+ask "  Domain layer path" "${DOMAIN_PATH_DEFAULT:-src/domain}" DOMAIN_PATH
+ask "  Application layer path" "${APPLICATION_PATH_DEFAULT:-src/application}" APPLICATION_PATH
+ask "  Infrastructure layer path" "${INFRASTRUCTURE_PATH_DEFAULT:-src/infrastructure}" INFRASTRUCTURE_PATH
+ask "  Presentation layer path" "${PRESENTATION_PATH_DEFAULT:-src/presentation}" PRESENTATION_PATH
+ask "  DI/Container layer path" "${DI_PATH_DEFAULT:-src/di}" DI_PATH
 
 echo -e "\n${GREEN}=== Git & Commit Configuration ===${NC}\n"
 
@@ -498,40 +779,43 @@ ask_bool "Run architecture validation before commit" "true" RUN_ARCHITECTURE_PRE
 
 echo -e "\n${GREEN}=== Naming Conventions ===${NC}\n"
 
-ask_select "Class file naming" "PascalCase|lowercase" "PascalCase" CLASS_FILE_CONVENTION
+ask_select "Class file naming" "PascalCase|lowercase" "${CLASS_FILE_CONVENTION_DEFAULT:-PascalCase}" CLASS_FILE_CONVENTION
 ask_select "Interface prefix" "I|none" "none" INTERFACE_PREFIX
 
-case "$LANGUAGE" in
-    "TypeScript"|"Java"|"C#")
-        FUNCTION_CONVENTION_DEFAULT="camelCase"
-        VARIABLE_CONVENTION_DEFAULT="camelCase"
-        CONSTANT_CONVENTION_DEFAULT="UPPER_SNAKE_CASE"
-        ;;
-    "Python"|"Rust")
-        FUNCTION_CONVENTION_DEFAULT="snake_case"
-        VARIABLE_CONVENTION_DEFAULT="snake_case"
-        CONSTANT_CONVENTION_DEFAULT="UPPER_SNAKE_CASE"
-        ;;
-    "Go")
-        FUNCTION_CONVENTION_DEFAULT="PascalCase"
-        VARIABLE_CONVENTION_DEFAULT="camelCase"
-        CONSTANT_CONVENTION_DEFAULT="PascalCase"
-        ;;
-    *)
-        FUNCTION_CONVENTION_DEFAULT="camelCase"
-        VARIABLE_CONVENTION_DEFAULT="camelCase"
-        CONSTANT_CONVENTION_DEFAULT="UPPER_SNAKE_CASE"
-        ;;
-esac
+# Set defaults based on language (only if not loaded from existing config)
+if [ "$IS_UPDATE" != "true" ] || [ -z "$FUNCTION_CONVENTION_DEFAULT" ]; then
+    case "$LANGUAGE" in
+        "TypeScript"|"Java"|"C#")
+            FUNCTION_CONVENTION_DEFAULT="${FUNCTION_CONVENTION_DEFAULT:-camelCase}"
+            VARIABLE_CONVENTION_DEFAULT="${VARIABLE_CONVENTION_DEFAULT:-camelCase}"
+            CONSTANT_CONVENTION_DEFAULT="${CONSTANT_CONVENTION_DEFAULT:-UPPER_SNAKE_CASE}"
+            ;;
+        "Python"|"Rust")
+            FUNCTION_CONVENTION_DEFAULT="${FUNCTION_CONVENTION_DEFAULT:-snake_case}"
+            VARIABLE_CONVENTION_DEFAULT="${VARIABLE_CONVENTION_DEFAULT:-snake_case}"
+            CONSTANT_CONVENTION_DEFAULT="${CONSTANT_CONVENTION_DEFAULT:-UPPER_SNAKE_CASE}"
+            ;;
+        "Go")
+            FUNCTION_CONVENTION_DEFAULT="${FUNCTION_CONVENTION_DEFAULT:-PascalCase}"
+            VARIABLE_CONVENTION_DEFAULT="${VARIABLE_CONVENTION_DEFAULT:-camelCase}"
+            CONSTANT_CONVENTION_DEFAULT="${CONSTANT_CONVENTION_DEFAULT:-PascalCase}"
+            ;;
+        *)
+            FUNCTION_CONVENTION_DEFAULT="${FUNCTION_CONVENTION_DEFAULT:-camelCase}"
+            VARIABLE_CONVENTION_DEFAULT="${VARIABLE_CONVENTION_DEFAULT:-camelCase}"
+            CONSTANT_CONVENTION_DEFAULT="${CONSTANT_CONVENTION_DEFAULT:-UPPER_SNAKE_CASE}"
+            ;;
+    esac
+fi
 
 ask_select "Function naming" "camelCase|snake_case|PascalCase" "$FUNCTION_CONVENTION_DEFAULT" FUNCTION_CONVENTION
 ask_select "Variable naming" "camelCase|snake_case" "$VARIABLE_CONVENTION_DEFAULT" VARIABLE_CONVENTION
 ask_select "Constant naming" "UPPER_SNAKE_CASE|camelCase|PascalCase" "$CONSTANT_CONVENTION_DEFAULT" CONSTANT_CONVENTION
-ask "Use case naming pattern" "VerbNoun" USE_CASE_PATTERN
+ask "Use case naming pattern" "${USE_CASE_PATTERN_DEFAULT:-VerbNoun}" USE_CASE_PATTERN
 
 echo -e "\n${GREEN}=== Task Tracking ===${NC}\n"
 
-ask_bool "Enable .spec/ task tracking" "true" TRACKING_ENABLED
+ask_bool "Enable .spec/ task tracking" "${TRACKING_ENABLED_DEFAULT:-true}" TRACKING_ENABLED
 
 echo -e "\n${GREEN}=== AI Assistant Configuration ===${NC}\n"
 
@@ -670,7 +954,7 @@ EOF
 
     echo -e "${GREEN}✓ Generated: .workflow/config.yml${NC}"
 else
-    echo -e "${YELLOW}⊘ Skipped: .workflow/config.yml (keeping existing)${NC}"
+    echo -e "${YELLOW}- Skipped: .workflow/config.yml (keeping existing)${NC}"
 fi
 
 # Process playbook templates
@@ -747,58 +1031,19 @@ else
     BUILD_COMMAND_SECTION=""
 fi
 
-# Test examples based on language
+# Test examples based on language (use printf to avoid shell parsing issues)
 case "$LANGUAGE" in
     "TypeScript"|"JavaScript")
-        TEST_EXAMPLES="\`\`\`typescript
-describe('$EXAMPLE_CLASS', () => {
-  it('should return user when valid id provided', () => {
-    // Arrange-Act-Assert
-  })
-
-  it('should throw error when user not found', () => {
-    // Arrange-Act-Assert
-  })
-})
-\`\`\`"
+        TEST_EXAMPLES=$(printf '%s\n' "\`\`\`typescript" "describe('${EXAMPLE_CLASS}', () => {" "  it('should return user when valid id provided', () => {" "    // Arrange-Act-Assert" "  })" "" "  it('should throw error when user not found', () => {" "    // Arrange-Act-Assert" "  })" "})" "\`\`\`")
         ;;
     "Python")
-        TEST_EXAMPLES="\`\`\`python
-class Test$EXAMPLE_CLASS:
-    def test_should_return_user_when_valid_id_provided(self):
-        # Arrange-Act-Assert
-        pass
-
-    def test_should_raise_error_when_user_not_found(self):
-        # Arrange-Act-Assert
-        pass
-\`\`\`"
+        TEST_EXAMPLES=$(printf '%s\n' "\`\`\`python" "class Test${EXAMPLE_CLASS}:" "    def test_should_return_user_when_valid_id_provided(self):" "        # Arrange-Act-Assert" "        pass" "" "    def test_should_raise_error_when_user_not_found(self):" "        # Arrange-Act-Assert" "        pass" "\`\`\`")
         ;;
     "Java")
-        TEST_EXAMPLES="\`\`\`java
-class ${EXAMPLE_CLASS}Test {
-    @Test
-    void shouldReturnUserWhenValidIdProvided() {
-        // Arrange-Act-Assert
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserNotFound() {
-        // Arrange-Act-Assert
-    }
-}
-\`\`\`"
+        TEST_EXAMPLES=$(printf '%s\n' "\`\`\`java" "class ${EXAMPLE_CLASS}Test {" "    @Test" "    void shouldReturnUserWhenValidIdProvided() {" "        // Arrange-Act-Assert" "    }" "" "    @Test" "    void shouldThrowExceptionWhenUserNotFound() {" "        // Arrange-Act-Assert" "    }" "}" "\`\`\`")
         ;;
     "Go")
-        TEST_EXAMPLES="\`\`\`go
-func Test${EXAMPLE_CLASS}_ShouldReturnUserWhenValidIdProvided(t *testing.T) {
-    // Arrange-Act-Assert
-}
-
-func Test${EXAMPLE_CLASS}_ShouldReturnErrorWhenUserNotFound(t *testing.T) {
-    // Arrange-Act-Assert
-}
-\`\`\`"
+        TEST_EXAMPLES=$(printf '%s\n' "\`\`\`go" "func Test${EXAMPLE_CLASS}_ShouldReturnUserWhenValidIdProvided(t *testing.T) {" "    // Arrange-Act-Assert" "}" "" "func Test${EXAMPLE_CLASS}_ShouldReturnErrorWhenUserNotFound(t *testing.T) {" "    // Arrange-Act-Assert" "}" "\`\`\`")
         ;;
     *)
         TEST_EXAMPLES=""
@@ -807,7 +1052,7 @@ esac
 
 # Claude Code optimizations section (conditionally included)
 if [ "$IS_CLAUDE_CODE" = "true" ]; then
-    CLAUDE_CODE_OPTIMIZATIONS=$(cat "$SCRIPT_DIR/templates/instructions/CLAUDE_CODE_OPTIMIZATIONS.md.template")
+    CLAUDE_CODE_OPTIMIZATIONS=$(envsubst < "$SCRIPT_DIR/templates/instructions/CLAUDE_CODE_OPTIMIZATIONS.md.template")
 else
     CLAUDE_CODE_OPTIMIZATIONS=""
 fi

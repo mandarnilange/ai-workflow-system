@@ -150,7 +150,7 @@ Step 3: Route to .workflow/playbooks/bugfix.md
 Step 4: Execute bugfix.md:
 
   ## Step 1: Root Cause Analysis
-  Analyzing file: ${DOMAIN_PATH}/${EXAMPLE_CLASS}.${LANGUAGE}
+  Analyzing file: ${DOMAIN_PATH}/${EXAMPLE_CLASS}${FILE_EXTENSION}
   Issue: Missing null check on line 45
 
   ## Step 2: Write Failing Test (TDD)
@@ -265,7 +265,7 @@ Running: ${TEST_COMMAND}
 Result: FAILED ✅ (Expected - test written first)
 
 🟢 GREEN: Implementing feature...
-Writing: ${DOMAIN_PATH}/${EXAMPLE_CLASS}.${LANGUAGE}
+Writing: ${DOMAIN_PATH}/${EXAMPLE_CLASS}${FILE_EXTENSION}
 Running: ${TEST_COMMAND}
 Result: ALL TESTS PASSING ✅
 
