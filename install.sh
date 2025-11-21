@@ -45,7 +45,7 @@ echo -e "${BLUE}Downloading AI Workflow System...${NC}"
 cd "$TEMP_DIR"
 
 # Create directory structure
-mkdir -p playbooks templates examples/typescript-express
+mkdir -p templates/playbooks templates/instructions templates/agents examples/typescript-express
 
 # Download core files
 echo -e "${YELLOW}Downloading core files...${NC}"
@@ -54,15 +54,27 @@ curl -sSL "$RAW_URL/config.template.yml" > config.template.yml
 curl -sSL "$RAW_URL/README.md" > README.md
 curl -sSL "$RAW_URL/LICENSE" > LICENSE
 
-# Download playbooks
-echo -e "${YELLOW}Downloading playbooks...${NC}"
-for playbook in coordinator feature bugfix commit tdd architecture-check reporting-guidelines; do
-    curl -sSL "$RAW_URL/playbooks/${playbook}.md" > "playbooks/${playbook}.md"
+# Download playbook templates
+echo -e "${YELLOW}Downloading playbook templates...${NC}"
+for playbook in coordinator feature bugfix commit tdd architecture-check reporting-guidelines run-lint run-tests prd-planning; do
+    curl -sSL "$RAW_URL/templates/playbooks/${playbook}.md.template" > "templates/playbooks/${playbook}.md.template"
 done
 
-# Download templates
-echo -e "${YELLOW}Downloading templates...${NC}"
-for template in feature bugfix overall-status; do
+# Download instruction templates
+echo -e "${YELLOW}Downloading instruction templates...${NC}"
+for template in AGENTS_INSTRUCTIONS CLAUDE_INSTRUCTIONS CLAUDE_CODE_OPTIMIZATIONS AGENTS CLAUDE USER_INSTRUCTIONS; do
+    curl -sSL "$RAW_URL/templates/instructions/${template}.md.template" > "templates/instructions/${template}.md.template"
+done
+
+# Download agent templates
+echo -e "${YELLOW}Downloading agent templates...${NC}"
+for agent in architecture-review lint test; do
+    curl -sSL "$RAW_URL/templates/agents/${agent}.md.template" > "templates/agents/${agent}.md.template"
+done
+
+# Download spec templates
+echo -e "${YELLOW}Downloading spec templates...${NC}"
+for template in feature bugfix overall-status prd; do
     curl -sSL "$RAW_URL/templates/${template}-template.md" > "templates/${template}-template.md"
 done
 
