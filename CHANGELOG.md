@@ -14,6 +14,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.0-beta] - 2025-11-12
+
+### Added
+- **PRD Planning Capability**: Comprehensive PRD planning workflow for multi-feature projects
+  - New PRD Planning playbook (`playbooks/prd-planning.md`)
+    - Plan multiple features from PRD input (any format)
+    - Automatic dependency analysis and phase recommendations
+    - Creates `.spec/` files with Status: Pending
+    - Updates `overall-status.md` dashboard
+    - Seamless transition to implementation workflow
+  - New PRD template (`templates/prd-template.md`)
+    - Optional structured PRD format
+    - Includes project overview, features, constraints
+    - Complete e-commerce MVP example
+  - Coordinator updates (`playbooks/coordinator.md`)
+    - Added PLAN intent detection
+    - Keywords: "plan", "PRD", "spec", "outline", "breakdown"
+    - Routes to prd-planning.md before FEATURE check
+    - Updated clarification options and examples
+
+- **Documentation**: Comprehensive comparison with GitHub Spec-Kit
+  - New comparison document (`docs/comparison-with-spec-kit.md`)
+  - 31-row detailed comparison table (planning, implementation, tracking)
+  - Philosophical differences and use case analysis
+  - Three-tier recommendation structure
+  - Migration paths and integration approaches
+  - Positions AI Workflow System as complete standalone solution
+
+### Changed
+- **README.md Updates**: Enhanced with PRD planning documentation
+  - Added PRD Planning to features list
+  - New workflow example: Planning a PRD with Multiple Features
+  - Updated playbooks list (1-10 numbered)
+  - Updated directory structure
+  - Added Related Documentation section with Spec-Kit comparison
+  - Three-tier recommendation for users
+
+### Improved
+- **Workflow Enhancement**: Addressed limitation of single-feature-at-a-time workflow
+  - Users can now plan entire PRDs upfront before implementation
+  - Automatic dependency analysis with implementation order recommendations
+  - Seamless planning → implementation workflow in single system
+  - Competitive with GitHub Spec-Kit for PRD planning while maintaining superior implementation quality enforcement (TDD + Clean Architecture)
+
+### Workflow Example
+1. "Plan PRD with features A, B, C" → creates `.spec/001-003` (Pending)
+2. "Implement feature 001" → TDD workflow → Completed
+3. Repeat for remaining features
+
+---
+
 ## [0.5.0-beta] - 2025-01-11
 
 ### Added
@@ -301,6 +352,10 @@ Report issues at: https://github.com/mandarnilange/ai-workflow-system/issues
 
 ---
 
-[Unreleased]: https://github.com/mandarnilange/ai-workflow-system/compare/v0.2.0-beta...HEAD
+[Unreleased]: https://github.com/mandarnilange/ai-workflow-system/compare/v0.6.0-beta...HEAD
+[0.6.0-beta]: https://github.com/mandarnilange/ai-workflow-system/compare/v0.5.0-beta...v0.6.0-beta
+[0.5.0-beta]: https://github.com/mandarnilange/ai-workflow-system/compare/v0.4.0-beta...v0.5.0-beta
+[0.4.0-beta]: https://github.com/mandarnilange/ai-workflow-system/compare/v0.3.0-beta...v0.4.0-beta
+[0.3.0-beta]: https://github.com/mandarnilange/ai-workflow-system/compare/v0.2.0-beta...v0.3.0-beta
 [0.2.0-beta]: https://github.com/mandarnilange/ai-workflow-system/compare/v0.1.0-beta...v0.2.0-beta
 [0.1.0-beta]: https://github.com/mandarnilange/ai-workflow-system/releases/tag/v0.1.0-beta
