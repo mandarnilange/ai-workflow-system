@@ -25,3 +25,31 @@ describe('GET /api/users', () => {
     });
   });
 });
+
+describe('GET /api/users/:id', () => {
+  it('should return 200 OK with user object when user exists', async () => {
+    // Arrange
+    const app = createApp();
+
+    // Act
+    const response = await request(app).get('/api/users/1');
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('id', '1');
+    expect(response.body).toHaveProperty('name', 'Alice Johnson');
+    expect(response.body).toHaveProperty('email', 'alice@example.com');
+  });
+
+  it('should return 404 when user does not exist', async () => {
+    // Arrange
+    const app = createApp();
+
+    // Act
+    const response = await request(app).get('/api/users/999');
+
+    // Assert
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('error', 'User not found');
+  });
+});

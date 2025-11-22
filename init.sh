@@ -154,6 +154,7 @@ parse_config_yml() {
 
     # Parse project section (use flag-based approach to extract section content)
     PROJECT_NAME=$(awk '/^project:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  name:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
+    PROJECT_DESCRIPTION=$(awk '/^project:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  description:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
     LANGUAGE=$(awk '/^project:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  language:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
     FRAMEWORK=$(awk '/^project:/{f=1;next}/^[a-z_]+:/{f=0}f&&/^  framework:/{print}' "$config_file" | sed 's/.*: "\(.*\)"/\1/' | sed 's/.*: \(.*\)/\1/' | tr -d '"')
 
@@ -476,6 +477,7 @@ if [ "$IS_UPDATE" = "true" ]; then
 
     # Set defaults to current values
     PROJECT_NAME_DEFAULT="$PROJECT_NAME"
+    PROJECT_DESCRIPTION_DEFAULT="$PROJECT_DESCRIPTION"
     LANGUAGE_DEFAULT="$LANGUAGE"
     FRAMEWORK_DEFAULT="$FRAMEWORK"
     TEST_FRAMEWORK_DEFAULT="$TEST_FRAMEWORK"
@@ -507,6 +509,7 @@ if [ "$IS_UPDATE" = "true" ]; then
 else
     # Fresh install - use hardcoded defaults
     PROJECT_NAME_DEFAULT="My Project"
+    PROJECT_DESCRIPTION_DEFAULT="A sample project"
     LANGUAGE_DEFAULT="TypeScript"
     FRAMEWORK_DEFAULT="Express.js"
     COVERAGE_REQUIREMENT_DEFAULT="100"
@@ -525,7 +528,7 @@ fi
 echo -e "\n${GREEN}=== Project Information ===${NC}\n"
 
 ask "Project name" "$PROJECT_NAME_DEFAULT" PROJECT_NAME
-ask "Project description" "A sample project" PROJECT_DESCRIPTION
+ask "Project description" "$PROJECT_DESCRIPTION_DEFAULT" PROJECT_DESCRIPTION
 
 ask_select "Programming language" "TypeScript|Python|Java|Go|Rust|C#|Other" "$LANGUAGE_DEFAULT" LANGUAGE
 ask "Framework (e.g., Express.js, FastAPI, Spring Boot)" "$FRAMEWORK_DEFAULT" FRAMEWORK

@@ -3,6 +3,7 @@ import { HealthController } from './HealthController';
 import { GetHealthStatus } from '../application/GetHealthStatus';
 import { UsersController } from './UsersController';
 import { GetUsers } from '../application/GetUsers';
+import { GetUserById } from '../application/GetUserById';
 
 export function createApp(): Express {
   const app = express();
@@ -15,11 +16,13 @@ export function createApp(): Express {
   const healthController = new HealthController(getHealthStatus);
 
   const getUsers = new GetUsers();
-  const usersController = new UsersController(getUsers);
+  const getUserById = new GetUserById();
+  const usersController = new UsersController(getUsers, getUserById);
 
   // Routes
   app.get('/healthz', (req, res) => healthController.getHealth(req, res));
   app.get('/api/users', (req, res) => usersController.getUsers(req, res));
+  app.get('/api/users/:id', (req, res) => usersController.getUserById(req, res));
 
   return app;
 }
